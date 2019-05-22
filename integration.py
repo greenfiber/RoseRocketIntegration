@@ -31,9 +31,7 @@ class RoseRocketIntegration():
         '921': 'GFDebert'
     
     }
-    for org in orgs:
-        if data.WAREHOUSECODE == org:
-            apiurl='{}.usa.roserocket.com'.format(orgs.get(org))
+    
     
     data=db.getAllData()
     def sendData(self, data):
@@ -51,7 +49,12 @@ class RoseRocketIntegration():
         failedorders = []
 
         for order in data:
-
+            for org in orgs:
+                if str(order.WAREHOUSECODE) == str(org):
+                    try:
+                        apiurl='{}.usa.roserocket.com'.format(orgs.get(org))
+                    except:
+                        logging.error('error in URL generation; missing plant lookup')
             # sets shipment service type based on order quantity
             if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
                 ServiceTypeCode = "TL"
