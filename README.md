@@ -1,0 +1,1 @@
+This repo is for the Sage to Rose Rocket Integration. Phase 1 will consist of order creation, order edit, and automatic CSV generation for shipped orders.
