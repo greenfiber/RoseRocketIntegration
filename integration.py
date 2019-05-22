@@ -16,7 +16,20 @@ class RoseRocketIntegration():
 
             
         }
-    orgs={}
+    orgs={
+        '130':'Norfolk',
+        '161':'Waco',
+        '310':'Tampa',
+        '336':'Delphos',
+        '810':'Chandler',
+        '841':'Salt Lake City - Recycling',
+        '842':'Salt Lake City - Plant',
+        '845': 'Salt Lake City - Plant2',
+        '906': "Wilkes-Barre",
+        '920': 'Vars',
+        '921': 'Debert'
+    
+    }
     for org in orgs:
         pass
     apiurl = ""
