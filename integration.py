@@ -32,8 +32,9 @@ class RoseRocketIntegration():
     
     }
     for org in orgs:
-        pass
-    apiurl = ""
+        if data.WAREHOUSECODE == org:
+            apiurl='{}.usa.roserocket.com'.format(orgs.get(org))
+    
     data=db.getAllData()
     def sendData(self, data):
         logging.debug("Starting sync...")
