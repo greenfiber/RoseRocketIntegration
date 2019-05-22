@@ -16,18 +16,19 @@ class RoseRocketIntegration():
 
             
         }
+    #warehousecode:warehousename
     orgs={
-        '130':'Norfolk',
-        '161':'Waco',
-        '310':'Tampa',
-        '336':'Delphos',
-        '810':'Chandler',
-        '841':'Salt Lake City - Recycling',
-        '842':'Salt Lake City - Plant',
-        '845': 'Salt Lake City - Plant2',
-        '906': "Wilkes-Barre",
-        '920': 'Vars',
-        '921': 'Debert'
+        '130':'GFNorfolk',
+        '161':'GFWaco',
+        '310':'GFTampa',
+        '336':'GFDelphos',
+        '810':'GFChandler',
+        '841':'GFSLC',
+        '842':'GFSLC',
+        '845': 'GFSLC',
+        '906': "GFWilkes-Barre",
+        '920': 'GFVars',
+        '921': 'GFDebert'
     
     }
     for org in orgs:
