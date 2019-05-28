@@ -266,3 +266,37 @@ class RoseRocketIntegration():
                                       str(order.SALESORDERNO))
 
                         failedorders.append(order.SALESORDERNO)
+    def syncCustomers(self,data):
+        for order in data:
+            params={
+                        "CustomerCode": order.ARDIVISIONNO + order.CUSTOMERNO,
+                        "CustomerName": order.BILLTONAME,
+                        "CustomerAddress": {
+                            "Address1": order.BILLTOADDRESS1,
+                            "Address2": order.BILLTOADDRESS2,
+                            "City": order.BILLTOCITY,
+                            "State": order.BILLTOSTATE,
+                            "PostalCode": order.BILLTOZIPCODE,
+                            "CountryCode": "US"
+                            
+
+                        },
+                        "ContactName": order.BILLTONAME}
+          
+            r = requests.post(
+            self.apiurl, json=params, headers=self.headers)
+            
+            resp = simplejson.loads(r.text)
+           
+            #sentorders.append(order.SALESORDERNO)
+            if(str(resp['Success']) == str('True')):
+                #print("Send was successful! " + str(recordcount))
+                logging.info(
+                    "Send was successful for customer: " + str(order.CUSTOMERNO))
+               
+                
+            else:
+                #print("SVAPI reports an Error when sending data")
+                # TODO: reason why it failed
+                logging.error("Error when sending Customer " +
+                            str(order.CUSTOMERNO))
