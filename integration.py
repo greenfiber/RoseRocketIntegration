@@ -11,7 +11,67 @@ from backend import RoseRocketIntegrationBackend as db
 class RoseRocketIntegration():
     def __init__(self,orgname):
         self.orgname=orgname
-        
+    def logStart(self):
+        logging.basicConfig(filename='C:\\svsync\\sync.log', level=logging.DEBUG,
+                        format='%(asctime)s:%(levelname)s:%(message)s')
+
+    def processComments(self,comments):
+        concat=""
+        for comment in comments:
+            concat += comment +" "
+        return concat
+    # this method parses the combined pieces from line items for the salesorders
+    def processPieces(self, lines, data, desc, products):
+        lindesc = desc.split('|')
+        items = lines.split('|')
+        prods = products.split('|')
+        piecesData = []
+        for i in range(0, len(prods)-1):
+            try:
+                # there's something wrong with this depending on data from SQL
+                qty = int(float(items[i]))
+            except ValueError:
+               # print("Quantity was blank")
+                logging.warning("Quantity was blank and threw an exception")
+            if(data.CUSTOMERNO == 'HOMEDCO' or data.CUSTOMERNO == 'HOMERDC'): #this is needed for homedepot orders only
+                nmfc = '10330'
+                pieceClass = '100'
+            else:
+                nmfc=''
+                pieceClass=''
+
+            pieces = {
+                "Quantity": qty,
+                "Weight": data.SHIPWEIGHT,
+                "WeightType": "each",
+                "UnitOfMeasure": "in",
+                "Description": lindesc[i],
+                "ProductCode": prods[i],
+                "NMFC":nmfc,
+                "Class":pieceClass,
+                "Type": "BAGS"
+            }
+            #check if special sku is in products array
+            #item code didn't work as that line might have diff sku
+            if("INS765LD/E" in prods[i]):
+                pieces = {
+                "Quantity": qty,
+                "Weight": "30",
+                "WeightType": "each",
+                "UnitOfMeasure": "in",
+                "Description": lindesc[i],
+                "ProductCode": prods[i],
+                "NMFC":nmfc,
+                "Class":pieceClass,
+                "Type": "BAGS"
+            }
+            # don't append items with slashes in pieces
+            if("/" not in prods[i]):
+                piecesData.append(pieces)
+            elif("/NOINV" in prods[i] or "/MISC" in prods[i] or "INS765LD/E" in prods[i]):
+                piecesData.append(pieces)
+            i += 1
+        return piecesData
     headers = {
 
             
