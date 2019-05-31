@@ -6,13 +6,15 @@ import ftputil
 import csv
 import logging
 from shutil import copy2,move
-from backend import RoseRocketIntegrationBackend as db
+from backend import RoseRocketIntegrationBackend 
 
 class RoseRocketIntegration():
+    db = RoseRocketIntegrationBackend()
     headers = {
 
             
         }
+    apiurl=''
     #warehousecode:warehousename
     orgs={
         '130':'GFNorfolk',
@@ -110,7 +112,16 @@ class RoseRocketIntegration():
                 piecesData.append(pieces)
             i += 1
         return piecesData
-  
+    
+    def formatDate(self, data):
+        try:
+            fd = str(data[0:4]) + "/"+str(data[4:6])+"/"+str(data[6:8])
+            return fd
+        except:
+        #print("error in formatting date ")
+            logging.error("Format date error")
+
+
     def sendData(self, data):
         logging.debug("Starting sync...")
         logging.info("=====================================")
