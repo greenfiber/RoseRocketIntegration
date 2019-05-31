@@ -9,11 +9,49 @@ from shutil import copy2,move
 from backend import RoseRocketIntegrationBackend as db
 
 class RoseRocketIntegration():
+    headers = {
+
+            
+        }
+    #warehousecode:warehousename
+    orgs={
+        '130':'GFNorfolk',
+        '161':'GFWaco',
+        '310':'GFTampa',
+        '336':'GFDelphos',
+        '810':'GFChandler',
+        '841':'GFSLC',
+        '842':'GFSLC',
+        '845': 'GFSLC',
+        '906': "GFWilkes-Barre",
+        '920': 'GFVars',
+        '921': 'GFDebert'
+    
+    }
+    
+    
+    data=db.getAllData()
     def __init__(self,orgname):
         self.orgname=orgname
     def logStart(self):
         logging.basicConfig(filename='C:\\svsync\\sync.log', level=logging.DEBUG,
                         format='%(asctime)s:%(levelname)s:%(message)s')
+
+    def authorg(self, clientid, secretid):
+        authurl='https://auth.roserocket.com/oauth2/token'
+        authheader=''
+        params = {
+            "grant_type": "password",
+            "username": "",
+            "password": "",
+            "client_id":"",
+            "client_secret":""
+
+
+        }
+        r = requests.post(
+                        authurl, json=params, headers=authheader)
+        resp = simplejson.loads(r.text)
 
     def processComments(self,comments):
         concat=""
@@ -72,28 +110,7 @@ class RoseRocketIntegration():
                 piecesData.append(pieces)
             i += 1
         return piecesData
-    headers = {
-
-            
-        }
-    #warehousecode:warehousename
-    orgs={
-        '130':'GFNorfolk',
-        '161':'GFWaco',
-        '310':'GFTampa',
-        '336':'GFDelphos',
-        '810':'GFChandler',
-        '841':'GFSLC',
-        '842':'GFSLC',
-        '845': 'GFSLC',
-        '906': "GFWilkes-Barre",
-        '920': 'GFVars',
-        '921': 'GFDebert'
-    
-    }
-    .
-    
-    data=db.getAllData()
+  
     def sendData(self, data):
         logging.debug("Starting sync...")
         logging.info("=====================================")
