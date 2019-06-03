@@ -7,7 +7,7 @@ import csv
 import logging
 from shutil import copy2,move
 from backend import RoseRocketIntegrationBackend 
-
+from secret import Secret as pw
 class RoseRocketIntegration():
     db = RoseRocketIntegrationBackend()
     headers = {
