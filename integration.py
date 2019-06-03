@@ -41,19 +41,19 @@ class RoseRocketIntegration():
 
     def authorg(self, clientid, secretid):
         authurl='https://auth.roserocket.com/oauth2/token'
-        authheader=''
+        authheader={'Accept': 'application/json',}
         params = {
             "grant_type": "password",
-            "username": "",
-            "password": "",
-            "client_id":"",
-            "client_secret":""
+            "username": pw.rruser,
+            "password": pw.rrpw,
+            "client_id":pw.wbclientid,
+            "client_secret":pw.wbsecret
 
 
         }
-        r = requests.post(
-                        authurl, json=params, headers=authheader)
-        resp = simplejson.loads(r.text)
+
+        r = requests.post(authurl, json=params, headers=authheader)
+        return simplejson.loads(r.text)
 
     def processComments(self,comments):
         concat=""
