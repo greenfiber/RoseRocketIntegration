@@ -7,7 +7,7 @@ import csv
 import logging
 from shutil import copy2,move
 from backend import RoseRocketIntegrationBackend 
-from secret import Secret as pw
+from secret import secrets as pw
 
 class GFOrg():
     def __init__(self):
@@ -34,10 +34,7 @@ class GFOrg():
 
 class RoseRocketIntegration():
     db = RoseRocketIntegrationBackend()
-    headers = {
-
-            
-        }
+    
     apiurl=''
     #warehousecode:warehousename
     orgs={
@@ -65,7 +62,7 @@ class RoseRocketIntegration():
 
     def authorg(self, whcode):
         authurl='https://auth.sandbox01.roserocket.com/oauth2/token'
-        authheader={'Accept': 'application/json',}
+        authheader={'Accept': 'application/json'}
 
         params = {
             "grant_type": "password",
@@ -79,7 +76,7 @@ class RoseRocketIntegration():
 
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
-        return resp['data']['access_token']
+        pw.orgs[whcode]['accesstoken']=resp['data']['access_token']
 
     def processComments(self,comments):
         concat=""
@@ -153,7 +150,12 @@ class RoseRocketIntegration():
         logging.info("=====================================")
         logging.info("NEW SYNC STARTED!")
         logging.info("=====================================")
-        
+        headers = {
+         'Accept': 'application/json',
+        'Authorization': 'Bearer {}'.format(self.authorg(data.whcode))
+
+            
+        }
         recordcount = 0
         # keeps track of sent SO#s
         ordernos = []
@@ -267,7 +269,7 @@ class RoseRocketIntegration():
                         #print("Valid record: " + order.ITEMCODE)
 
                         r = requests.post(
-                            self.apiurl, json=params, headers=self.headers)
+                            self.apiurl, json=params, headers=headers)
                         resp = r.json()
 
                         if(str(resp['Success']) == str('True')):
@@ -300,7 +302,7 @@ class RoseRocketIntegration():
                     ordernos.append(order.SALESORDERNO)
                    # print("Valid record: " + order.ITEMCODE)
                     r = requests.post(
-                        self.apiurl, json=params, headers=self.headers)
+                        self.apiurl, json=params, headers=headers)
                     resp = simplejson.loads(r.text)
                     #sentorders.append(order.SALESORDERNO)
                     if(str(resp['Success']) == str('True')):
@@ -331,7 +333,7 @@ class RoseRocketIntegration():
 
                         },
                         "ContactName": order.BILLTONAME}
-          
+          #@todo:fix headers
             r = requests.post(
             self.apiurl, json=params, headers=self.headers)
             
