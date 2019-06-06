@@ -53,7 +53,7 @@ class RoseRocketIntegration():
         }
 
         r = requests.post(authurl, json=params, headers=authheader)
-        return simplejson.loads(r.text)
+        return r.json()
 
     def processComments(self,comments):
         concat=""
@@ -242,7 +242,7 @@ class RoseRocketIntegration():
 
                         r = requests.post(
                             self.apiurl, json=params, headers=self.headers)
-                        resp = simplejson.loads(r.text)
+                        resp = r.json()
 
                         if(str(resp['Success']) == str('True')):
                             #print("Send was successful! " + str(recordcount))
@@ -309,7 +309,7 @@ class RoseRocketIntegration():
             r = requests.post(
             self.apiurl, json=params, headers=self.headers)
             
-            resp = simplejson.loads(r.text)
+            resp = r.json()
            
             #sentorders.append(order.SALESORDERNO)
             if(str(resp['Success']) == str('True')):
