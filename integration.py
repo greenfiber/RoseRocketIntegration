@@ -8,6 +8,30 @@ import logging
 from shutil import copy2,move
 from backend import RoseRocketIntegrationBackend 
 from secret import Secret as pw
+
+class GFOrg():
+    def __init__(self):
+        self.orgs=orgs={
+        '130':{'orgname':'GFNorfolk',
+        'clientid':'',
+        'secretid':'', 'accesstoken':''},
+        '161':'GFWaco',
+        '310':'GFTampa',
+        '336':'GFDelphos',
+        '810':'GFChandler',
+        '841':'GFSLC',
+        '842':'GFSLC',
+        '845': 'GFSLC',
+        '906': {'orgname':"GFWilkes-Barre",
+        'clientid':'','secretid':'','accesstoken':''},
+        '920': 'GFVars',
+        '921': 'GFDebert'
+    
+        }
+    def getOrgs(self):
+        return self.orgs
+
+
 class RoseRocketIntegration():
     db = RoseRocketIntegrationBackend()
     headers = {
@@ -39,21 +63,23 @@ class RoseRocketIntegration():
         logging.basicConfig(filename='C:\\svsync\\sync.log', level=logging.DEBUG,
                         format='%(asctime)s:%(levelname)s:%(message)s')
 
-    def authorg(self, clientid, secretid):
+    def authorg(self, whcode):
         authurl='https://auth.sandbox01.roserocket.com/oauth2/token'
         authheader={'Accept': 'application/json',}
+
         params = {
             "grant_type": "password",
             "username": pw.rruser,
             "password": pw.rrpw,
-            "client_id":pw.wbclientid,
-            "client_secret":pw.wbsecret
+            "client_id":pw.orgs[whcode]['clientid'],
+            "client_secret":pw.orgs[whcode]['secretid']
 
 
         }
 
         r = requests.post(authurl, json=params, headers=authheader)
-        return r.json()
+        resp = r.json()
+        return resp['data']['access_token']
 
     def processComments(self,comments):
         concat=""
