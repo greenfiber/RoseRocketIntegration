@@ -188,19 +188,19 @@ class RoseRocketIntegration():
             params = {
 
 
-                "Consignee": {
-                    "CustomerName": order.SHIPTONAME,
-                    "Reference": str(order.PURCHASEORDERNO),
-                    "CustomerAddress": {
-                        "Address1": order.SHIPTOADDRESS1,
-                        "Address2": order.SHIPTOADDRESS2,
-                        "City": order.SHIPTOCITY,
-                        "State": order.SHIPTOSTATE,
-                        "PostalCode": order.SHIPTOZIPCODE,
-                        "CountryCode": "US",  # REPLACE THIS WITH COLUMN
+                "destination": {
+                    "contact_name": order.SHIPTONAME,
+                    
+            
+                    "address_1": order.SHIPTOADDRESS1,
+                    "address_2": order.SHIPTOADDRESS2,
+                    "city": order.SHIPTOCITY,
+                    "state": order.SHIPTOSTATE,
+                    "postal": order.SHIPTOZIPCODE,
+                    "country": "US",  # REPLACE THIS WITH COLUMN
 
-                    },
-                    "Phone": order.TELEPHONENO
+                    
+                    "phone": order.TELEPHONENO
                 },  # end of consignee
 
 
