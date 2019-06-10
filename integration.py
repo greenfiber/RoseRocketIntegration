@@ -204,14 +204,14 @@ class RoseRocketIntegration():
                 },  # end of consignee
 
 
-                "Shipper": {"CustomerName": plantInfo["plantName"], "CustomerAddress": {
-                    "Address1": plantInfo["Address1"],
-                    "Address2": plantInfo["Address2"],
-                    "City": plantInfo["City"],
-                    "State": plantInfo["State"],
-                    "PostalCode": plantInfo["PostalCode"],
-                    "CountryCode": plantInfo["CountryCode"]
-                }, "Phone": plantInfo["plantPhoneNumber"]
+                "origin": {"contact_name": plantInfo["plantName"],
+                    "address_1": plantInfo["Address1"],
+                    "address_2": plantInfo["Address2"],
+                    "city": plantInfo["City"],
+                    "state": plantInfo["State"],
+                    "postal": plantInfo["PostalCode"],
+                    "country": plantInfo["CountryCode"]
+                 "phone": plantInfo["plantPhoneNumber"]
 
                 },  # end of shipper
 
@@ -225,24 +225,24 @@ class RoseRocketIntegration():
                 "ServiceTypeCode": str(ServiceTypeCode),
                 "PaymentCode":fob,
 
-                "BillTo": {
-                    "BillToCode": order.ARDIVISIONNO + order.CUSTOMERNO,
-                    "BillToName": order.BILLTONAME,
-                    "BillToAddress": {
-                        "Address1": order.BILLTOADDRESS1,
-                        "Address2": order.BILLTOADDRESS2,
-                        "City": order.BILLTOCITY,
-                        "State": order.BILLTOSTATE,
-                        "PostalCode": order.BILLTOZIPCODE,
-                        "CountryCode": "US",  # REPLACE THIS WITH COLUMN
-                        "Reference": order.PURCHASEORDERNO
+                "billing": {
+                    "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
+                    "contact_name": order.BILLTONAME,
+                    
+                        "address_1": order.BILLTOADDRESS1,
+                        "address_2": order.BILLTOADDRESS2,
+                        "city": order.BILLTOCITY,
+                        "state": order.BILLTOSTATE,
+                        "postal": order.BILLTOZIPCODE,
+                        "country": "US",  # REPLACE THIS WITH COLUMN
+                    
 
-                    },
-                    "ContactFirstName": order.BILLTONAME
+                    
+                    
                 },  # end of billto
-
+                "po_num":order.PURCHASEORDERNO,
                 # end of pieces
-                "PiecesDetail": self.processPieces(order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES),
+                "commodities": self.processPieces(order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES),
 
                 "NotesAndDescriptions": {
                     # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
