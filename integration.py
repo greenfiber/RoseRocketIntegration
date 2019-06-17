@@ -1,6 +1,6 @@
 
 import requests
-import simplejson
+# import simplejson
 import pysftp
 import ftputil
 import csv
@@ -254,7 +254,7 @@ class RoseRocketIntegration():
                     if(order.SALESORDERNO != ordernos.pop()):
                        
                         #sets apiurl for the correct customer for this order
-                        apiurl='https://platform.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+                        apiurl='https://sandbox01.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
                         r = requests.post(
                             apiurl, json=params, headers=headers)
                         resp = r.json()
@@ -291,10 +291,10 @@ class RoseRocketIntegration():
 
 
                     #sets apiurl for the correct customer for this order
-                    apiurl='https://platform.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+                    apiurl='https://sandbox01.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
                     r = requests.post(
                         apiurl, json=params, headers=headers)
-                    resp = simplejson.loads(r.text)
+                    resp = r.json()
                     #sentorders.append(order.SALESORDERNO)
                     if(str(resp['Success']) == str('True')):
                         #print("Send was successful! " + str(recordcount))
@@ -309,7 +309,7 @@ class RoseRocketIntegration():
 
                         failedorders.append(order.SALESORDERNO)
     def synccustomers(self,data):
-        apiurl='https://platform.roserocket.com/v1/customers'
+        apiurl='https://sandbox01.roserocket.com/v1/customers'
         for order in data:
             headers = {
          'Accept': 'application/json',
