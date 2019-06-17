@@ -1,5 +1,6 @@
 import pyodbc
-from pws import Secrets as secrets
+import logging
+from secret import secrets as secrets
 cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
 
 class RoseRocketIntegrationBackend():
@@ -49,7 +50,7 @@ class RoseRocketIntegrationBackend():
         nCount = 0
         custCount = 0
 
-        cursor = SVDataSync.cx.cursor()
+        cursor = cx.cursor()
         cursor.execute(query)
         rows = cursor.fetchall()
         data = []
@@ -81,7 +82,7 @@ class RoseRocketIntegrationBackend():
         FROM [SVExportStaging].[dbo].[PlantInfo]
         WHERE [WAREHOUSECODE]=?
          """
-        cursor = SVDataSync.cx.cursor()
+        cursor = cx.cursor()
         try:
             cursor.execute(query, whcode)
         except:
