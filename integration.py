@@ -347,7 +347,7 @@ class RoseRocketIntegration():
 
 
 if __name__ == "__main__":
-    data = RoseRocketIntegrationBackend().getAllData()
+    data = RoseRocketIntegrationBackend().getTestData()
     rr = RoseRocketIntegration()
     rr.synccustomers(data)
     rr.sendData(data)
