@@ -123,8 +123,8 @@ class RoseRocketIntegration():
     
     def formatDate(self, data):
         try:
-            fd = str(datetime.strptime(data,'%Y/%m/%d'))
-            return fd
+            fd = datetime.strptime(data,'%Y/%m/%d').isoformat()
+            return str(fd)
         except:
         #print("error in formatting date ")
             logging.error("Format date error")
