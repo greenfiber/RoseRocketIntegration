@@ -9,27 +9,6 @@ from shutil import copy2,move
 from backend import RoseRocketIntegrationBackend 
 from secret import secrets as pw
 
-class GFOrg():
-    def __init__(self):
-        self.orgs=orgs={
-        '130':{'orgname':'GFNorfolk',
-        'clientid':'',
-        'secretid':'', 'accesstoken':''},
-        '161':'GFWaco',
-        '310':'GFTampa',
-        '336':'GFDelphos',
-        '810':'GFChandler',
-        '841':'GFSLC',
-        '842':'GFSLC',
-        '845': 'GFSLC',
-        '906': {'orgname':"GFWilkes-Barre",
-        'clientid':'','secretid':'','accesstoken':''},
-        '920': 'GFVars',
-        '921': 'GFDebert'
-    
-        }
-    def getOrgs(self):
-        return self.orgs
 
 
 class RoseRocketIntegration():
