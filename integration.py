@@ -136,6 +136,7 @@ class RoseRocketIntegration():
 
             
         }
+        
         recordcount = 0
         # keeps track of sent SO#s
         ordernos = []
@@ -145,7 +146,7 @@ class RoseRocketIntegration():
         failedorders = []
 
         for order in data:
-        
+            
             # sets shipment service type based on order quantity
             if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
                 ServiceTypeCode = "TL"
@@ -246,10 +247,11 @@ class RoseRocketIntegration():
                     # checks if the current SO is not equal to the last order submitted
                     # if they are the same then that means it is a duplicate and shouldn't be sent
                     if(order.SALESORDERNO != ordernos.pop()):
-                        #print("Valid record: " + order.ITEMCODE)
-
+                       
+                        #sets apiurl for the correct customer for this order
+                        apiurl='https://platform.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
                         r = requests.post(
-                            self.apiurl, json=params, headers=headers)
+                            apiurl, json=params, headers=headers)
                         resp = r.json()
 
                         if(str(resp['Success']) == str('True')):
@@ -281,8 +283,12 @@ class RoseRocketIntegration():
                     # this is what keeps track of any extra lines still in db
                     ordernos.append(order.SALESORDERNO)
                    # print("Valid record: " + order.ITEMCODE)
+
+
+                    #sets apiurl for the correct customer for this order
+                    apiurl='https://platform.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
                     r = requests.post(
-                        self.apiurl, json=params, headers=headers)
+                        apiurl, json=params, headers=headers)
                     resp = simplejson.loads(r.text)
                     #sentorders.append(order.SALESORDERNO)
                     if(str(resp['Success']) == str('True')):
