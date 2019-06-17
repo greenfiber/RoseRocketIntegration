@@ -5,6 +5,8 @@ import pysftp
 import ftputil
 import csv
 import logging
+from datetime import datetime
+from time import strftime,strptime
 from shutil import copy2,move
 from backend import RoseRocketIntegrationBackend 
 from secret import secrets as pw
@@ -117,7 +119,7 @@ class RoseRocketIntegration():
     
     def formatDate(self, data):
         try:
-            fd = str(data[0:4]) + "/"+str(data[4:6])+"/"+str(data[6:8])
+            fd = str(datetime.strptime(data,'%Y/%m/%d'))
             return fd
         except:
         #print("error in formatting date ")
