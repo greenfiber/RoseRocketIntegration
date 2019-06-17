@@ -84,29 +84,34 @@ class RoseRocketIntegration():
                 pieceClass=''
 
             pieces = {
-                "Quantity": qty,
-                "Weight": data.SHIPWEIGHT,
-                "WeightType": "each",
+                "weight_unit":"lb",
+                "freight_class":pieceClass,
+
+                "quantity": qty,
+                "weight": data.SHIPWEIGHT,
+                
                 "UnitOfMeasure": "in",
-                "Description": lindesc[i],
-                "ProductCode": prods[i],
-                "NMFC":nmfc,
-                "Class":pieceClass,
-                "Type": "BAGS"
+                "description": lindesc[i],
+                "sku": prods[i],
+                "nmfc":nmfc,
+                "commodity_type":"other"
+                
             }
             #check if special sku is in products array
             #item code didn't work as that line might have diff sku
             if("INS765LD/E" in prods[i]):
                 pieces = {
-                "Quantity": qty,
-                "Weight": "30",
-                "WeightType": "each",
+                "weight_unit":"lb",
+                "freight_class":pieceClass,
+
+                "quantity": qty,
+                "weight": data.SHIPWEIGHT,
+                
                 "UnitOfMeasure": "in",
-                "Description": lindesc[i],
-                "ProductCode": prods[i],
-                "NMFC":nmfc,
-                "Class":pieceClass,
-                "Type": "BAGS"
+                "description": lindesc[i],
+                "sku": prods[i],
+                "nmfc":nmfc,
+                "commodity_type":"other"
             }
             # don't append items with slashes in pieces
             if("/" not in prods[i]):
