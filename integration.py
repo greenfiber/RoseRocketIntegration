@@ -210,7 +210,7 @@ class RoseRocketIntegration():
                     "city": plantInfo["City"],
                     "state": plantInfo["State"],
                     "postal": plantInfo["PostalCode"],
-                    "country": plantInfo["CountryCode"]
+                    "country": plantInfo["CountryCode"],
                  "phone": plantInfo["plantPhoneNumber"]
 
                 },  # end of shipper
@@ -319,6 +319,12 @@ class RoseRocketIntegration():
                         failedorders.append(order.SALESORDERNO)
     def syncCustomers(self,data):
         for order in data:
+            headers = {
+         'Accept': 'application/json',
+        'Authorization': 'Bearer {}'.format(self.authorg(data.whcode))
+
+            
+        }
             params={
                         "CustomerCode": order.ARDIVISIONNO + order.CUSTOMERNO,
                         "CustomerName": order.BILLTONAME,
@@ -335,7 +341,7 @@ class RoseRocketIntegration():
                         "ContactName": order.BILLTONAME}
           #@todo:fix headers
             r = requests.post(
-            self.apiurl, json=params, headers=self.headers)
+            self.apiurl, json=params, headers=headers)
             
             resp = r.json()
            
