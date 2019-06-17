@@ -35,8 +35,7 @@ class RoseRocketIntegration():
     
     
     data=db.getAllData()
-    def __init__(self,orgname):
-        self.orgname=orgname
+
     def logStart(self):
         logging.basicConfig(filename='C:\\svsync\\sync.log', level=logging.DEBUG,
                         format='%(asctime)s:%(levelname)s:%(message)s')
@@ -298,7 +297,8 @@ class RoseRocketIntegration():
                                       str(order.SALESORDERNO))
 
                         failedorders.append(order.SALESORDERNO)
-    def syncCustomers(self,data):
+    def synccustomers(self,data):
+        apiurl='https://platform.roserocket.com/v1/customers'
         for order in data:
             headers = {
          'Accept': 'application/json',
@@ -307,22 +307,22 @@ class RoseRocketIntegration():
             
         }
             params={
-                        "CustomerCode": order.ARDIVISIONNO + order.CUSTOMERNO,
-                        "CustomerName": order.BILLTONAME,
-                        "CustomerAddress": {
-                            "Address1": order.BILLTOADDRESS1,
-                            "Address2": order.BILLTOADDRESS2,
-                            "City": order.BILLTOCITY,
-                            "State": order.BILLTOSTATE,
-                            "PostalCode": order.BILLTOZIPCODE,
-                            "CountryCode": "US"
+                        "external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
+                        "name": order.BILLTONAME,
+                        
+                            "address1": order.BILLTOADDRESS1,
+                            "address2": order.BILLTOADDRESS2,
+                            "city": order.BILLTOCITY,
+                            "state": order.BILLTOSTATE,
+                            "postal": order.BILLTOZIPCODE,
+                            "country": "US",
                             
 
-                        },
-                        "ContactName": order.BILLTONAME}
+                        
+                        "billing_contact_name": order.BILLTONAME}
           #@todo:fix headers
             r = requests.post(
-            self.apiurl, json=params, headers=headers)
+            apiurl, json=params, headers=headers)
             
             resp = r.json()
            
@@ -338,3 +338,10 @@ class RoseRocketIntegration():
                 # TODO: reason why it failed
                 logging.error("Error when sending Customer " +
                             str(order.CUSTOMERNO))
+
+
+if __name__ == "__main__":
+    data = RoseRocketIntegrationBackend().getAllData()
+    rr = RoseRocketIntegration()
+    rr.synccustomers(data)
+    rr.sendData(data)
