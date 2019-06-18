@@ -56,8 +56,9 @@ class RoseRocketIntegration():
 
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
+        print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken']=resp['data']['access_token']
-
+        return pw.orgs[whcode]['accesstoken']
     def processComments(self,comments):
         concat=""
         for comment in comments:
@@ -201,12 +202,12 @@ class RoseRocketIntegration():
 
                 },  # end of shipper
 
-                "DatesandTimes": {
-                    "HousebillDate": self.formatDate(order.ORDERDATE),
-                    "ScheduledDeliveryDateType": "on",
-                    "ScheduledDeliveryDate": self.formatDate(order.PROMISEDATE)
+                # "DatesandTimes": {
+                #     "HousebillDate": self.formatDate(order.ORDERDATE),
+                #     "ScheduledDeliveryDateType": "on",
+                #     "ScheduledDeliveryDate": self.formatDate(order.PROMISEDATE)
 
-                },
+                # },
 
                 "ServiceTypeCode": str(ServiceTypeCode),
                 "PaymentCode":fob,
@@ -254,7 +255,7 @@ class RoseRocketIntegration():
                     if(order.SALESORDERNO != ordernos.pop()):
                        
                         #sets apiurl for the correct customer for this order
-                        apiurl='https://sandbox01.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+                        apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
                         r = requests.post(
                             apiurl, json=params, headers=headers)
                         resp = r.json()
@@ -291,7 +292,7 @@ class RoseRocketIntegration():
 
 
                     #sets apiurl for the correct customer for this order
-                    apiurl='https://sandbox01.roserocket.com/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+                    apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
                     r = requests.post(
                         apiurl, json=params, headers=headers)
                     resp = r.json()
@@ -309,14 +310,23 @@ class RoseRocketIntegration():
 
                         failedorders.append(order.SALESORDERNO)
     def synccustomers(self,data):
-        apiurl='https://sandbox01.roserocket.com/v1/customers'
+        apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers'
+        
         for order in data:
+
+            #this determins the billing type
+            if(order.FOB=='CC'): fob='collect'
+            if(order.FOB=='PP'):fob='prepaid'
+            if(order.CUSTOMERNO=='HOMEDCO'):fob='thirdparty'
+                
+
+            print("Auth Token: {}".format(self.authorg(order.WAREHOUSECODE)))
             headers = {
          'Accept': 'application/json',
-        'Authorization': 'Bearer {}'.format(self.authorg(data.whcode))
+        'Authorization': 'Bearer {}'.format(self.authorg(order.WAREHOUSECODE))
 
             
-        }
+            }
             params={
                         "external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
                         "name": order.BILLTONAME,
@@ -327,14 +337,16 @@ class RoseRocketIntegration():
                             "state": order.BILLTOSTATE,
                             "postal": order.BILLTOZIPCODE,
                             "country": "US",
-                            
-
-                        
+                            "short_code":str(order.CUSTOMERNO)[:6],
+                            "currency":'usd',
+                            "default_billing_option":fob,
+                            "default_dim_type":"ltl",
                         "billing_contact_name": order.BILLTONAME}
-          #@todo:fix headers
+            print(params)
+          
             r = requests.post(
             apiurl, json=params, headers=headers)
-            
+            print("Sync Customer Response: {}".format(r.text))
             resp = r.json()
            
             #sentorders.append(order.SALESORDERNO)
