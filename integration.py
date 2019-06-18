@@ -331,8 +331,8 @@ class RoseRocketIntegration():
                         "external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
                         "name": order.BILLTONAME,
                         
-                            "address1": order.BILLTOADDRESS1,
-                            "address2": order.BILLTOADDRESS2,
+                            "address_1": order.BILLTOADDRESS1,
+                            "address_2": order.BILLTOADDRESS2,
                             "city": order.BILLTOCITY,
                             "state": order.BILLTOSTATE,
                             "postal": order.BILLTOZIPCODE,
@@ -341,6 +341,9 @@ class RoseRocketIntegration():
                             "currency":'usd',
                             "default_billing_option":fob,
                             "default_dim_type":"ltl",
+                            "measurement_unit":"inch",
+                            "weight_unit":"lb",
+                            "is_active":'true',
                         "billing_contact_name": order.BILLTONAME}
             print(params)
           
@@ -350,16 +353,19 @@ class RoseRocketIntegration():
             resp = r.json()
            
             #sentorders.append(order.SALESORDERNO)
-            if(str(resp['Success']) == str('True')):
+            if('error_code' in resp):
+            # if(str(resp['Success']) == str('True')):
                 #print("Send was successful! " + str(recordcount))
-                logging.info(
-                    "Send was successful for customer: " + str(order.CUSTOMERNO))
+                logging.error(
+                    "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
                
                 
             else:
                 #print("SVAPI reports an Error when sending data")
                 # TODO: reason why it failed
-                logging.error("Error when sending Customer " +
+                print("Send was successful when sending Customer " +
+                            str(order.CUSTOMERNO))
+                logging.info("Send was successful when sending Customer " +
                             str(order.CUSTOMERNO))
 
 
