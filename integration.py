@@ -136,12 +136,7 @@ class RoseRocketIntegration():
         logging.info("=====================================")
         logging.info("NEW SYNC STARTED!")
         logging.info("=====================================")
-        headers = {
-         'Accept': 'application/json',
-        'Authorization': 'Bearer {}'.format(self.authorg(data.whcode))
-
-            
-        }
+       
         
         recordcount = 0
         # keeps track of sent SO#s
@@ -152,12 +147,17 @@ class RoseRocketIntegration():
         failedorders = []
 
         for order in data:
+             headers = {
+         'Accept': 'application/json',
+        'Authorization': 'Bearer {}'.format(self.authorg(order.WAREHOUSECODE))
+
             
+        }
             # sets shipment service type based on order quantity
             if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
-                ServiceTypeCode = "TL"
+                ServiceTypeCode = "ftl"
             else:
-                ServiceTypeCode = "LT"
+                ServiceTypeCode = "ltl"
             whcode = order.WAREHOUSECODE
             try:
                 plantInfo = self.getPlantInfo(whcode)[0]
@@ -320,7 +320,7 @@ class RoseRocketIntegration():
             if(order.CUSTOMERNO=='HOMEDCO'):fob='thirdparty'
                 
 
-            print("Auth Token: {}".format(self.authorg(order.WAREHOUSECODE)))
+            # print("Auth Token: {}".format(self.authorg(order.WAREHOUSECODE)))
             headers = {
          'Accept': 'application/json',
         'Authorization': 'Bearer {}'.format(self.authorg(order.WAREHOUSECODE))
@@ -343,9 +343,9 @@ class RoseRocketIntegration():
                             "default_dim_type":"ltl",
                             "measurement_unit":"inch",
                             "weight_unit":"lb",
-                            "is_active":'true',
+                            "is_active":True,
                         "billing_contact_name": order.BILLTONAME}
-            print(params)
+            # print(params)
           
             r = requests.post(
             apiurl, json=params, headers=headers)
