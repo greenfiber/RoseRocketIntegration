@@ -147,7 +147,7 @@ class RoseRocketIntegration():
         failedorders = []
 
         for order in data:
-             headers = {
+            headers = {
          'Accept': 'application/json',
         'Authorization': 'Bearer {}'.format(self.authorg(order.WAREHOUSECODE))
 
@@ -160,16 +160,16 @@ class RoseRocketIntegration():
                 ServiceTypeCode = "ltl"
             whcode = order.WAREHOUSECODE
             try:
-                plantInfo = self.getPlantInfo(whcode)[0]
+                plantInfo = db.getPlantInfo(whcode)[0]
             except:
                 logging.error("ERROR IN WAREHOUSE LOOKUP")
             #THIS IS USED FOR TESTING ONLY
             #rand = self.genrnd()
 
             #FOB logic to conform to SV standards
-            if(order.FOB=='CC'): fob='C'
-            if(order.FOB=='PP'):fob='P'
-            if(order.CUSTOMERNO=='HOMEDCO'):fob='T'
+            if(order.FOB=='CC'): fob='collect'
+            if(order.FOB=='PP'):fob='prepaid'
+            if(order.CUSTOMERNO=='HOMEDCO'):fob='thirdparty'
             else: fob=''
 
             params = {
@@ -231,15 +231,15 @@ class RoseRocketIntegration():
                 # end of pieces
                 "commodities": self.processPieces(order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES),
 
-                "NotesAndDescriptions": {
+                "notes": 
                     # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
-                    "GeneralGoodsDescription": str("SO#: "+order.SALESORDERNO),
-                    "OriginInstructions": self.processComments(order.COMMENTS.split('|')),
-                    "DeliveryInstructions": ""
-                },
+                    
+                    "OriginInstructions: {}".format(self.processComments(order.COMMENTS.split('|'))),
+                    
+                
 
-                "Station1Code": whcode,
-                "HousebillNumber": order.SALESORDERNO
+                
+                "ref_num": order.SALESORDERNO
 
 
 
@@ -260,18 +260,19 @@ class RoseRocketIntegration():
                             apiurl, json=params, headers=headers)
                         resp = r.json()
 
-                        if(str(resp['Success']) == str('True')):
+                        if('error_code' in resp):
                             #print("Send was successful! " + str(recordcount))
-                            logging.info(
-                                "Send was successful for order: " + str(order.SALESORDERNO))
+                            logging.error(
+                                "Send was NOT successful for order: " + str(order.SALESORDERNO))
+                            logging.error("Error: "+ str(resp))
                             sentorders.append(order.SALESORDERNO)
                         else:
                             #print("SVAPI reports an Error when sending data")
                             # print(resp)
                             # TODO: reason why it fpyailed
-                            logging.error(
-                                "Error when sending SO#: " + str(order.SALESORDERNO))
-                            logging.error("Error: "+ str(resp))
+                            logging.info(
+                                "Success when sending SO#: " + str(order.SALESORDERNO))
+                            
                             failedorders.append(order.SALESORDERNO)
                         # this is what keeps track of any extra lines still in db
                         ordernos.append(order.SALESORDERNO)
@@ -367,7 +368,7 @@ class RoseRocketIntegration():
                             str(order.CUSTOMERNO))
                 logging.info("Send was successful when sending Customer " +
                             str(order.CUSTOMERNO))
-
+    
 
 if __name__ == "__main__":
     data = RoseRocketIntegrationBackend().getTestData()

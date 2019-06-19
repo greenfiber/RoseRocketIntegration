@@ -175,3 +175,44 @@ class RoseRocketIntegrationBackend():
             }
             datadict.append(rowdata)
         return datadict
+    def getPlantInfo(self, whcode):
+        query = """
+        SELECT
+        [WAREHOUSECODE]
+      ,[PLANTADDRESS1]
+      ,[PLANTADDRESS2]
+      ,[PLANTZIPCODE]
+      ,[PLANTCITY]
+      ,[PLANTSTATE]
+      ,[PLANTNAME]
+      ,[PLANTPHONENUMBER]
+      ,[PLANTCOUNTRYCODE]
+        FROM [SVExportStaging].[dbo].[PlantInfo]
+        WHERE [WAREHOUSECODE]=?
+         """
+        cursor = cx.cursor()
+        try:
+            cursor.execute(query, whcode)
+        except:
+            #print("error in warehouse code: "+whcode)
+            logging.warning("error in warehouse code: "+whcode)
+
+        rows = cursor.fetchall()
+        datadict = []
+
+        for row in rows:
+            rowdata = {
+                "WarehouseCode": row.WAREHOUSECODE,
+                "Address1": row.PLANTADDRESS1,
+                "Address2": row.PLANTADDRESS2,
+                "City": row.PLANTCITY,
+                "State": row.PLANTSTATE,
+                "PostalCode": row.PLANTZIPCODE,
+                "CountryCode": row.PLANTCOUNTRYCODE,
+                "plantPhoneNumber": row.PLANTPHONENUMBER,
+                "plantName": row.PLANTNAME
+
+
+            }
+            datadict.append(rowdata)
+        return datadict
