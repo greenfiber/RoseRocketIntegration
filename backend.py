@@ -46,7 +46,7 @@ class RoseRocketIntegrationBackend():
       ,[SHIPWEIGHT]
       ,[TELEPHONENO]
       
-        FROM [SVExportStaging].[dbo].[SVExport_TEST]
+        FROM [SVExportStaging].[dbo].[RRINTEGRATION]
         where WAREHOUSECODE = '906'
         """
         yCount = 0
@@ -110,7 +110,7 @@ class RoseRocketIntegrationBackend():
       ,[SHIPWEIGHT]
       ,[TELEPHONENO]
       
-        FROM [SVExportStaging].[dbo].[SVExport_TEST]
+        FROM [SVExportStaging].[dbo].[RRINTEGRATION]
         
         """
         yCount = 0

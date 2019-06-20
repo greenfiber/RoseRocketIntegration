@@ -56,7 +56,7 @@ class RoseRocketIntegration():
 
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
-        print("Token: {}".format(resp['data']['access_token']))
+        # print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken']=resp['data']['access_token']
         return pw.orgs[whcode]['accesstoken']
     def processComments(self,comments):
@@ -77,25 +77,47 @@ class RoseRocketIntegration():
             except ValueError:
                # print("Quantity was blank")
                 logging.warning("Quantity was blank and threw an exception")
+            if(data.SHIPWEIGHT):
+                try:
+                    weight= float(data.SHIPWEIGHT)
+                except:
+                    logging.error("Weight through an exception")
+                    
+            else:
+                weight=float(0)
+            
+
             if(data.CUSTOMERNO == 'HOMEDCO' or data.CUSTOMERNO == 'HOMERDC'): #this is needed for homedepot orders only
                 nmfc = '10330'
                 pieceClass = '100'
-            else:
-                nmfc=''
-                pieceClass=''
-
-            pieces = {
+                pieces = {
                 "weight_unit":"lb",
                 "freight_class":pieceClass,
 
                 "quantity": qty,
-                "weight": data.SHIPWEIGHT,
+                "weight": weight,
                 
-                "UnitOfMeasure": "in",
+                "measurement_unit": "inch",
                 "description": lindesc[i],
                 "sku": prods[i],
                 "nmfc":nmfc,
+                "commodity_type":"other"}
+            else:
+                
+                pieces = {
+                "weight_unit":"lb",
+                "freight_class": 'none' ,
+
+                "quantity": qty,
+                "weight": weight,
+                
+                "measurement_unit": "inch",
+                "description": lindesc[i],
+                "sku": prods[i],
+                "nmfc": 'none',
                 "commodity_type":"other"
+
+            
                 
             }
             #check if special sku is in products array
@@ -160,9 +182,10 @@ class RoseRocketIntegration():
                 ServiceTypeCode = "ltl"
             whcode = order.WAREHOUSECODE
             try:
-                plantInfo = db.getPlantInfo(whcode)[0]
-            except:
+                plantInfo = self.db.getPlantInfo(whcode)[0]
+            except Exception as e:
                 logging.error("ERROR IN WAREHOUSE LOOKUP")
+                print(e)
             #THIS IS USED FOR TESTING ONLY
             #rand = self.genrnd()
 
@@ -170,11 +193,11 @@ class RoseRocketIntegration():
             if(order.FOB=='CC'): fob='collect'
             if(order.FOB=='PP'):fob='prepaid'
             if(order.CUSTOMERNO=='HOMEDCO'):fob='thirdparty'
-            else: fob=''
+            
 
             params = {
 
-
+                "external_id":order.SALESORDERNO,
                 "destination": {
                     "contact_name": order.SHIPTONAME,
                     
@@ -209,8 +232,8 @@ class RoseRocketIntegration():
 
                 # },
 
-                "ServiceTypeCode": str(ServiceTypeCode),
-                "PaymentCode":fob,
+                "dim_type": str(ServiceTypeCode),
+                "billing_option":fob,
 
                 "billing": {
                     "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
@@ -239,7 +262,8 @@ class RoseRocketIntegration():
                 
 
                 
-                "ref_num": order.SALESORDERNO
+                "ref_num": order.SALESORDERNO,
+                 "accessorials": []
 
 
 
@@ -255,7 +279,7 @@ class RoseRocketIntegration():
                     if(order.SALESORDERNO != ordernos.pop()):
                        
                         #sets apiurl for the correct customer for this order
-                        apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+                        apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
                         r = requests.post(
                             apiurl, json=params, headers=headers)
                         resp = r.json()
@@ -293,23 +317,29 @@ class RoseRocketIntegration():
 
 
                     #sets apiurl for the correct customer for this order
-                    apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers/{ardiv+billtocode}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+                    apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+                    print("APIURL: {}".format(apiurl))
+                    print("PARAMS: {}".format(params))
                     r = requests.post(
                         apiurl, json=params, headers=headers)
                     resp = r.json()
                     #sentorders.append(order.SALESORDERNO)
-                    if(str(resp['Success']) == str('True')):
+                    if('error_code' in resp):
                         #print("Send was successful! " + str(recordcount))
-                        logging.info(
-                            "Send was successful for order: " + str(order.SALESORDERNO))
+                        logging.error(
+                            "Send was NOT successful for order: " + str(order.SALESORDERNO))
+                        logging.error("Error: "+ str(resp))
                         sentorders.append(order.SALESORDERNO)
                     else:
                         #print("SVAPI reports an Error when sending data")
-                        # TODO: reason why it failed
-                        logging.error("Error when sending SO#: " +
-                                      str(order.SALESORDERNO))
+                        # print(resp)
+                        # TODO: reason why it fpyailed
+                        logging.info(
+                            "Success when sending SO#: " + str(order.SALESORDERNO))
+                            
+                            # failedorders.append(order.SALESORDERNO)
 
-                        failedorders.append(order.SALESORDERNO)
+                    failedorders.append(order.SALESORDERNO)
     def synccustomers(self,data):
         apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers'
         
