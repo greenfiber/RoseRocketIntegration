@@ -71,7 +71,7 @@ class RoseRocketIntegrationBackend():
 
         return data
 
-    def getAllData(self):
+    def getAllData(self,whcode):
         query = """
         SELECT  [SALESORDERNO]
       ,[ORDERDATE]
@@ -111,14 +111,14 @@ class RoseRocketIntegrationBackend():
       ,[TELEPHONENO]
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        
+        WHERE WAREHOUSECODE = ?
         """
         yCount = 0
         nCount = 0
         custCount = 0
 
         cursor = cx.cursor()
-        cursor.execute(query)
+        cursor.execute(query,whcode)
         rows = cursor.fetchall()
         data = []
 
