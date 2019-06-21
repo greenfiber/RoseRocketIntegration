@@ -16,6 +16,9 @@ from secret import secrets as pw
 class RoseRocketIntegration():
     db = RoseRocketIntegrationBackend()
     
+    def __init__(whcode):
+        self.whcode=whcode
+
     apiurl=''
     #warehousecode:warehousename
     orgs={
@@ -34,7 +37,7 @@ class RoseRocketIntegration():
     }
     
     
-    data=db.getAllData()
+    data=db.getAllData(self.whcode)
 
     def logStart(self):
         logging.basicConfig(filename='C:\\svsync\\sync.log', level=logging.DEBUG,
@@ -167,11 +170,11 @@ class RoseRocketIntegration():
         sentorders = []
         # keeps track of failed orders going to SV
         failedorders = []
-
+        auth=self.authorg(self.whcode)
         for order in data:
             headers = {
          'Accept': 'application/json',
-        'Authorization': 'Bearer {}'.format(self.authorg(order.WAREHOUSECODE))
+        'Authorization': 'Bearer {}'.format(auth)
 
             
         }
@@ -342,7 +345,7 @@ class RoseRocketIntegration():
                     failedorders.append(order.SALESORDERNO)
     def synccustomers(self,data):
         apiurl='https://platform.sandbox01.roserocket.com/api/v1/customers'
-        
+        auth=self.authorg(self.whcode)
         for order in data:
 
             #this determins the billing type
@@ -354,7 +357,7 @@ class RoseRocketIntegration():
             # print("Auth Token: {}".format(self.authorg(order.WAREHOUSECODE)))
             headers = {
          'Accept': 'application/json',
-        'Authorization': 'Bearer {}'.format(self.authorg(order.WAREHOUSECODE))
+        'Authorization': 'Bearer {}'.format(auth)
 
             
             }
@@ -401,7 +404,11 @@ class RoseRocketIntegration():
     
 
 if __name__ == "__main__":
-    data = RoseRocketIntegrationBackend().getTestData()
-    rr = RoseRocketIntegration()
-    rr.synccustomers(data)
-    rr.sendData(data)
+
+    orgs = pw.orgs.keys()
+    for org in orgs:
+
+        data = RoseRocketIntegrationBackend().getAllData(org)
+        rr = RoseRocketIntegration(org)
+        rr.synccustomers(data)
+        rr.sendData(data)
