@@ -197,7 +197,8 @@ class RoseRocketIntegration():
             if(order.FOB=='PP'):fob='prepaid'
             if(order.CUSTOMERNO=='HOMEDCO'):fob='thirdparty'
             
-
+            commodities=self.processPieces(order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES)
+            skuinfo=db.getskuinfo(commodities['sku'])
             params = {
 
                 "external_id":order.SALESORDERNO,
@@ -255,12 +256,15 @@ class RoseRocketIntegration():
                 },  # end of billto
                 "po_num":order.PURCHASEORDERNO,
                 # end of pieces
-                "commodities": self.processPieces(order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES),
+                "commodities": commodities ,
 
-                "notes": 
+                "notes": {
                     # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
                     
                     "OriginInstructions: {}".format(self.processComments(order.COMMENTS.split('|'))),
+                    "UPC:":skuinfo.UPC,
+                    "VP#:":skuinfo.SKU,
+                    "THD#:":skuinfo.THD},
                     
                 
 

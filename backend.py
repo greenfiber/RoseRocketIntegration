@@ -71,6 +71,22 @@ class RoseRocketIntegrationBackend():
 
         return data
 
+    def getskuinfo(self,gfsku):
+        query="""
+        
+        where ITEMCODE =?
+        """
+        cursor = cx.cursor()
+        cursor.execute(query,gfsku)
+        rows = cursor.fetchall()
+        data = []
+
+        for row in rows:
+
+            data.append(row)
+        return data
+
+
     def getAllData(self,whcode):
         query = """
         SELECT  [SALESORDERNO]
