@@ -68,7 +68,7 @@ class RoseRocketIntegration():
         return concat
     # this method parses the combined pieces from line items for the salesorders
 
-    def processPieces(self, lines, data, desc, products):
+    def processPieces(self, lines, data, desc, products,unitprice):
         lindesc = desc.split('|')
         items = lines.split('|')
         prods = products.split('|')
@@ -126,7 +126,7 @@ class RoseRocketIntegration():
                         "weight": weight,
 
                         "measurement_unit": "inch",
-                        "description": """{} THDSKU:{} UPC:{}""".format(lindesc[i], skuinfo[prods[i]]["THDSKU"], skuinfo[prods[i]]["UPC"]),
+                        "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(lindesc[i], skuinfo[prods[i]]["THDSKU"], skuinfo[prods[i]]["UPC"],unitprice),
                         "sku": prods[i],
                         "nmfc": nmfc,
                         "commodity_type": "other"
@@ -216,7 +216,7 @@ class RoseRocketIntegration():
             else:
                 fob = ''
             commodities = self.processPieces(
-                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES)
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE)
             notes = order.COMMENTS.split('|')
             params = {
 
