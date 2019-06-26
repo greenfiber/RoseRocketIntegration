@@ -96,20 +96,20 @@ class RoseRocketIntegration():
                 weight = float(0)
 
             # this is needed for homedepot orders only
-            nmfc='none' 
-            pieceClass= 'none'
+            nmfc = 'none'
+            pieceClass = 'none'
             pieces = {
-                    "weight_unit": "lb",
-                    "freight_class": pieceClass,
+                "weight_unit": "lb",
+                "freight_class": pieceClass,
 
-                    "quantity": qty,
-                    "weight": weight,
+                "quantity": qty,
+                "weight": weight,
 
-                    "measurement_unit": "inch",
-                    "description": lindesc[i],
-                            "sku": prods[i],
-                            "nmfc": nmfc,
-                            "commodity_type": "other"}
+                "measurement_unit": "inch",
+                "description": lindesc[i],
+                "sku": prods[i],
+                "nmfc": nmfc,
+                "commodity_type": "other"}
             if(data.CUSTOMERNO == 'HOMEDCO' or data.CUSTOMERNO == 'HOMERDC'):
                 print("hd logic")
                 nmfc = '10330'
@@ -117,7 +117,7 @@ class RoseRocketIntegration():
                 print("ITEM CODE: {}".format(prods[i]))
                 if("INS765LD/E" in prods[i] or "INS541LD" in prods[i]):
                     print("hd sku logic both skus")
-                    
+
                     pieces = {
                         "weight_unit": "lb",
                         "freight_class": pieceClass,
@@ -137,19 +137,17 @@ class RoseRocketIntegration():
                     print("hd sku alt logic")
                     print(pieces)
                     piecesData.append(pieces)
-            
-                
-            #******
+
+            # ******
             # specifically check for only HD skus instead of relying on slash to determine if appended
-            #**********
+            # **********
             # don't append items with slashes in pieces
-                
-                
+
             # check if special sku is in products array
             # item code didn't work as that line might have diff sku
-                
-            else: #any other customer besides HD
-                
+
+            else:  # any other customer besides HD
+
                 if("/" not in prods[i]):
                     print("Slash logic non HD")
                     piecesData.append(pieces)
@@ -167,10 +165,12 @@ class RoseRocketIntegration():
         except:
             #print("error in formatting date ")
             logging.error("Format date error")
+
     def genrnd(self):
         import string
         import random
         return random.choice(string.ascii_letters)
+
     def sendData(self, data):
         logging.debug("Starting sync...")
         logging.info("=====================================")
@@ -217,7 +217,7 @@ class RoseRocketIntegration():
                 fob = ''
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES)
-            notes=order.COMMENTS.split('|')
+            notes = order.COMMENTS.split('|')
             params = {
 
                 "external_id": order.SALESORDERNO+rand,
