@@ -282,7 +282,7 @@ class RoseRocketIntegration():
                     # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
 
                     "OriginInstructions: {}".format(
-                        self.processComments(str(notes)).strip()),
+                        self.processComments(str(notes).strip()),
 
 
 
