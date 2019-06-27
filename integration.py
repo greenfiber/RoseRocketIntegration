@@ -207,14 +207,15 @@ class RoseRocketIntegration():
             rand = self.genrnd()
 
             # FOB logic to conform to SV standards
+            fob = ''
             if(order.FOB == 'CC'):
                 fob = 'collect'
             if(order.FOB == 'PP'):
                 fob = 'prepaid'
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
-            else:
-                fob = ''
+            
+                
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE)
             notes = order.COMMENTS.split('|')
@@ -376,12 +377,13 @@ class RoseRocketIntegration():
         for order in data:
 
             # this determins the billing type
+            fob = ''
             if(order.FOB == 'CC'):
                 fob = 'collect'
             if(order.FOB == 'PP'):
                 fob = 'prepaid'
-            else:
-                fob = ''
+            
+                
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
 
