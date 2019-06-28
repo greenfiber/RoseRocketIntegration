@@ -110,6 +110,7 @@ class RoseRocketIntegrationBackend():
       ,[ORDERSTATUS]
       ,[SHIPEXPIREDATE]
       ,[WAREHOUSECODE]
+      ,[UDF_UPDATE_RR]
       ,[FOB]
       ,[UDF_WFP_EXPORT]
       ,[COMMENT]
@@ -125,6 +126,7 @@ class RoseRocketIntegrationBackend():
       ,[PURCHASEORDERNO]
       ,[SHIPWEIGHT]
       ,[TELEPHONENO]
+      
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
         WHERE WAREHOUSECODE = ?
