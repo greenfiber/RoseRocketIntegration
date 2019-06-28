@@ -57,6 +57,7 @@ class RoseRocketIntegration():
 
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
+        print("AUTHRESP: {}".format(resp))
         # print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken'] = resp['data']['access_token']
         return pw.orgs[whcode]['accesstoken']
@@ -170,7 +171,6 @@ class RoseRocketIntegration():
         import string
         import random
         return random.choice(string.ascii_letters)
-
     def sendData(self, data):
         logging.debug("Starting sync...")
         logging.info("=====================================")
@@ -282,7 +282,7 @@ class RoseRocketIntegration():
                     # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
 
                     "OriginInstructions: {}".format(
-                        self.processComments(str(notes).strip()),
+                        self.processComments(str(notes).strip())),
 
 
 
@@ -303,8 +303,34 @@ class RoseRocketIntegration():
                     # checks if the current SO is not equal to the last order submitted
                     # if they are the same then that means it is a duplicate and shouldn't be sent
                     if(order.SALESORDERNO != ordernos.pop()):
-                        print("Sending SO# {}".format(order.SALESORDERNO))
+                        
                         # sets apiurl for the correct customer for this order
+                        if(order.UDF_UPDATE_RR == 'Y'):
+                            print("INSIDE UPDATE METHOD SHOULDN'T SEE RIGHT NOW")
+                            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
+                            order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
+                            r = requests.put(
+                            apiurl, json=params, headers=headers)
+                            resp = r.json()
+
+                            if('error_code' in resp):
+                                print(params)
+                                #print("Send was successful! " + str(recordcount))
+                                logging.error(
+                                    "Send was NOT successful for order: " + str(order.SALESORDERNO))
+                                logging.error("Error: " + str(resp))
+                                sentorders.append(order.SALESORDERNO)
+                            else:
+                                #print("SVAPI reports an Error when sending data")
+                                # print(resp)
+                                # TODO: reason why it fpyailed
+                                logging.info(
+                                    "Success when sending SO#: " + str(order.SALESORDERNO))
+
+                            
+                            # this is what keeps track of any extra lines still in db
+                            ordernos.append(order.SALESORDERNO)
+                        print("Sending SO# {}".format(order.SALESORDERNO))
                         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
                         r = requests.post(
