@@ -57,7 +57,7 @@ class RoseRocketIntegration():
 
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
-        print("AUTHRESP: {}".format(resp))
+        logging.info("AUTHRESP: {}".format(resp))
         # print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken'] = resp['data']['access_token']
         return pw.orgs[whcode]['accesstoken']
@@ -161,7 +161,7 @@ class RoseRocketIntegration():
 
     def formatDate(self, data):
         try:
-            fd = datetime.strptime(data, '%Y/%m/%d').isoformat()
+            fd = datetime.strptime(data, '%Y%m%d').isoformat()
             return str(fd)
         except:
             #print("error in formatting date ")
@@ -204,7 +204,7 @@ class RoseRocketIntegration():
                 logging.error("ERROR IN WAREHOUSE LOOKUP")
                 print(e)
             # THIS IS USED FOR TESTING ONLY
-            rand = self.genrnd()
+            # rand = self.genrnd()
 
             # FOB logic to conform to SV standards
             fob = ''
@@ -221,7 +221,7 @@ class RoseRocketIntegration():
             notes = order.COMMENTS.split('|')
             params = {
 
-                "external_id": order.SALESORDERNO+rand,
+                "external_id": order.SALESORDERNO,
                 "destination": {
                     "contact_name": order.SHIPTONAME,
 
@@ -275,6 +275,8 @@ class RoseRocketIntegration():
 
                 },  # end of billto
                 "po_num": order.PURCHASEORDERNO,
+                "pickup_start_at":self.formatDate(order.ORDERDATE),
+                "delivery_appt_start_at":self.formatDate(order.PROMISEDATE),
                 # end of pieces
                 "commodities": commodities,
 
@@ -282,7 +284,7 @@ class RoseRocketIntegration():
                     # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
 
                     "OriginInstructions: {}".format(
-                        self.processComments(str(notes).strip())),
+                        self.processComments(str(notes))),
 
 
 
@@ -306,7 +308,7 @@ class RoseRocketIntegration():
                         
                         # sets apiurl for the correct customer for this order
                         if(order.UDF_UPDATE_RR == 'Y'):
-                            print("INSIDE UPDATE METHOD SHOULDN'T SEE RIGHT NOW")
+                            # print("INSIDE UPDATE METHOD SHOULDN'T SEE RIGHT NOW")
                             apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
                             r = requests.put(
@@ -314,7 +316,7 @@ class RoseRocketIntegration():
                             resp = r.json()
 
                             if('error_code' in resp):
-                                print(params)
+                                logging.error(params)
                                 #print("Send was successful! " + str(recordcount))
                                 logging.error(
                                     "Send was NOT successful for order: " + str(order.SALESORDERNO))
@@ -330,7 +332,7 @@ class RoseRocketIntegration():
                             
                             # this is what keeps track of any extra lines still in db
                             ordernos.append(order.SALESORDERNO)
-                        print("Sending SO# {}".format(order.SALESORDERNO))
+                        logging.info("Sending SO# {}".format(order.SALESORDERNO))
                         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
                         r = requests.post(
@@ -338,7 +340,7 @@ class RoseRocketIntegration():
                         resp = r.json()
 
                         if('error_code' in resp):
-                            print(params)
+                            logging.error(params)
                             #print("Send was successful! " + str(recordcount))
                             logging.error(
                                 "Send was NOT successful for order: " + str(order.SALESORDERNO))
@@ -381,7 +383,7 @@ class RoseRocketIntegration():
                     # sentorders.append(order.SALESORDERNO)
                     if('error_code' in resp):
                         #print("Send was successful! " + str(recordcount))
-                        print(params)
+                        logging.error(params)
                         logging.error(
                             "Send was NOT successful for order: " + str(order.SALESORDERNO))
                         logging.error("Error: " + str(resp))
@@ -442,7 +444,7 @@ class RoseRocketIntegration():
 
             r = requests.post(
                 apiurl, json=params, headers=headers)
-            print("Sync Customer Response: {}".format(r.text))
+            logging.info("Sync Customer Response: {}".format(r.text))
             resp = r.json()
 
             # sentorders.append(order.SALESORDERNO)
@@ -455,7 +457,7 @@ class RoseRocketIntegration():
             else:
                 #print("SVAPI reports an Error when sending data")
                 # TODO: reason why it failed
-                print("Send was successful when sending Customer " +
+                logging.info("Send was successful when sending Customer " +
                       str(order.CUSTOMERNO))
                 logging.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
@@ -465,7 +467,7 @@ if __name__ == "__main__":
 
     orgs = pw.orgs.keys()
     for org in orgs:
-        print("ORG: {}".format(org))
+        logging.info("ORG: {}".format(org))
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
         rr.synccustomers(data)
