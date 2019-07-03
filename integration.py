@@ -160,12 +160,16 @@ class RoseRocketIntegration():
         return piecesData
 
     def formatDate(self, data):
+        import pytz
         try:
-            fd = datetime.strptime(data, '%Y%m%d').isoformat()
-            return str(fd)
-        except:
+            fd = datetime.strptime(data, '%Y%m%d')
+            local=pytz.timezone("America/New_York")
+            localized=local.localize(fd, is_dst=None)
+            utc=localized.astimezone(pytz.utc)
+            return str(utc.isoformat())
+        except Exception as e:
             #print("error in formatting date ")
-            logging.error("Format date error")
+            logging.error("Format date error {}".format(e))
 
     def genrnd(self):
         import string
@@ -307,8 +311,9 @@ class RoseRocketIntegration():
                     if(order.SALESORDERNO != ordernos.pop()):
                         
                         # sets apiurl for the correct customer for this order
-                        if(order.UDF_UPDATE_RR == 'Y'):
+                        if(order.UDF_WFP_EXPORT == 'Y'):
                             # print("INSIDE UPDATE METHOD SHOULDN'T SEE RIGHT NOW")
+                            print("ORDER UPDATED! {}".format(order.SALESORDERNO))
                             apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
                             r = requests.put(
