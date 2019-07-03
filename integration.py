@@ -67,12 +67,12 @@ class RoseRocketIntegration():
         for comment in comments:
             concat += comment + " "
         return concat
-    # this method parses the combined pieces from line items for the salesorders
+    # this method parses the combined pieces from  lineitems for the salesorders
 
     def processPieces(self, lines, data, desc, products,unitprice):
-        lindesc = desc.split('|')
-        items = lines.split('|')
-        prods = products.split('|')
+        itemdesc = desc.split('|')
+        lineitems = lines.split('|')
+        itemcodes = products.split('|')
         skuinfo = {
             "INS541LD": {"THDSKU": "211904", "UPC": "716891001087"},
             "INS765LD/E": {'THDSKU': "1002476568", "UPC": "729477076546"}
@@ -80,10 +80,10 @@ class RoseRocketIntegration():
 
         }
         piecesData = []
-        for i in range(0, len(prods)-1):
+        for i in range(0, len(itemcodes)-1):
             try:
                 # there's something wrong with this depending on data from SQL
-                qty = int(float(items[i]))
+                qty = int(float(lineitems[i]))
             except ValueError:
                # print("Quantity was blank")
                 logging.warning("Quantity was blank and threw an exception")
@@ -107,17 +107,17 @@ class RoseRocketIntegration():
                 "weight": weight,
 
                 "measurement_unit": "inch",
-                "description": lindesc[i],
-                "sku": prods[i],
+                "description": itemdesc[i],
+                "sku": itemcodes[i],
                 "nmfc": nmfc,
                 "commodity_type": "other"}
             if(data.CUSTOMERNO == 'HOMEDCO' or data.CUSTOMERNO == 'HOMERDC'):
-                print("hd logic")
+                # print("hd logic")
                 nmfc = '10330'
                 pieceClass = '100'
-                print("ITEM CODE: {}".format(prods[i]))
-                if("INS765LD/E" in prods[i] or "INS541LD" in prods[i]):
-                    print("hd sku logic both skus")
+                print("ITEM CODE: {}".format(itemcodes[i]))
+                if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i]):
+                    # print("hd sku logic both skus")
 
                     pieces = {
                         "weight_unit": "lb",
@@ -127,36 +127,37 @@ class RoseRocketIntegration():
                         "weight": weight,
 
                         "measurement_unit": "inch",
-                        "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(lindesc[i], skuinfo[prods[i]]["THDSKU"], skuinfo[prods[i]]["UPC"],unitprice),
-                        "sku": prods[i],
+                        "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(itemdesc[i], skuinfo[itemcodes[i]]["THDSKU"], skuinfo[itemcodes[i]]["UPC"],unitprice),
+                        "sku": itemcodes[i],
                         "nmfc": nmfc,
                         "commodity_type": "other"
                     }
-                    print(pieces)
+                    # print(pieces)
                     piecesData.append(pieces)
-                elif("/" not in prods[i]):
-                    print("hd sku alt logic")
-                    print(pieces)
+                elif("/" not in itemcodes[i]):
+                    # print("hd sku alt logic")
+                    # print(pieces)
                     piecesData.append(pieces)
 
             # ******
             # specifically check for only HD skus instead of relying on slash to determine if appended
             # **********
-            # don't append items with slashes in pieces
+            # don't append lineitems with slashes in pieces
 
             # check if special sku is in products array
             # item code didn't work as that line might have diff sku
 
             else:  # any other customer besides HD
 
-                if("/" not in prods[i]):
+                if("/" not in itemcodes[i]):
                     print("Slash logic non HD")
                     piecesData.append(pieces)
 
-            # if("/NOINV" in prods[i] or "/MISC" in prods[i] or "INS765LD/E" in prods[i]):
+            # if("/NOINV" in itemcodes[i] or "/MISC" in itemcodes[i] or "INS765LD/E" in itemcodes[i]):
             #     print("Weird Logic at bottom")
             #     piecesData.append(pieces)
             i += 1
+        print("PIECES: {}".format(piecesData))
         return piecesData
 
     def formatDate(self, data):
@@ -336,7 +337,7 @@ class RoseRocketIntegration():
 
                             
                             # this is what keeps track of any extra lines still in db
-                            ordernos.append(order.SALESORDERNO)
+                        ordernos.append(order.SALESORDERNO)
                         logging.info("Sending SO# {}".format(order.SALESORDERNO))
                         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
@@ -388,17 +389,217 @@ class RoseRocketIntegration():
                     # sentorders.append(order.SALESORDERNO)
                     if('error_code' in resp):
                         #print("Send was successful! " + str(recordcount))
-                        logging.error(params)
+                        # logging.error(params)
                         logging.error(
                             "Send was NOT successful for order: " + str(order.SALESORDERNO))
                         logging.error("Error: " + str(resp))
-                        sentorders.append(order.SALESORDERNO)
+                        failedorders.append(order.SALESORDERNO)
                     else:
                         #print("SVAPI reports an Error when sending data")
                         # print(resp)
                         # TODO: reason why it fpyailed
                         logging.info(
                             "Success when sending SO#: " + str(order.SALESORDERNO))
+
+                        # failedorders.append(order.SALESORDERNO)
+
+                    failedorders.append(order.SALESORDERNO)
+    def updateorders(self,data):
+        recordcount = 0
+        # keeps track of sent SO#s
+        ordernos = []
+        # keeps track of successful Updates to SV
+        sentorders = []
+        # keeps track of failed orders going to SV
+        failedorders = []
+        auth = self.authorg(self.whcode)
+        for order in data:
+            headers = {
+                'Accept': 'application/json',
+                'Authorization': 'Bearer {}'.format(auth)
+
+
+            }
+            # sets shipment service type based on order quantity
+            if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
+                ServiceTypeCode = "ftl"
+            else:
+                ServiceTypeCode = "ltl"
+            whcode = order.WAREHOUSECODE
+            try:
+                plantInfo = self.db.getPlantInfo(whcode)[0]
+            except Exception as e:
+                logging.error("ERROR IN WAREHOUSE LOOKUP")
+                print(e)
+            
+
+            # FOB logic to conform to SV standards
+            fob = ''
+            if(order.FOB == 'CC'):
+                fob = 'collect'
+            if(order.FOB == 'PP'):
+                fob = 'prepaid'
+            if(order.CUSTOMERNO == 'HOMEDCO'):
+                fob = 'thirdparty'
+            
+                
+            commodities = self.processPieces(
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE)
+            notes = order.COMMENTS.split('|')
+            params = {
+
+                "external_id": order.SALESORDERNO,
+                "destination": {
+                    "contact_name": order.SHIPTONAME,
+
+
+                    "address_1": order.SHIPTOADDRESS1,
+                    "address_2": order.SHIPTOADDRESS2,
+                    "city": order.SHIPTOCITY,
+                    "state": order.SHIPTOSTATE,
+                    "postal": order.SHIPTOZIPCODE,
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+                    "phone": order.TELEPHONENO
+                },  # end of consignee
+
+
+                "origin": {"contact_name": plantInfo["plantName"],
+                            "address_1": plantInfo["Address1"],
+                            "address_2": plantInfo["Address2"],
+                            "city": plantInfo["City"],
+                            "state": plantInfo["State"],
+                            "postal": plantInfo["PostalCode"],
+                            "country": plantInfo["CountryCode"],
+                            "phone": plantInfo["plantPhoneNumber"]
+
+                            },  # end of shipper
+
+                # "DatesandTimes": {
+                #     "HousebillDate": self.formatDate(order.ORDERDATE),
+                #     "ScheduledDeliveryDateType": "on",
+                #     "ScheduledDeliveryDate": self.formatDate(order.PROMISEDATE)
+
+                # },
+
+                "dim_type": str(ServiceTypeCode),
+                "billing_option": fob,
+
+                "billing": {
+                    "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
+                    "contact_name": order.BILLTONAME,
+
+                    "address_1": order.BILLTOADDRESS1,
+                    "address_2": order.BILLTOADDRESS2,
+                    "city": order.BILLTOCITY,
+                    "state": order.BILLTOSTATE,
+                    "postal": order.BILLTOZIPCODE,
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+
+
+                },  # end of billto
+                "po_num": order.PURCHASEORDERNO,
+                "pickup_start_at":self.formatDate(order.ORDERDATE),
+                "delivery_appt_start_at":self.formatDate(order.PROMISEDATE),
+                # end of pieces
+                "commodities": commodities,
+
+                "notes":
+                    # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
+
+                    "OriginInstructions: {}".format(
+                        self.processComments(str(notes))),
+
+
+
+
+
+                "ref_num": order.SALESORDERNO,
+                "accessorials": []
+
+
+
+            }
+            recordcount += 1
+
+            # checks if item code is valid for current record
+            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE)):
+                # this enables duplicates to be found
+                if(len(ordernos) > 1):
+                    # checks if the current SO is not equal to the last order submitted
+                    # if they are the same then that means it is a duplicate and shouldn't be sent
+                    if(order.SALESORDERNO != ordernos.pop()):
+                        
+                        # sets apiurl for the correct customer for this order
+                        # if(order.UDF_WFP_EXPORT == 'Y'):
+                        # print("INSIDE UPDATE METHOD SHOULDN'T SEE RIGHT NOW")
+                        print("ORDER UPDATED! {}".format(order.SALESORDERNO))
+                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
+                        order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
+                        r = requests.put(
+                        apiurl, json=params, headers=headers)
+                        resp = r.json()
+
+                        if('error_code' in resp):
+                            logging.error(params)
+                            #print("Update was successful! " + str(recordcount))
+                            logging.error(
+                                "Update was NOT successful for order: " + str(order.SALESORDERNO))
+                            logging.error("Error: " + str(resp))
+                            sentorders.append(order.SALESORDERNO)
+                        else:
+                            #print("SVAPI reports an Error when Updateing data")
+                            # print(resp)
+                            # TODO: reason why it fpyailed
+                            logging.info(
+                                "Success when Updateing SO#: " + str(order.SALESORDERNO))
+
+                            
+                            # this is what keeps track of any extra lines still in db
+                        ordernos.append(order.SALESORDERNO)
+                        
+                        
+                    else:
+                        # print("Duplicate record removed " +
+                            #  str(order.SALESORDERNO))
+                        logging.info("Duplicate record removed " +
+                                        str(order.SALESORDERNO))
+
+                    # except Exception :
+                    # print("Something went wrong with Updateing data to SV API" )
+                # if it's the first record in the data sync then go ahead and Update it
+                else:
+                    # appends sales order to duplicate checking list
+                    # this is what keeps track of any extra lines still in db
+                    ordernos.append(order.SALESORDERNO)
+                    # print("Valid record: " + order.ITEMCODE)
+
+                    # sets apiurl for the correct customer for this order
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
+                        order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
+                    # print("APIURL: {}".format(apiurl))
+                    # print("PARAMS: {}".format(params))
+                    print("Updating SO# {}".format(order.SALESORDERNO))
+                    r = requests.put(
+                        apiurl, json=params, headers=headers)
+                    resp = r.json()
+                    # sentorders.append(order.SALESORDERNO)
+                    if('error_code' in resp):
+                        #print("Update was successful! " + str(recordcount))
+                        # logging.error(params)
+                        logging.error(
+                            "Update was NOT successful for order: " + str(order.SALESORDERNO))
+                        logging.error("Error: " + str(resp))
+                        failedorders.append(order.SALESORDERNO)
+                    else:
+                        #print("SVAPI reports an Error when Updateing data")
+                        # print(resp)
+                        # TODO: reason why it fpyailed
+                        logging.info(
+                            "Success when Updateing SO#: " + str(order.SALESORDERNO))
 
                         # failedorders.append(order.SALESORDERNO)
 
@@ -475,5 +676,7 @@ if __name__ == "__main__":
         logging.info("ORG: {}".format(org))
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
-        rr.synccustomers(data)
-        rr.sendData(data)
+        updatedata=RoseRocketIntegrationBackend().updateorders(org)
+        rr.updateorders(updatedata)
+        # rr.synccustomers(data)
+        # rr.sendData(data)

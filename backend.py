@@ -86,7 +86,66 @@ class RoseRocketIntegrationBackend():
             data.append(row)
         return data
 
+    def updateorders(self,whcode):
+        
+        query = """
+        SELECT  [SALESORDERNO]
+      ,[ORDERDATE]
+      ,[ARDIVISIONNO]
+      ,[CUSTOMERNO]
+      ,[BILLTONAME]
+      ,[BILLTOADDRESS1]
+      ,[BILLTOADDRESS2]
+      ,[BILLTOCITY]
+      ,[BILLTOSTATE]
+      ,[BILLTOZIPCODE]
+      ,[BILLTOCOUNTRYCODE]
+      ,[SHIPTONAME]
+      ,[SHIPTOADDRESS1]
+      ,[SHIPTOADDRESS2]
+      ,[SHIPTOCITY]
+      ,[SHIPTOSTATE]
+      ,[SHIPTOCODE]
+      ,[SHIPTOZIPCODE]
+      ,[ORDERSTATUS]
+      ,[SHIPEXPIREDATE]
+      ,[WAREHOUSECODE]
+      ,[UDF_UPDATE_RR]
+      ,[FOB]
+      ,[UDF_WFP_EXPORT]
+      ,[COMMENT]
+      ,[SALESPERSONNO]
+      ,[ITEMCODE]
+      ,[COMMENTS]
+      ,[LINEITEMS]
+      ,[ITEMDESC]
+      ,[UNITOFMEASURE]
+      ,[PROMISEDATE]
+      ,[ITEMCODES]
+      ,[UNITPRICE]
+      ,[PURCHASEORDERNO]
+      ,[SHIPWEIGHT]
+      ,[TELEPHONENO]
+      
+      
+        FROM [SVExportStaging].[dbo].[RRINTEGRATION]
+        WHERE WAREHOUSECODE = ? AND UDF_WFP_EXPORT = 'Y'
+        """
+        
 
+        cursor = cx.cursor()
+        cursor.execute(query,whcode)
+        rows = cursor.fetchall()
+        data = []
+
+        for row in rows:
+
+            data.append(row)
+            
+
+        
+
+        return data
     def getAllData(self,whcode):
         query = """
         SELECT  [SALESORDERNO]
@@ -129,7 +188,7 @@ class RoseRocketIntegrationBackend():
       
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        WHERE WAREHOUSECODE = ?
+        WHERE WAREHOUSECODE = ? 
         """
         yCount = 0
         nCount = 0
