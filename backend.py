@@ -1,9 +1,9 @@
 import pyodbc
 import logging
 from secret import secrets as secrets
-cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+# cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
 #for use at home
-# cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
 
 class RoseRocketIntegrationBackend():
 
@@ -129,7 +129,7 @@ class RoseRocketIntegrationBackend():
       
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        WHERE WAREHOUSECODE = ? AND UDF_WFP_EXPORT = 'Y'
+        WHERE WAREHOUSECODE = ? AND UDF_UPDATE_RR = 'Y'
         """
         
 
@@ -211,47 +211,7 @@ class RoseRocketIntegrationBackend():
         print("Y:"+str(yCount) + " "+"N:"+str(nCount))
 
         return data
-    def getPlantInfo(self, whcode):
-        query = """
-        SELECT
-        [WAREHOUSECODE]
-      ,[PLANTADDRESS1]
-      ,[PLANTADDRESS2]
-      ,[PLANTZIPCODE]
-      ,[PLANTCITY]
-      ,[PLANTSTATE]
-      ,[PLANTNAME]
-      ,[PLANTPHONENUMBER]
-      ,[PLANTCOUNTRYCODE]
-        FROM [SVExportStaging].[dbo].[PlantInfo]
-        WHERE [WAREHOUSECODE]=?
-         """
-        cursor = cx.cursor()
-        try:
-            cursor.execute(query, whcode)
-        except:
-            #print("error in warehouse code: "+whcode)
-            logging.warning("error in warehouse code: "+whcode)
-
-        rows = cursor.fetchall()
-        datadict = []
-
-        for row in rows:
-            rowdata = {
-                "WarehouseCode": row.WAREHOUSECODE,
-                "Address1": row.PLANTADDRESS1,
-                "Address2": row.PLANTADDRESS2,
-                "City": row.PLANTCITY,
-                "State": row.PLANTSTATE,
-                "PostalCode": row.PLANTZIPCODE,
-                "CountryCode": row.PLANTCOUNTRYCODE,
-                "plantPhoneNumber": row.PLANTPHONENUMBER,
-                "plantName": row.PLANTNAME
-
-
-            }
-            datadict.append(rowdata)
-        return datadict
+    
     def getPlantInfo(self, whcode):
         query = """
         SELECT

@@ -115,7 +115,7 @@ class RoseRocketIntegration():
                 # print("hd logic")
                 nmfc = '10330'
                 pieceClass = '100'
-                print("ITEM CODE: {}".format(itemcodes[i]))
+                # print("ITEM CODE: {}".format(itemcodes[i]))
                 if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i]):
                     # print("hd sku logic both skus")
 
@@ -157,7 +157,7 @@ class RoseRocketIntegration():
             #     print("Weird Logic at bottom")
             #     piecesData.append(pieces)
             i += 1
-        print("PIECES: {}".format(piecesData))
+        # print("PIECES: {}".format(piecesData))
         return piecesData
 
     def formatDate(self, data):
@@ -312,34 +312,9 @@ class RoseRocketIntegration():
                     if(order.SALESORDERNO != ordernos.pop()):
                         
                         # sets apiurl for the correct customer for this order
-                        if(order.UDF_WFP_EXPORT == 'Y'):
-                            # print("INSIDE UPDATE METHOD SHOULDN'T SEE RIGHT NOW")
-                            print("ORDER UPDATED! {}".format(order.SALESORDERNO))
-                            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
-                            order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
-                            r = requests.put(
-                            apiurl, json=params, headers=headers)
-                            resp = r.json()
-
-                            if('error_code' in resp):
-                                logging.error(params)
-                                #print("Send was successful! " + str(recordcount))
-                                logging.error(
-                                    "Send was NOT successful for order: " + str(order.SALESORDERNO))
-                                logging.error("Error: " + str(resp))
-                                sentorders.append(order.SALESORDERNO)
-                            else:
-                                #print("SVAPI reports an Error when sending data")
-                                # print(resp)
-                                # TODO: reason why it fpyailed
-                                logging.info(
-                                    "Success when sending SO#: " + str(order.SALESORDERNO))
-
-                            
-                            # this is what keeps track of any extra lines still in db
-                        ordernos.append(order.SALESORDERNO)
+                        
                         logging.info("Sending SO# {}".format(order.SALESORDERNO))
-                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders'.format(
+                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
                         r = requests.post(
                             apiurl, json=params, headers=headers)
@@ -378,7 +353,7 @@ class RoseRocketIntegration():
                    # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
-                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders'.format(
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
@@ -420,112 +395,17 @@ class RoseRocketIntegration():
 
 
             }
-            # sets shipment service type based on order quantity
-            if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
-                ServiceTypeCode = "ftl"
-            else:
-                ServiceTypeCode = "ltl"
-            whcode = order.WAREHOUSECODE
-            try:
-                plantInfo = self.db.getPlantInfo(whcode)[0]
-            except Exception as e:
-                logging.error("ERROR IN WAREHOUSE LOOKUP")
-                print(e)
             
-
-            # FOB logic to conform to SV standards
-            fob = ''
-            if(order.FOB == 'CC'):
-                fob = 'collect'
-            if(order.FOB == 'PP'):
-                fob = 'prepaid'
-            if(order.CUSTOMERNO == 'HOMEDCO'):
-                fob = 'thirdparty'
             
                 
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE)
-            notes = order.COMMENTS.split('|')
             params = {
-
-                "external_id": order.SALESORDERNO,
-                "destination": {
-                    "contact_name": order.SHIPTONAME,
-
-
-                    "address_1": order.SHIPTOADDRESS1,
-                    "address_2": order.SHIPTOADDRESS2,
-                    "city": order.SHIPTOCITY,
-                    "state": order.SHIPTOSTATE,
-                    "postal": order.SHIPTOZIPCODE,
-                    "country": "US",  # REPLACE THIS WITH COLUMN
-
-
-                    "phone": order.TELEPHONENO
-                },  # end of consignee
-
-
-                "origin": {"contact_name": plantInfo["plantName"],
-                            "address_1": plantInfo["Address1"],
-                            "address_2": plantInfo["Address2"],
-                            "city": plantInfo["City"],
-                            "state": plantInfo["State"],
-                            "postal": plantInfo["PostalCode"],
-                            "country": plantInfo["CountryCode"],
-                            "phone": plantInfo["plantPhoneNumber"]
-
-                            },  # end of shipper
-
-                # "DatesandTimes": {
-                #     "HousebillDate": self.formatDate(order.ORDERDATE),
-                #     "ScheduledDeliveryDateType": "on",
-                #     "ScheduledDeliveryDate": self.formatDate(order.PROMISEDATE)
-
-                # },
-
-                "dim_type": str(ServiceTypeCode),
-                "billing_option": fob,
-
-                "billing": {
-                    "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
-                    "contact_name": order.BILLTONAME,
-
-                    "address_1": order.BILLTOADDRESS1,
-                    "address_2": order.BILLTOADDRESS2,
-                    "city": order.BILLTOCITY,
-                    "state": order.BILLTOSTATE,
-                    "postal": order.BILLTOZIPCODE,
-                    "country": "US",  # REPLACE THIS WITH COLUMN
-
-
-
-
-                },  # end of billto
-                "po_num": order.PURCHASEORDERNO,
-                "pickup_start_at":self.formatDate(order.ORDERDATE),
-                "delivery_appt_start_at":self.formatDate(order.PROMISEDATE),
-                # end of pieces
-                "commodities": commodities,
-
-                "notes":
-                    # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
-
-                    "OriginInstructions: {}".format(
-                        self.processComments(str(notes))),
-
-
-
-
-
-                "ref_num": order.SALESORDERNO,
-                "accessorials": []
-
-
-
+                "commodities":commodities
             }
-            recordcount += 1
 
             # checks if item code is valid for current record
+            #this ignores / skus in rows from DB from sending as separate orders to TMS
             if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE)):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
@@ -534,17 +414,17 @@ class RoseRocketIntegration():
                     if(order.SALESORDERNO != ordernos.pop()):
                         
                         # sets apiurl for the correct customer for this order
-                        # if(order.UDF_WFP_EXPORT == 'Y'):
-                        # print("INSIDE UPDATE METHOD SHOULDN'T SEE RIGHT NOW")
+                        
                         print("ORDER UPDATED! {}".format(order.SALESORDERNO))
-                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
+                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
+                        print("UPDATED COMMODITIES JSON: {}".format(params))
                         r = requests.put(
                         apiurl, json=params, headers=headers)
                         resp = r.json()
 
                         if('error_code' in resp):
-                            logging.error(params)
+                            # logging.error(params)
                             #print("Update was successful! " + str(recordcount))
                             logging.error(
                                 "Update was NOT successful for order: " + str(order.SALESORDERNO))
@@ -578,11 +458,12 @@ class RoseRocketIntegration():
                     # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
-                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
                     print("Updating SO# {}".format(order.SALESORDERNO))
+                    print("UPDATED COMMODITIES JSON: {}".format(params))
                     r = requests.put(
                         apiurl, json=params, headers=headers)
                     resp = r.json()
@@ -674,7 +555,7 @@ if __name__ == "__main__":
     orgs = pw.orgs.keys()
     for org in orgs:
         logging.info("ORG: {}".format(org))
-        data = RoseRocketIntegrationBackend().getAllData(org)
+        # data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
         updatedata=RoseRocketIntegrationBackend().updateorders(org)
         rr.updateorders(updatedata)
