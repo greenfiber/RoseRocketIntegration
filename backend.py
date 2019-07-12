@@ -1,9 +1,9 @@
 import pyodbc
 import logging
 from secret import secrets as secrets
-# cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
 #for use at home
-cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+# cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
 
 class RoseRocketIntegrationBackend():
 
@@ -175,6 +175,7 @@ class RoseRocketIntegrationBackend():
       ,[COMMENT]
       ,[SALESPERSONNO]
       ,[ITEMCODE]
+      ,[PALLETQTY]
       ,[COMMENTS]
       ,[LINEITEMS]
       ,[ITEMDESC]
@@ -224,6 +225,8 @@ class RoseRocketIntegrationBackend():
       ,[PLANTNAME]
       ,[PLANTPHONENUMBER]
       ,[PLANTCOUNTRYCODE]
+      ,[LAT]
+      ,[LONG]
         FROM [SVExportStaging].[dbo].[PlantInfo]
         WHERE [WAREHOUSECODE]=?
          """

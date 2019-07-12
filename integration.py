@@ -69,10 +69,11 @@ class RoseRocketIntegration():
         return concat
     # this method parses the combined pieces from  lineitems for the salesorders
 
-    def processPieces(self, lines, data, desc, products,unitprice):
+    def processPieces(self, lines, data, desc, products,unitprice,palletqty):
         itemdesc = desc.split('|')
         lineitems = lines.split('|')
         itemcodes = products.split('|')
+        pallets= palletqty.split('|')
         skuinfo = {
             "INS541LD": {"THDSKU": "211904", "UPC": "716891001087"},
             "INS765LD/E": {'THDSKU': "1002476568", "UPC": "729477076546"}
@@ -92,10 +93,10 @@ class RoseRocketIntegration():
                     weight = float(data.SHIPWEIGHT)
                 except:
                     logging.error("Weight through an exception")
-
+            
             else:
                 weight = float(0)
-
+            
             # this is needed for homedepot orders only
             nmfc = 'none'
             pieceClass = 'none'
@@ -103,7 +104,7 @@ class RoseRocketIntegration():
                 "weight_unit": "lb",
                 "freight_class": pieceClass,
 
-                "quantity": qty,
+                "pieces": qty,
                 "weight": weight,
 
                 "measurement_unit": "inch",
@@ -122,10 +123,10 @@ class RoseRocketIntegration():
                     pieces = {
                         "weight_unit": "lb",
                         "freight_class": pieceClass,
-
-                        "quantity": qty,
+                        "pieces":qty,
+                        "quantity": int(pallets[i]),
                         "weight": weight,
-
+                        
                         "measurement_unit": "inch",
                         "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(itemdesc[i], skuinfo[itemcodes[i]]["THDSKU"], skuinfo[itemcodes[i]]["UPC"],unitprice),
                         "sku": itemcodes[i],
@@ -202,6 +203,9 @@ class RoseRocketIntegration():
                 ServiceTypeCode = "ftl"
             else:
                 ServiceTypeCode = "ltl"
+
+            if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC'):
+                ServiceTypeCode = 'ltl'
             whcode = order.WAREHOUSECODE
             try:
                 plantInfo = self.db.getPlantInfo(whcode)[0]
@@ -222,13 +226,13 @@ class RoseRocketIntegration():
             
                 
             commodities = self.processPieces(
-                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE)
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE,order.PALLETQTY)
             notes = order.COMMENTS.split('|')
             params = {
 
                 "external_id": order.SALESORDERNO,
                 "destination": {
-                    "contact_name": order.SHIPTONAME,
+                    "org_name": order.SHIPTONAME,
 
 
                     "address_1": order.SHIPTOADDRESS1,
@@ -250,8 +254,10 @@ class RoseRocketIntegration():
                            "state": plantInfo["State"],
                            "postal": plantInfo["PostalCode"],
                            "country": plantInfo["CountryCode"],
-                           "phone": plantInfo["plantPhoneNumber"]
-
+                           "phone": plantInfo["plantPhoneNumber"],
+                           "latitude": plantInfo["lat"],
+                           "longitude": plantInfo["long"]
+                            
                            },  # end of shipper
 
                 # "DatesandTimes": {
@@ -266,7 +272,7 @@ class RoseRocketIntegration():
 
                 "billing": {
                     "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
-                    "contact_name": order.BILLTONAME,
+                    "org_name": order.BILLTONAME,
 
                     "address_1": order.BILLTOADDRESS1,
                     "address_2": order.BILLTOADDRESS2,
@@ -399,7 +405,7 @@ class RoseRocketIntegration():
             
                 
             commodities = self.processPieces(
-                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE)
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE,order.PALLETQTY)
             params = {
                 "commodities":commodities
             }
@@ -555,9 +561,9 @@ if __name__ == "__main__":
     orgs = pw.orgs.keys()
     for org in orgs:
         logging.info("ORG: {}".format(org))
-        # data = RoseRocketIntegrationBackend().getAllData(org)
+        data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
-        updatedata=RoseRocketIntegrationBackend().updateorders(org)
-        rr.updateorders(updatedata)
-        # rr.synccustomers(data)
-        # rr.sendData(data)
+        # updatedata=RoseRocketIntegrationBackend().updateorders(org)
+        # rr.updateorders(updatedata)
+        rr.synccustomers(data)
+        rr.sendData(data)
