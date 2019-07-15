@@ -132,7 +132,7 @@ class RoseRocketIntegrationBackend():
       
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        WHERE WAREHOUSECODE = ? 
+        WHERE WAREHOUSECODE = ? and UDF_UPDATE_RR == 'Y'
         """
 
         cursor = cx.cursor()
