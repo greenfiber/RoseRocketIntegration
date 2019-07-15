@@ -38,7 +38,7 @@ class RoseRocketIntegration():
     # data=db.getAllData(whcode)
 
     def logStart(self):
-        logging.basicConfig(filename='C:\\svsync\\sync.log', level=logging.DEBUG,
+        logging.basicConfig(filename='C:\\rrsync\\sync.log', level=logging.DEBUG,
                             format='%(asctime)s:%(levelname)s:%(message)s')
 
     def authorg(self, whcode):
@@ -65,7 +65,7 @@ class RoseRocketIntegration():
     def processComments(self, comments):
         concat = ""
         for comment in comments:
-            concat += comment + " "
+            concat += comment
         return concat
     # this method parses the combined pieces from  lineitems for the salesorders
 
@@ -105,13 +105,14 @@ class RoseRocketIntegration():
                 "freight_class": pieceClass,
 
                 "pieces": qty,
+                "quantity":1,
                 "weight": weight,
 
                 "measurement_unit": "inch",
                 "description": itemdesc[i],
                 "sku": itemcodes[i],
                 "nmfc": nmfc,
-                "commodity_type": "other"}
+                "commodity_type": "skid"}
             if(data.CUSTOMERNO == 'HOMEDCO' or data.CUSTOMERNO == 'HOMERDC'):
                 # print("hd logic")
                 nmfc = '10330'
@@ -131,7 +132,7 @@ class RoseRocketIntegration():
                         "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(itemdesc[i], skuinfo[itemcodes[i]]["THDSKU"], skuinfo[itemcodes[i]]["UPC"],unitprice),
                         "sku": itemcodes[i],
                         "nmfc": nmfc,
-                        "commodity_type": "other"
+                        "commodity_type": "skid"
                     }
                     # print(pieces)
                     piecesData.append(pieces)
@@ -186,9 +187,9 @@ class RoseRocketIntegration():
         recordcount = 0
         # keeps track of sent SO#s
         ordernos = []
-        # keeps track of successful sends to SV
+        # keeps track of successful sends to RR
         sentorders = []
-        # keeps track of failed orders going to SV
+        # keeps track of failed orders going to RR
         failedorders = []
         auth = self.authorg(self.whcode)
         for order in data:
@@ -203,7 +204,7 @@ class RoseRocketIntegration():
                 ServiceTypeCode = "ftl"
             else:
                 ServiceTypeCode = "ltl"
-
+            #if the order has pallets, send it as ltl so it displays properly in rr
             if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC'):
                 ServiceTypeCode = 'ltl'
             whcode = order.WAREHOUSECODE
@@ -255,8 +256,8 @@ class RoseRocketIntegration():
                            "postal": plantInfo["PostalCode"],
                            "country": plantInfo["CountryCode"],
                            "phone": plantInfo["plantPhoneNumber"],
-                           "latitude": plantInfo["lat"],
-                           "longitude": plantInfo["long"]
+                           "latitude": float(plantInfo["LAT"]),
+                           "longitude": float(plantInfo["LONG"])
                             
                            },  # end of shipper
 
@@ -364,6 +365,7 @@ class RoseRocketIntegration():
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
                     print("Sending SO# {}".format(order.SALESORDERNO))
+                    
                     r = requests.post(
                         apiurl, json=params, headers=headers)
                     resp = r.json()
@@ -555,7 +557,11 @@ class RoseRocketIntegration():
                 logging.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
 
-
+    def updatesync(self):
+        orgs = pw.orgs.keys()
+        for org in orgs:
+            updatedata=RoseRocketIntegrationBackend().updateorders(org)
+            rr.updateorders(updatedata)
 if __name__ == "__main__":
 
     orgs = pw.orgs.keys()
@@ -563,7 +569,6 @@ if __name__ == "__main__":
         logging.info("ORG: {}".format(org))
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
-        # updatedata=RoseRocketIntegrationBackend().updateorders(org)
-        # rr.updateorders(updatedata)
+       
         rr.synccustomers(data)
         rr.sendData(data)

@@ -89,7 +89,7 @@ class RoseRocketIntegrationBackend():
     def updateorders(self,whcode):
         
         query = """
-        SELECT  [SALESORDERNO]
+         SELECT  [SALESORDERNO]
       ,[ORDERDATE]
       ,[ARDIVISIONNO]
       ,[CUSTOMERNO]
@@ -116,6 +116,7 @@ class RoseRocketIntegrationBackend():
       ,[COMMENT]
       ,[SALESPERSONNO]
       ,[ITEMCODE]
+      ,[PALLETQTY]
       ,[COMMENTS]
       ,[LINEITEMS]
       ,[ITEMDESC]
@@ -129,7 +130,7 @@ class RoseRocketIntegrationBackend():
       
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        WHERE WAREHOUSECODE = ? AND UDF_UPDATE_RR = 'Y'
+        WHERE WAREHOUSECODE = ? 
         """
         
 
@@ -250,7 +251,9 @@ class RoseRocketIntegrationBackend():
                 "PostalCode": row.PLANTZIPCODE,
                 "CountryCode": row.PLANTCOUNTRYCODE,
                 "plantPhoneNumber": row.PLANTPHONENUMBER,
-                "plantName": row.PLANTNAME
+                "plantName": row.PLANTNAME,
+                "LAT": row.LAT,
+                "LONG": row.LONG
 
 
             }
