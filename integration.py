@@ -69,11 +69,11 @@ class RoseRocketIntegration():
         return concat
     # this method parses the combined pieces from  lineitems for the salesorders
 
-    def processPieces(self, lines, data, desc, products,unitprice,palletqty):
+    def processPieces(self, lines, data, desc, products, unitprice, palletqty):
         itemdesc = desc.split('|')
         lineitems = lines.split('|')
         itemcodes = products.split('|')
-        pallets= palletqty.split('|')
+        pallets = palletqty.split('|')
         skuinfo = {
             "INS541LD": {"THDSKU": "211904", "UPC": "716891001087"},
             "INS765LD/E": {'THDSKU': "1002476568", "UPC": "729477076546"}
@@ -93,10 +93,10 @@ class RoseRocketIntegration():
                     weight = float(data.SHIPWEIGHT)
                 except:
                     logging.error("Weight through an exception")
-            
+
             else:
                 weight = float(0)
-            
+
             # this is needed for homedepot orders only
             nmfc = 'none'
             pieceClass = 'none'
@@ -105,7 +105,7 @@ class RoseRocketIntegration():
                 "freight_class": pieceClass,
 
                 "pieces": qty,
-                "quantity":1,
+                "quantity": 1,
                 "weight": weight,
 
                 "measurement_unit": "inch",
@@ -124,12 +124,12 @@ class RoseRocketIntegration():
                     pieces = {
                         "weight_unit": "lb",
                         "freight_class": pieceClass,
-                        "pieces":qty,
+                        "pieces": qty,
                         "quantity": int(pallets[i]),
                         "weight": weight,
-                        
+
                         "measurement_unit": "inch",
-                        "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(itemdesc[i], skuinfo[itemcodes[i]]["THDSKU"], skuinfo[itemcodes[i]]["UPC"],unitprice),
+                        "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(itemdesc[i], skuinfo[itemcodes[i]]["THDSKU"], skuinfo[itemcodes[i]]["UPC"], unitprice),
                         "sku": itemcodes[i],
                         "nmfc": nmfc,
                         "commodity_type": "skid"
@@ -166,9 +166,9 @@ class RoseRocketIntegration():
         import pytz
         try:
             fd = datetime.strptime(data, '%Y%m%d')
-            local=pytz.timezone("America/New_York")
-            localized=local.localize(fd, is_dst=None)
-            utc=localized.astimezone(pytz.utc)
+            local = pytz.timezone("America/New_York")
+            localized = local.localize(fd, is_dst=None)
+            utc = localized.astimezone(pytz.utc)
             return str(utc.isoformat())
         except Exception as e:
             #print("error in formatting date ")
@@ -178,6 +178,7 @@ class RoseRocketIntegration():
         import string
         import random
         return random.choice(string.ascii_letters)
+
     def sendData(self, data):
         logging.debug("Starting sync...")
         logging.info("=====================================")
@@ -204,7 +205,7 @@ class RoseRocketIntegration():
                 ServiceTypeCode = "ftl"
             else:
                 ServiceTypeCode = "ltl"
-            #if the order has pallets, send it as ltl so it displays properly in rr
+            # if the order has pallets, send it as ltl so it displays properly in rr
             if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC'):
                 ServiceTypeCode = 'ltl'
             whcode = order.WAREHOUSECODE
@@ -224,10 +225,9 @@ class RoseRocketIntegration():
                 fob = 'prepaid'
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
-            
-                
+
             commodities = self.processPieces(
-                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE,order.PALLETQTY)
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY)
             notes = order.COMMENTS.split('|')
             params = {
 
@@ -258,7 +258,7 @@ class RoseRocketIntegration():
                            "phone": plantInfo["plantPhoneNumber"],
                            "latitude": float(plantInfo["LAT"]),
                            "longitude": float(plantInfo["LONG"])
-                            
+
                            },  # end of shipper
 
                 # "DatesandTimes": {
@@ -287,8 +287,8 @@ class RoseRocketIntegration():
 
                 },  # end of billto
                 "po_num": order.PURCHASEORDERNO,
-                "pickup_start_at":self.formatDate(order.ORDERDATE),
-                "delivery_appt_start_at":self.formatDate(order.PROMISEDATE),
+                "pickup_start_at": self.formatDate(order.ORDERDATE),
+                "delivery_appt_start_at": self.formatDate(order.PROMISEDATE),
                 # end of pieces
                 "commodities": commodities,
 
@@ -317,10 +317,11 @@ class RoseRocketIntegration():
                     # checks if the current SO is not equal to the last order submitted
                     # if they are the same then that means it is a duplicate and shouldn't be sent
                     if(order.SALESORDERNO != ordernos.pop()):
-                        
+
                         # sets apiurl for the correct customer for this order
-                        
-                        logging.info("Sending SO# {}".format(order.SALESORDERNO))
+
+                        logging.info("Sending SO# {}".format(
+                            order.SALESORDERNO))
                         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
                         r = requests.post(
@@ -365,7 +366,7 @@ class RoseRocketIntegration():
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
                     print("Sending SO# {}".format(order.SALESORDERNO))
-                    
+
                     r = requests.post(
                         apiurl, json=params, headers=headers)
                     resp = r.json()
@@ -387,7 +388,8 @@ class RoseRocketIntegration():
                         # failedorders.append(order.SALESORDERNO)
 
                     failedorders.append(order.SALESORDERNO)
-    def updateorders(self,data):
+
+    def updateorders(self, data):
         recordcount = 0
         # keeps track of sent SO#s
         ordernos = []
@@ -403,32 +405,30 @@ class RoseRocketIntegration():
 
 
             }
-            
-            
-                
+
             commodities = self.processPieces(
-                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES,order.UNITPRICE,order.PALLETQTY)
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY)
             params = {
-                "commodities":commodities
+                "commodities": commodities
             }
 
             # checks if item code is valid for current record
-            #this ignores / skus in rows from DB from sending as separate orders to TMS
+            # this ignores / skus in rows from DB from sending as separate orders to TMS
             if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE)):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
                     # checks if the current SO is not equal to the last order submitted
                     # if they are the same then that means it is a duplicate and shouldn't be sent
                     if(order.SALESORDERNO != ordernos.pop()):
-                        
+
                         # sets apiurl for the correct customer for this order
-                        
+
                         print("ORDER UPDATED! {}".format(order.SALESORDERNO))
                         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
-                        order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
+                            order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                         print("UPDATED COMMODITIES JSON: {}".format(params))
                         r = requests.put(
-                        apiurl, json=params, headers=headers)
+                            apiurl, json=params, headers=headers)
                         resp = r.json()
 
                         if('error_code' in resp):
@@ -445,16 +445,14 @@ class RoseRocketIntegration():
                             logging.info(
                                 "Success when Updateing SO#: " + str(order.SALESORDERNO))
 
-                            
                             # this is what keeps track of any extra lines still in db
                         ordernos.append(order.SALESORDERNO)
-                        
-                        
+
                     else:
                         # print("Duplicate record removed " +
                             #  str(order.SALESORDERNO))
                         logging.info("Duplicate record removed " +
-                                        str(order.SALESORDERNO))
+                                     str(order.SALESORDERNO))
 
                     # except Exception :
                     # print("Something went wrong with Updateing data to SV API" )
@@ -467,7 +465,7 @@ class RoseRocketIntegration():
 
                     # sets apiurl for the correct customer for this order
                     apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
-                        order.ARDIVISIONNO, order.CUSTOMERNO,order.SALESORDERNO)
+                        order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
                     print("Updating SO# {}".format(order.SALESORDERNO))
@@ -505,8 +503,7 @@ class RoseRocketIntegration():
                 fob = 'collect'
             if(order.FOB == 'PP'):
                 fob = 'prepaid'
-            
-                
+
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
 
@@ -553,15 +550,17 @@ class RoseRocketIntegration():
                 #print("SVAPI reports an Error when sending data")
                 # TODO: reason why it failed
                 logging.info("Send was successful when sending Customer " +
-                      str(order.CUSTOMERNO))
+                             str(order.CUSTOMERNO))
                 logging.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
 
     def updatesync(self):
         orgs = pw.orgs.keys()
         for org in orgs:
-            updatedata=RoseRocketIntegrationBackend().updateorders(org)
+            updatedata = RoseRocketIntegrationBackend().updateorders(org)
             rr.updateorders(updatedata)
+
+
 if __name__ == "__main__":
 
     orgs = pw.orgs.keys()
@@ -569,6 +568,6 @@ if __name__ == "__main__":
         logging.info("ORG: {}".format(org))
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
-       
+
         rr.synccustomers(data)
         rr.sendData(data)
