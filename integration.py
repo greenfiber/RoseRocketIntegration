@@ -230,7 +230,7 @@ class RoseRocketIntegration():
                 logging.error("ERROR IN WAREHOUSE LOOKUP")
                 print(e)
             # THIS IS USED FOR TESTING ONLY
-            # rand = self.genrnd()
+            rand = self.genrnd()
 
             # FOB logic to conform to SV standards
             fob = ''
@@ -249,7 +249,7 @@ class RoseRocketIntegration():
             notes = order.COMMENTS.split('|')
             params = {
 
-                "external_id": order.SALESORDERNO,
+                "external_id": order.SALESORDERNO+rand,
                 "destination": {
                     "org_name": order.SHIPTONAME,
 
