@@ -87,27 +87,28 @@ class RoseRocketIntegration():
             # class and nmfc are none if not HD
             nmfc = 'none'
             pieceClass = 'none'
-            # checks if the shipments is a FTL
-            # FTL must always have a quantity of one
+            #checks if the shipments is a FTL
+            #FTL must always have a quantity of one
+            # print('LTLFLAG: {}'.format(LTLFLAG))
             if(LTLFLAG == False):
-
+                totalweight = weight*qty
                 pieces = {
-                    "weight_unit": "lb",
-                    "freight_class": pieceClass,
+                "weight_unit": "lb",
+                "freight_class": pieceClass,
 
-                    "pieces": qty,
-                    "quantity": 1,
-                    "weight": weight,
+                "pieces": qty,
+                "quantity": 1,
+                "weight": float(totalweight),
 
-                    "measurement_unit": "inch",
-                    "description": itemdesc[i],
-                    "sku": itemcodes[i],
-                    "nmfc": nmfc,
-                    "commodity_type": "skid"}
-            # this distinction in the pieces dictionary is
-            # so the shipments show correct total weights for LTL
-            # it uses number of bags and each bag weight
-            # it must always have a piece count of one to make it 'per bag'
+                "measurement_unit": "inch",
+                "description": itemdesc[i],
+                "sku": itemcodes[i],
+                "nmfc": nmfc,
+                "commodity_type": "skid"}
+            #this distinction in the pieces dictionary is
+            #so the shipments show correct total weights for LTL
+            #it uses number of bags and each bag weight 
+            #it must always have a piece count of one to make it 'per bag'
             else:
                 pieces = {
                     "weight_unit": "lb",
@@ -168,7 +169,7 @@ class RoseRocketIntegration():
             else:  # any other customer besides HD
 
                 if("/" not in itemcodes[i]):
-                    print("Slash logic non HD")
+                    # print("Slash logic non HD")
                     piecesData.append(pieces)
 
             # if("/NOINV" in itemcodes[i] or "/MISC" in itemcodes[i] or "INS765LD/E" in itemcodes[i]):
@@ -245,7 +246,8 @@ class RoseRocketIntegration():
 
             if(ServiceTypeCode == 'ltl'):
                 self.LTLFLAG = True
-
+            else:
+                self.LTLFLAG = False
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY, self.LTLFLAG)
             notes = order.COMMENTS.split('|')
