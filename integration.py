@@ -8,7 +8,7 @@ from datetime import datetime
 from time import strftime, strptime
 
 from backend import RoseRocketIntegrationBackend
-from secretprod import secrets as pw
+from secret import secrets as pw
 
 
 class RoseRocketIntegration():
@@ -123,7 +123,7 @@ class RoseRocketIntegration():
                     "sku": itemcodes[i],
                     "nmfc": nmfc,
                     "commodity_type": "package"}
-            if(data.CUSTOMERNO == 'HOMEDCO' or data.CUSTOMERNO == 'HOMERDC'):
+            if(data.CUSTOMERNO == 'HOMEDEP' or data.CUSTOMERNO == 'HOMERDC'):
                 # print("hd logic")
                 nmfc = '10330'
                 pieceClass = '100'
@@ -157,7 +157,45 @@ class RoseRocketIntegration():
                     # print("hd sku alt logic")
                     # print(pieces)
                     piecesData.append(pieces)
+            elif(data.CUSTOMERNO == 'HOMEDCO'):
+                nmfc = '10330'
+                pieceClass = '100'
+                if(LTLFLAG == False):
+                    totalweight = weight*qty
+                    pieces = {
+                    "weight_unit": "lb",
+                    "freight_class": pieceClass,
 
+                    "pieces": qty,
+                    "quantity": 1,
+                    "weight": float(totalweight),
+
+                    "measurement_unit": "inch",
+                    "description": itemdesc[i],
+                    "sku": itemcodes[i],
+                    "nmfc": nmfc,
+                    "commodity_type": "skid"}
+
+            #this distinction in the pieces dictionary is
+            #so the shipments show correct total weights for LTL
+            #it uses number of bags and each bag weight 
+            #it must always have a piece count of one to make it 'per bag'
+                else:
+                    pieces = {
+                        "weight_unit": "lb",
+                        "freight_class": pieceClass,
+
+                        "pieces": 1,
+                        "quantity": qty,
+                        "weight": weight,
+
+                        "measurement_unit": "inch",
+                        "description": itemdesc[i],
+                        "sku": itemcodes[i],
+                        "nmfc": nmfc,
+                        "commodity_type": "package"}
+                if("/" not in itemcodes[i]):
+                    piecesData.append(pieces)
             # ******
             # specifically check for only HD skus instead of relying on slash to determine if appended
             # **********
@@ -253,7 +291,7 @@ class RoseRocketIntegration():
             notes = order.COMMENTS.split('|')
             params = {
 
-                "external_id": order.SALESORDERNO,
+                "external_id": order.SALESORDERNO+rand,
                 "destination": {
                     "org_name": order.SHIPTONAME,
 
@@ -344,7 +382,7 @@ class RoseRocketIntegration():
 
                         logging.info("Sending SO# {}".format(
                             order.SALESORDERNO))
-                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
+                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
                         r = requests.post(
                             apiurl, json=params, headers=headers)
@@ -383,7 +421,7 @@ class RoseRocketIntegration():
                    # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
-                    apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
@@ -446,7 +484,7 @@ class RoseRocketIntegration():
                         # sets apiurl for the correct customer for this order
 
                         print("ORDER UPDATED! {}".format(order.SALESORDERNO))
-                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
+                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                         print("UPDATED COMMODITIES JSON: {}".format(params))
                         r = requests.put(
@@ -486,7 +524,7 @@ class RoseRocketIntegration():
                     # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
-                    apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
