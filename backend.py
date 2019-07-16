@@ -1,9 +1,11 @@
 import pyodbc
 import logging
-from secret import secrets as secrets
-cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
-#for use at home
-# cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+from secretprod import secrets as secrets
+# cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
+#     secrets.dbusr, secrets.dbpw))
+# for use at home
+cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+
 
 class RoseRocketIntegrationBackend():
 
@@ -47,7 +49,7 @@ class RoseRocketIntegrationBackend():
       ,[TELEPHONENO]
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        where WAREHOUSECODE = '906'
+        where WAREHOUSECODE = '130'
         """
         yCount = 0
         nCount = 0
@@ -71,13 +73,13 @@ class RoseRocketIntegrationBackend():
 
         return data
 
-    def getskuinfo(self,gfsku):
-        query="""
+    def getskuinfo(self, gfsku):
+        query = """
         
         where ITEMCODE =?
         """
         cursor = cx.cursor()
-        cursor.execute(query,gfsku)
+        cursor.execute(query, gfsku)
         rows = cursor.fetchall()
         data = []
 
@@ -86,8 +88,8 @@ class RoseRocketIntegrationBackend():
             data.append(row)
         return data
 
-    def updateorders(self,whcode):
-        
+    def updateorders(self, whcode):
+
         query = """
          SELECT  [SALESORDERNO]
       ,[ORDERDATE]
@@ -130,24 +132,21 @@ class RoseRocketIntegrationBackend():
       
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        WHERE WAREHOUSECODE = ? 
+        WHERE WAREHOUSECODE = ? and UDF_UPDATE_RR == 'Y'
         """
-        
 
         cursor = cx.cursor()
-        cursor.execute(query,whcode)
+        cursor.execute(query, whcode)
         rows = cursor.fetchall()
         data = []
 
         for row in rows:
 
             data.append(row)
-            
-
-        
 
         return data
-    def getAllData(self,whcode):
+
+    def getAllData(self, whcode):
         query = """
         SELECT  [SALESORDERNO]
       ,[ORDERDATE]
@@ -197,7 +196,7 @@ class RoseRocketIntegrationBackend():
         custCount = 0
 
         cursor = cx.cursor()
-        cursor.execute(query,whcode)
+        cursor.execute(query, whcode)
         rows = cursor.fetchall()
         data = []
 
@@ -213,7 +212,7 @@ class RoseRocketIntegrationBackend():
         print("Y:"+str(yCount) + " "+"N:"+str(nCount))
 
         return data
-    
+
     def getPlantInfo(self, whcode):
         query = """
         SELECT
