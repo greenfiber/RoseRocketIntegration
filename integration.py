@@ -29,7 +29,7 @@ class RoseRocketIntegration():
                             format='%(asctime)s:%(levelname)s:%(message)s')
 
     def authorg(self, whcode):
-        authurl = 'https://auth.sandbox01.roserocket.com/oauth2/token'
+        authurl = 'https://auth.roserocket.com/oauth2/token'
         authheader = {'Accept': 'application/json'}
 
         params = {
@@ -344,7 +344,7 @@ class RoseRocketIntegration():
 
                         logging.info("Sending SO# {}".format(
                             order.SALESORDERNO))
-                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
+                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
                         r = requests.post(
                             apiurl, json=params, headers=headers)
@@ -383,7 +383,7 @@ class RoseRocketIntegration():
                    # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
-                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
+                    apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
@@ -446,7 +446,7 @@ class RoseRocketIntegration():
                         # sets apiurl for the correct customer for this order
 
                         print("ORDER UPDATED! {}".format(order.SALESORDERNO))
-                        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
+                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                         print("UPDATED COMMODITIES JSON: {}".format(params))
                         r = requests.put(
@@ -486,7 +486,7 @@ class RoseRocketIntegration():
                     # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
-                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
+                    apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
@@ -515,7 +515,7 @@ class RoseRocketIntegration():
                     failedorders.append(order.SALESORDERNO)
 
     def synccustomers(self, data):
-        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers'
+        apiurl = 'https://platform.roserocket.com/api/v1/customers'
         auth = self.authorg(self.whcode)
         for order in data:
 
