@@ -28,7 +28,7 @@ class RoseRocketIntegration():
                             format='%(asctime)s:%(levelname)s:%(message)s')
 
     def authorg(self, whcode):
-        authurl = 'https://auth.roserocket.com/oauth2/token'
+        authurl = 'https://auth.sandbox01.roserocket.com/oauth2/token'
         authheader = {'Accept': 'application/json'}
 
         params = {
