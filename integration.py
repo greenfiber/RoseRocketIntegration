@@ -288,7 +288,7 @@ class RoseRocketIntegration():
 
                 "dim_type": str(ServiceTypeCode),
                 "billing_option": fob,
-
+                "tender_num":order.SHIPTOCODE,
                 "billing": {
                     "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
                     "org_name": order.BILLTONAME,
@@ -586,6 +586,6 @@ if __name__ == "__main__":
         logging.info("ORG: {}".format(org))
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
-
+        rr.logStart()
         rr.synccustomers(data)
         rr.sendData(data)
