@@ -89,15 +89,16 @@ class RoseRocketIntegration():
             pieceClass = 'none'
             #checks if the shipments is a FTL
             #FTL must always have a quantity of one
+            # print('LTLFLAG: {}'.format(LTLFLAG))
             if(LTLFLAG == False):
-
+                totalweight = weight*qty
                 pieces = {
                 "weight_unit": "lb",
                 "freight_class": pieceClass,
 
                 "pieces": qty,
                 "quantity": 1,
-                "weight": weight,
+                "weight": float(totalweight),
 
                 "measurement_unit": "inch",
                 "description": itemdesc[i],
@@ -166,7 +167,7 @@ class RoseRocketIntegration():
             else:  # any other customer besides HD
 
                 if("/" not in itemcodes[i]):
-                    print("Slash logic non HD")
+                    # print("Slash logic non HD")
                     piecesData.append(pieces)
 
             # if("/NOINV" in itemcodes[i] or "/MISC" in itemcodes[i] or "INS765LD/E" in itemcodes[i]):
@@ -243,7 +244,8 @@ class RoseRocketIntegration():
             
             if(ServiceTypeCode == 'ltl'):
                 self.LTLFLAG = True
-
+            else:
+                self.LTLFLAG = False
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY,self.LTLFLAG)
             notes = order.COMMENTS.split('|')
