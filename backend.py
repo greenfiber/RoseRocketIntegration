@@ -1,10 +1,10 @@
 import pyodbc
 import logging
 from secretprod import secrets as secrets
-cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
-    secrets.dbusr, secrets.dbpw))
+# cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
+#     secrets.dbusr, secrets.dbpw))
 # for use at home
-# cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
 
 
 class RoseRocketIntegrationBackend():
@@ -49,7 +49,7 @@ class RoseRocketIntegrationBackend():
       ,[TELEPHONENO]
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        where WAREHOUSECODE = '906'
+        where WAREHOUSECODE = '130'
         """
         yCount = 0
         nCount = 0

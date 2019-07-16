@@ -20,20 +20,7 @@ class RoseRocketIntegration():
 
     apiurl = ''
     # warehousecode:warehousename
-    orgs = {
-        '130': 'GFNorfolk',
-        '161': 'GFWaco',
-        '310': 'GFTampa',
-        '336': 'GFDelphos',
-        '810': 'GFChandler',
-        '841': 'GFSLC',
-        '842': 'GFSLC',
-        '845': 'GFSLC',
-        '906': "GFWilkes-Barre",
-        '920': 'GFVars',
-        '921': 'GFDebert'
-
-    }
+    
 
     # data=db.getAllData(whcode)
 
@@ -142,7 +129,12 @@ class RoseRocketIntegration():
                 # print("ITEM CODE: {}".format(itemcodes[i]))
                 if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i]):
                     # print("hd sku logic both skus")
-                    palletweight = (qty * weight)/int(pallets[i])
+                    if(pallets[i] != 0):
+                        palletweight = (qty * weight)/int(pallets[i])
+                    else:
+                        logging.error("Sales order {} was not sent because pallet info was not entered.".format(data.SALESORDERNO))
+                        raise Exception('pallet quantity should be greater than zero and shouldn\'t get to this point. ')
+                    
                     pieces = {
                         "weight_unit": "lb",
                         "freight_class": pieceClass,
@@ -337,7 +329,7 @@ class RoseRocketIntegration():
             recordcount += 1
 
             # checks if item code is valid for current record
-            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE)):
+            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) and order.PALLETQTY > 0):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
                     # checks if the current SO is not equal to the last order submitted
