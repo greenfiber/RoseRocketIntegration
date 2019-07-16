@@ -45,6 +45,7 @@ class RoseRocketIntegration():
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
         logging.info("AUTHRESP: {}".format(resp))
+        print("AUTHRESP: {}".format(resp))
         # print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken'] = resp['data']['access_token']
         return pw.orgs[whcode]['accesstoken']
@@ -270,7 +271,7 @@ class RoseRocketIntegration():
                 },  # end of consignee
 
 
-                "origin": {"contact_name": plantInfo["plantName"],
+                "origin": {"org_name": plantInfo["plantName"],
                            "address_1": plantInfo["Address1"],
                            "address_2": plantInfo["Address2"],
                            "city": plantInfo["City"],
