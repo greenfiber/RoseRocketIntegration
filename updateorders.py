@@ -4,5 +4,8 @@ from secretprod import secrets as pw
 
 
 if __name__ == "__main__":
-    rr = RoseRocketIntegration()
-    rr.updatesync()
+    orgs = pw.orgs.keys()
+    for org in orgs:
+
+        rr = RoseRocketIntegration(org)
+        rr.updatesync(org)

@@ -576,11 +576,10 @@ class RoseRocketIntegration():
                 logging.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
 
-    def updatesync(self):
-        orgs = pw.orgs.keys()
-        for org in orgs:
-            updatedata = RoseRocketIntegrationBackend().updateorders(org)
-            rr.updateorders(updatedata)
+    def updatesync(self,org):
+        
+        updatedata = RoseRocketIntegrationBackend().updateorders(org)
+        self.updateorders(updatedata)
 
 
 if __name__ == "__main__":
