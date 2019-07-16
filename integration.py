@@ -291,7 +291,7 @@ class RoseRocketIntegration():
             notes = order.COMMENTS.split('|')
             params = {
 
-                "external_id": order.SALESORDERNO+rand,
+                "external_id": order.SALESORDERNO,
                 "destination": {
                     "org_name": order.SHIPTONAME,
 
