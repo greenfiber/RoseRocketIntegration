@@ -1,6 +1,6 @@
 from integration import RoseRocketIntegration as rr 
 from backend import RoseRocketIntegrationBackend
-from secret import secrets as pw
+from secretprod import secrets as pw
 
 
 if __name__ == "__main__":

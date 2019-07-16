@@ -1,6 +1,6 @@
 import pyodbc
 import logging
-from secret import secrets as secrets
+from secretprod import secrets as secrets
 cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
     secrets.dbusr, secrets.dbpw))
 # for use at home
