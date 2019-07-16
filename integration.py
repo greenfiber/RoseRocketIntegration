@@ -9,7 +9,7 @@ from datetime import datetime
 from time import strftime, strptime
 from shutil import copy2, move
 from backend import RoseRocketIntegrationBackend
-from secretprod import secrets as pw
+from secret import secrets as pw
 
 
 class RoseRocketIntegration():
