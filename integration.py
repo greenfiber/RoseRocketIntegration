@@ -14,7 +14,7 @@ from secretprod import secrets as pw
 
 class RoseRocketIntegration():
     db = RoseRocketIntegrationBackend()
-
+    LTLFLAG = False
     def __init__(self, whcode):
         self.whcode = whcode
 
@@ -69,7 +69,7 @@ class RoseRocketIntegration():
         return concat
     # this method parses the combined pieces from  lineitems for the salesorders
 
-    def processPieces(self, lines, data, desc, products, unitprice, palletqty):
+    def processPieces(self, lines, data, desc, products, unitprice, palletqty,LTLFLAG):
         itemdesc = desc.split('|')
         lineitems = lines.split('|')
         itemcodes = products.split('|')
@@ -97,10 +97,14 @@ class RoseRocketIntegration():
             else:
                 weight = float(0)
 
-            # this is needed for homedepot orders only
+            # class and nmfc are none if not HD
             nmfc = 'none'
             pieceClass = 'none'
-            pieces = {
+            #checks if the shipments is a FTL
+            #FTL must always have a quantity of one
+            if(LTLFLAG == False):
+
+                pieces = {
                 "weight_unit": "lb",
                 "freight_class": pieceClass,
 
@@ -113,6 +117,24 @@ class RoseRocketIntegration():
                 "sku": itemcodes[i],
                 "nmfc": nmfc,
                 "commodity_type": "skid"}
+            #this distinction in the pieces dictionary is
+            #so the shipments show correct total weights for LTL
+            #it uses number of bags and each bag weight 
+            #it must always have a piece count of one to make it 'per bag'
+            else:
+                pieces = {
+                "weight_unit": "lb",
+                "freight_class": pieceClass,
+
+                "pieces": 1,
+                "quantity": qty,
+                "weight": weight,
+
+                "measurement_unit": "inch",
+                "description": itemdesc[i],
+                "sku": itemcodes[i],
+                "nmfc": nmfc,
+                "commodity_type": "package"}
             if(data.CUSTOMERNO == 'HOMEDCO' or data.CUSTOMERNO == 'HOMERDC'):
                 # print("hd logic")
                 nmfc = '10330'
@@ -120,13 +142,13 @@ class RoseRocketIntegration():
                 # print("ITEM CODE: {}".format(itemcodes[i]))
                 if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i]):
                     # print("hd sku logic both skus")
-
+                    palletweight = (qty * weight)/int(pallets[i])
                     pieces = {
                         "weight_unit": "lb",
                         "freight_class": pieceClass,
                         "pieces": qty,
                         "quantity": int(pallets[i]),
-                        "weight": weight,
+                        "weight": palletweight,
 
                         "measurement_unit": "inch",
                         "description": """{} THDSKU:{} UPC:{} UNITPRICE: {}""".format(itemdesc[i], skuinfo[itemcodes[i]]["THDSKU"], skuinfo[itemcodes[i]]["UPC"], unitprice),
@@ -192,6 +214,7 @@ class RoseRocketIntegration():
         sentorders = []
         # keeps track of failed orders going to RR
         failedorders = []
+        
         auth = self.authorg(self.whcode)
         for order in data:
             headers = {
@@ -205,8 +228,8 @@ class RoseRocketIntegration():
                 ServiceTypeCode = "ftl"
             else:
                 ServiceTypeCode = "ltl"
-            # if the order has pallets, send it as ltl so it displays properly in rr
-            if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC'):
+            # if the order has pallets, send it as ltl so it displays properly in rr covers all HD SQUs
+            if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC' or order.CUSTOMERNO == 'HOMEDEP'):
                 ServiceTypeCode = 'ltl'
             whcode = order.WAREHOUSECODE
             try:
@@ -225,9 +248,12 @@ class RoseRocketIntegration():
                 fob = 'prepaid'
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
+            
+            if(ServiceTypeCode == 'ltl'):
+                self.LTLFLAG = True
 
             commodities = self.processPieces(
-                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY)
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY,self.LTLFLAG)
             notes = order.COMMENTS.split('|')
             params = {
 
@@ -407,7 +433,7 @@ class RoseRocketIntegration():
             }
 
             commodities = self.processPieces(
-                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY)
+                order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY,self.LTLFLAG)
             params = {
                 "commodities": commodities
             }
