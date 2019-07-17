@@ -281,6 +281,38 @@ class RoseRocketIntegration():
                 fob = 'prepaid'
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
+                billingaddress={
+                    
+                    "org_name": "HOMEDEPOT.COM",
+
+                    "address_1": "ATTN: FREIGHT PAYABLES",
+                    "address_2": "2455 PACES FERRY ROAD",
+                    "city": "ATLANTA",
+                    "state": "GA",
+                    "postal": "30339",
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+
+
+                }
+            else:
+                billingaddress={
+                    "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
+                    "org_name": order.BILLTONAME,
+
+                    "address_1": order.BILLTOADDRESS1,
+                    "address_2": order.BILLTOADDRESS2,
+                    "city": order.BILLTOCITY,
+                    "state": order.BILLTOSTATE,
+                    "postal": order.BILLTOZIPCODE,
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+
+
+                }
+
 
             if(ServiceTypeCode == 'ltl'):
                 self.LTLFLAG = True
@@ -331,21 +363,7 @@ class RoseRocketIntegration():
                 "dim_type": str(ServiceTypeCode),
                 "billing_option": fob,
                 "tender_num": order.SHIPTOCODE,
-                "billing": {
-                    "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
-                    "org_name": order.BILLTONAME,
-
-                    "address_1": order.BILLTOADDRESS1,
-                    "address_2": order.BILLTOADDRESS2,
-                    "city": order.BILLTOCITY,
-                    "state": order.BILLTOSTATE,
-                    "postal": order.BILLTOZIPCODE,
-                    "country": "US",  # REPLACE THIS WITH COLUMN
-
-
-
-
-                },  # end of billto
+                "billing": billingaddress,  # end of billto
                 "po_num": order.PURCHASEORDERNO,
                 "pickup_start_at": self.formatDate(order.ORDERDATE),
                 "delivery_appt_start_at": self.formatDate(order.PROMISEDATE),
@@ -371,7 +389,7 @@ class RoseRocketIntegration():
             recordcount += 1
 
             # checks if item code is valid for current record
-            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) and order.PALLETQTY > 0):
+            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE)):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
                     # checks if the current SO is not equal to the last order submitted
