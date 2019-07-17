@@ -130,7 +130,8 @@ class RoseRocketIntegration():
                 # print("ITEM CODE: {}".format(itemcodes[i]))
                 if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i]):
                     # print("hd sku logic both skus")
-                    if(pallets[i] != 0):
+                    print("Pallet Count: {}".format(pallets[i]))
+                    if(int(pallets[i]) > 0):
                         palletweight = (qty * weight)/int(pallets[i])
                     else:
                         logging.error("Sales order {} was not sent because pallet info was not entered.".format(
