@@ -19,9 +19,38 @@ class RoseRocketIntegration():
         self.whcode = whcode
 
     apiurl = ''
-    # warehousecode:warehousename
+    
+    def synccarriers(self,data):
+        import pandas as pd
+        df=pd.read_excel(io="C:\\Users\\friesdj\\Downloads\\Carrier Report.xlsx")
+        sheet=df.where((pd.notnull(df)),'none')
+        for index,row in sheet.iterrows():
+            params={
+            "external_id": row.Code,
+            "short_code": row.Code[:6],
+            "name": row.Name,
+            "address_1": row.Address1,
+            "address_2": row.Address2,
+            "is_active":True,
+            "city": row.City,
+            "postal": str(row.Zip),
+            "phone": row.Phone,
+            
+            
+            }
+            auth = self.authorg(self.whcode)
+        
+            headers = {
+                'Accept': 'application/json',
+                
 
-    # data=db.getAllData(whcode)
+
+            }
+            apiurl = 'https://platform.roserocket.com/v1/partner_carriers'
+            r = requests.post(
+                apiurl, json=params, headers=headers)
+            resp = r.json()
+        
 
     def logStart(self):
         logging.basicConfig(filename='C:\\rrsync\\sync.log', level=logging.DEBUG,
@@ -134,10 +163,11 @@ class RoseRocketIntegration():
                     if(int(pallets[i]) > 0):
                         palletweight = (qty * weight)/int(pallets[i])
                     else:
-                        logging.error("Sales order {} was not sent because pallet info was not entered.".format(
+                        logging.error("Sales order {} was not sent  because pallet info was not entered. Approximating weight".format(
                             data.SALESORDERNO))
-                        raise Exception(
-                            'pallet quantity should be greater than zero and shouldn\'t get to this point. ')
+                        palletweight = (qty*weight)/int(qty/42)
+                        # raise Exception(
+                        #     'pallet quantity should be greater than zero and shouldn\'t get to this point. ')
 
                     pieces = {
                         "weight_unit": "lb",
