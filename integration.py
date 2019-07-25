@@ -163,10 +163,11 @@ class RoseRocketIntegration():
                     if(int(pallets[i]) > 0):
                         palletweight = (qty * weight)/int(pallets[i])
                     else:
-                        logging.error("Sales order {} was not sent because pallet info was not entered.".format(
+                        logging.error("Sales order {} was not sent  because pallet info was not entered. Approximating weight".format(
                             data.SALESORDERNO))
-                        raise Exception(
-                            'pallet quantity should be greater than zero and shouldn\'t get to this point. ')
+                        palletweight = (qty*weight)/int(qty/42)
+                        # raise Exception(
+                        #     'pallet quantity should be greater than zero and shouldn\'t get to this point. ')
 
                     pieces = {
                         "weight_unit": "lb",
