@@ -660,7 +660,7 @@ class RoseRocketIntegration():
             else:
                 #print("SVAPI reports an Error when sending data")
                 # TODO: reason why it failed
-                logging.info("Send was successful when sending Customer " +
+                print("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
                 logging.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
