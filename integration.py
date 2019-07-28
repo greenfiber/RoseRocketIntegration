@@ -612,7 +612,8 @@ class RoseRocketIntegration():
                 fob = 'collect'
             if(order.FOB == 'PP'):
                 fob = 'prepaid'
-
+            else:
+                fob = 'prepaid'
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
 
@@ -652,6 +653,7 @@ class RoseRocketIntegration():
             if('error_code' in resp):
                 # if(str(resp['Success']) == str('True')):
                 #print("Send was successful! " + str(recordcount))
+                # print(resp)
                 logging.error(
                     "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
 
