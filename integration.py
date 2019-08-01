@@ -600,7 +600,104 @@ class RoseRocketIntegration():
                         # failedorders.append(order.SALESORDERNO)
 
                     failedorders.append(order.SALESORDERNO)
+    def updatecustomers(self,data):
+        
+        auth = self.authorg(self.whcode)
+        for order in data:
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/ext:{}{}'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+            # this determins the billing type
+            fob = ''
+            if(order.FOB == 'CC'):
+                fob = 'collect'
+            if(order.FOB == 'PP'):
+                fob = 'prepaid'
+            else:
+                fob = 'prepaid'
+            if(order.CUSTOMERNO == 'HOMEDCO'):
+                fob = 'thirdparty'
+                billingaddress={
+                    
+                    "name": "HOMEDEPOT.COM",
 
+                    "address_1": "ATTN: FREIGHT PAYABLES",
+                    "address_2": "2455 PACES FERRY ROAD",
+                    "city": "ATLANTA",
+                    "state": "GA",
+                    "postal": "30339",
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+
+
+                }
+            else:
+                billingaddress = {
+                    
+                    
+                    "name": order.BILLTONAME,
+
+                    "address_1": order.BILLTOADDRESS1,
+                    "address_2": order.BILLTOADDRESS2,
+                    "city": order.BILLTOCITY,
+                    "state": order.BILLTOSTATE,
+                    "postal": order.BILLTOZIPCODE,
+                    "country": "US",
+
+
+
+
+                
+                }
+            # print("Auth Token: {}".format(auth)
+            headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer {}'.format(auth)
+
+
+            }
+            params = {
+                "external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
+                "name": billingaddress['name'],
+
+                "address_1": billingaddress['address_1'],
+                "address_2": billingaddress['address_2'],
+                "city": billingaddress['city'],
+                "state": billingaddress['state'],
+                "postal": billingaddress['postal'],
+                "country": "US",
+                "short_code": str(order.CUSTOMERNO)[:6],
+                "currency": 'usd',
+                            "default_billing_option": fob,
+                            "default_dim_type": "ltl",
+                            "measurement_unit": "inch",
+                            "weight_unit": "lb",
+                            "is_active": True,
+                "billing_contact_name": order.BILLTONAME}
+            print(params)
+
+            r = requests.put(
+                apiurl, json=params, headers=headers)
+            logging.info("Sync Customer Response: {}".format(r.text))
+            resp = r.json()
+
+            # sentorders.append(order.SALESORDERNO)
+            if('error_code' in resp):
+                # if(str(resp['Success']) == str('True')):
+                #print("Send was successful! " + str(recordcount))
+                # print(resp)
+                logging.error(
+                    "Update was unsuccessful for customer: " + str(order.CUSTOMERNO))
+                print(resp)
+
+            else:
+                #print("SVAPI reports an Error when sending data")
+                # TODO: reason why it failed
+                print("Send was successful when updating Customer " +
+                             str(order.CUSTOMERNO))
+                print(resp)
+                logging.info("Send was successful when sending Customer " +
+                             str(order.CUSTOMERNO))
     def synccustomers(self, data):
         apiurl = 'https://platform.roserocket.com/api/v1/customers'
         auth = self.authorg(self.whcode)
@@ -690,8 +787,9 @@ if __name__ == "__main__":
     orgs = pw.orgs.keys()
     for org in orgs:
         logging.info("ORG: {}".format(org))
-        data = RoseRocketIntegrationBackend().getAllData(org)
+        data = RoseRocketIntegrationBackend().getTestData()
         rr = RoseRocketIntegration(org)
         rr.logStart()
-        rr.synccustomers(data)
-        rr.sendData(data)
+        rr.updatecustomers(data)
+        # rr.synccustomers(data)
+        # rr.sendData(data)
