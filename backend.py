@@ -49,7 +49,7 @@ class RoseRocketIntegrationBackend():
       ,[TELEPHONENO]
       
         FROM [SVExportStaging].[dbo].[RRINTEGRATION]
-        where WAREHOUSECODE = '130'
+        where CUSTOMERNO = 'HOMEDCO'
         """
         yCount = 0
         nCount = 0
