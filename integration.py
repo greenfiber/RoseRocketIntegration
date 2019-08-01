@@ -397,7 +397,7 @@ class RoseRocketIntegration():
                 "billing": billingaddress,  # end of billto
                 "po_num": order.PURCHASEORDERNO,
                 "pickup_start_at": self.formatDate(order.ORDERDATE),
-                "delivery_appt_start_at": self.formatDate(order.PROMISEDATE),
+                "delivery_start_at": self.formatDate(order.PROMISEDATE),
                 # end of pieces
                 "commodities": commodities,
 
@@ -616,7 +616,21 @@ class RoseRocketIntegration():
                 fob = 'prepaid'
             if(order.CUSTOMERNO == 'HOMEDCO'):
                 fob = 'thirdparty'
+                billingaddress={
+                    
+                    "org_name": "HOMEDEPOT.COM",
 
+                    "address_1": "ATTN: FREIGHT PAYABLES",
+                    "address_2": "2455 PACES FERRY ROAD",
+                    "city": "ATLANTA",
+                    "state": "GA",
+                    "postal": "30339",
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+
+
+                }
             # print("Auth Token: {}".format(self.authorg(order.WAREHOUSECODE)))
             headers = {
                 'Accept': 'application/json',
