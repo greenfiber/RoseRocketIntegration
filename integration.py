@@ -20,10 +20,12 @@ class RoseRocketIntegration():
 
     apiurl = ''
     
-    def synccarriers(self,data):
+    def synccarriers(self):
+        #this section reads in the carriers from an excel sheet and then sends them to RR
         import pandas as pd
         df=pd.read_excel(io="C:\\Users\\friesdj\\Downloads\\Carrier Report.xlsx")
         sheet=df.where((pd.notnull(df)),'none')
+        auth = self.authorg(self.whcode)
         for index,row in sheet.iterrows():
             params={
             "external_id": row.Code,
@@ -35,22 +37,55 @@ class RoseRocketIntegration():
             "city": row.City,
             "postal": str(row.Zip),
             "phone": row.Phone,
-            
+            "standard_carrier_alpha_code": row.SCAC
             
             }
-            auth = self.authorg(self.whcode)
+            # print(params)
+            print("SENDING CARRIER {}".format(row.Code))
         
             headers = {
-                'Accept': 'application/json',
-                
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer {}'.format(auth)
 
 
             }
-            apiurl = 'https://platform.roserocket.com/v1/partner_carriers'
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/partner_carriers'
             r = requests.post(
                 apiurl, json=params, headers=headers)
             resp = r.json()
-        
+            print("Carrier Send Response {}".format(resp))
+        #this section gets all carriers on RR for the org and returnes as JSON
+        print("GETTING ALL CARRIERS")
+        carriers = requests.get(apiurl, json=params, headers=headers).json()
+
+        #this loops through each carrier and sets its service to Brokerage
+        #this is required for them to show up to add to an order
+        for carrier in carriers['partner_carriers']:
+    
+            headers = {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer {}'.format(auth)
+
+
+                        }
+            serviceparams = {
+                            "service": {
+
+
+                        "name": "Brokerage",
+                        "is_active": True,
+
+
+                        "currency_id": "USD",
+                        "partner_carrier_id": str(carrier['id'])
+
+                            }
+                        }
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/services'
+            r = requests.post(
+            apiurl, json=serviceparams, headers=headers)
+            print("Service Addition Response: {}".format(r.json()))
+            
 
     def logStart(self):
         logging.basicConfig(filename='C:\\rrsync\\sync.log', level=logging.DEBUG,
@@ -787,9 +822,11 @@ if __name__ == "__main__":
     orgs = pw.orgs.keys()
     for org in orgs:
         logging.info("ORG: {}".format(org))
-        data = RoseRocketIntegrationBackend().getTestData()
+        data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
         rr.logStart()
-        rr.updatecustomers(data)
+        rr.synccarriers()
+        # rr.updatecustomers(data)
         # rr.synccustomers(data)
         # rr.sendData(data)
+    
