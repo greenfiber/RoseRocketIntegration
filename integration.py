@@ -674,7 +674,7 @@ class RoseRocketIntegration():
                             "weight_unit": "lb",
                             "is_active": True,
                 "billing_contact_name": order.BILLTONAME}
-            print(params)
+            # print(params)
 
             r = requests.put(
                 apiurl, json=params, headers=headers)
@@ -787,9 +787,9 @@ if __name__ == "__main__":
     orgs = pw.orgs.keys()
     for org in orgs:
         logging.info("ORG: {}".format(org))
-        data = RoseRocketIntegrationBackend().getTestData()
+        data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
         rr.logStart()
-        rr.updatecustomers(data)
-        # rr.synccustomers(data)
-        # rr.sendData(data)
+        # rr.updatecustomers(data)
+        rr.synccustomers(data)
+        rr.sendData(data)
