@@ -825,8 +825,8 @@ if __name__ == "__main__":
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
         rr.logStart()
-        rr.synccarriers()
+        # rr.synccarriers()
         # rr.updatecustomers(data)
-        # rr.synccustomers(data)
-        # rr.sendData(data)
+        rr.synccustomers(data)
+        rr.sendData(data)
     
