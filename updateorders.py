@@ -9,4 +9,4 @@ if __name__ == "__main__":
         data=RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
         rr.updatesync(org)
-        rr.updatecustomers(data)
+        # rr.updatecustomers(data)
