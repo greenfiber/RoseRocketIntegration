@@ -49,7 +49,7 @@ class RoseRocketIntegration():
 
 
             }
-            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/partner_carriers'
+            apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers'
             r = requests.post(
                 apiurl, json=params, headers=headers)
             resp = r.json()
@@ -81,7 +81,7 @@ class RoseRocketIntegration():
 
                             }
                         }
-            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/services'
+            apiurl = 'https://platform.roserocket.com/api/v1/services'
             r = requests.post(
             apiurl, json=serviceparams, headers=headers)
             print("Service Addition Response: {}".format(r.json()))
