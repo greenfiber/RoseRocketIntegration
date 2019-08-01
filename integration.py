@@ -604,7 +604,7 @@ class RoseRocketIntegration():
         
         auth = self.authorg(self.whcode)
         for order in data:
-            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/ext:{}{}'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
+            apiurl = 'https://platform.roserocket.com/api/v1/customers/ext:{}{}'.format(order.ARDIVISIONNO,order.CUSTOMERNO)
             # this determins the billing type
             fob = ''
             if(order.FOB == 'CC'):
