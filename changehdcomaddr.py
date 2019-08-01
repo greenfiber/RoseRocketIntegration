@@ -1,9 +1,9 @@
 from integration import RoseRocketIntegration  
 from backend import RoseRocketIntegrationBackend
-from secret import secrets as pw
+from secretprod import secrets as pw
 import requests
 orgs = pw.orgs.keys()
-apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/ext:00HOMEDCO'
+apiurl = 'https://platform.roserocket.com/api/v1/customers/ext:00HOMEDCO'
 
  
 for org in orgs:
