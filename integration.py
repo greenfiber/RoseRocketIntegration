@@ -200,7 +200,10 @@ class RoseRocketIntegration():
                     else:
                         logging.error("Sales order {} was not sent  because pallet info was not entered. Approximating weight".format(
                             data.SALESORDERNO))
-                        palletweight = (qty*weight)/int(qty/42)
+                        try:
+                            palletweight = (qty*weight)/int(qty/42)
+                        except:
+                            logging.error("ERROR!! PALLET WEIGHT WILL BE ZERO BECAUSE OF INVALID QUANTITY")
                         # raise Exception(
                         #     'pallet quantity should be greater than zero and shouldn\'t get to this point. ')
 

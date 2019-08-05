@@ -12,7 +12,7 @@ for org in orgs:
     billingaddress={
                     
                     "name": "HOMEDEPOT.COM",
-
+                    "external_id":"00HOMEDCO",
                     "address_1": "ATTN: FREIGHT PAYABLES",
                     "address_2": "2455 PACES FERRY ROAD",
                     "city": "ATLANTA",
