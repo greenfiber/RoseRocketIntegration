@@ -219,13 +219,15 @@ class RoseRocketIntegrationBackend():
         SELECT
 
         [SALESORDERNO]
+        ,[ARDIVISIONNO]
+        ,[CUSTOMERNO]
         ,convert(varchar(8),ORDERDATE,112) as ORDERDATE
         ,[ORDERSTATUS]
         ,[WAREHOUSECODE]
         FROM [MAS_GFC].[dbo].[SO_SALESORDERHISTORYHEADER]
         where ORDERDATE between '20190701' and '20190801' 
         and WAREHOUSECODE = ?
-        order by ORDERDATE 
+        order by ORDERDATE  
         """
         cursor = cx.cursor()
         cursor.execute(query, whcode)
