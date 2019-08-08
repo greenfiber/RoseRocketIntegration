@@ -21,7 +21,8 @@ for org in orgs:
 
 
     }
-
+    apiurl='https://platform.roserocket.com/api/v1/bills'
+    bills=requests.get(apiurl,headers=headers).json()
     
     
     for result in results:
@@ -80,31 +81,43 @@ for org in orgs:
                     # print(comm["weight"])
                     # print(comm["pieces"])
                     # print(comm["quantity"])
-                    totalweight += comm["weight"]
-                    data['totalweight'] = totalweight
-                    if(comm["pieces"] == None or comm["pieces"]>=1):
-                        totalpieces += comm["quantity"]
-                        data['totalpieces'] = totalpieces
-                    else:
+                    
+                    if(comm["quantity"] == 1):
                         totalpieces += comm["pieces"]
                         data['totalpieces'] = totalpieces
+                        totalweight = comm["weight"]
+                        data['totalweight'] = totalweight
+                    elif(comm["pieces"]==1):
+                        totalpieces += comm["quantity"]
+                        data['totalpieces'] = totalpieces
+                        totalweight = comm["weight"]*totalpieces
+                        data['totalweight'] = totalweight
 
                     # getting manifestid for use to get manifests
-                    apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}'.format(
-                        manifestid)
-                    resp = requests.get(apiurl, headers=headers).json()
-                    # print(resp)
-                    carrierid = resp["manifest"]["partner_carrier_id"]
-                    # manifest is used to get partner carrier id
-                    apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
-                        carrierid)
-                    resp = requests.get(apiurl, headers=headers).json()
-                    # finally with the partner carrier id you can get the parner carrier name
-                    try:
-                        
-                        data['routingvendor'] = resp["partner_carrier"]["name"]
-                    except:
-                        data['routingvendor'] = "NULL"
+                apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}'.format(
+                    manifestid)
+                resp = requests.get(apiurl, headers=headers).json()
+                # print(resp)
+                carrierid = resp["manifest"]["partner_carrier_id"]
+                # manifest is used to get partner carrier id
+                apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
+                    carrierid)
+                resp = requests.get(apiurl, headers=headers).json()
+                # finally with the partner carrier id you can get the parner carrier name
+                try:
+
+                    data['routingvendor'] = resp["partner_carrier"]["name"]
+                except:
+                    data['routingvendor'] = "NULL"
+                
+                for bill in bills["bills"]:
+#                     print("CarrierID: {}".format(carrierid))
+#                     print("partner carrier id: {}".format(bill["partner_carrier_id"]))
+                    if(bill["partner_carrier_id"] == carrierid):
+                        data['totalcost']=bill['sub_total_amount']
+#                     else:
+#                         print('issue with total cost')
+                
                 counter += 1
                 pddata.append(data)
                 print("orders processed {}".format(counter))
