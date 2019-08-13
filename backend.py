@@ -225,7 +225,7 @@ class RoseRocketIntegrationBackend():
         ,[ORDERSTATUS]
         ,[WAREHOUSECODE]
         FROM [MAS_GFC].[dbo].[SO_SALESORDERHISTORYHEADER]
-        where ORDERDATE between '20190701' and '20190801' 
+        where ORDERDATE between '20190804' and '20190810' 
         and WAREHOUSECODE = ?
         order by ORDERDATE  
         """

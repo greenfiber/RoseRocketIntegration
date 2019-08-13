@@ -2,7 +2,7 @@ from integration import RoseRocketIntegration, RoseRocketIntegrationBackend
 from secretprod import secrets as pw
 import requests
 import xlwings as xw
-
+import pprint
 orgs = pw.orgs.keys()
 
 
@@ -94,10 +94,15 @@ for org in orgs:
                         data['totalweight'] = totalweight
 
                     # getting manifestid for use to get manifests
-                apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}'.format(
+                apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
                     manifestid)
                 resp = requests.get(apiurl, headers=headers).json()
-                # print(resp)
+                data['totalcost']=resp["manifest_payment"]["sub_total_amount"]
+                #get partner carrierid
+                apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
+                    manifestid)
+                resp = requests.get(apiurl, headers=headers).json()
+                
                 carrierid = resp["manifest"]["partner_carrier_id"]
                 # manifest is used to get partner carrier id
                 apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
@@ -109,14 +114,8 @@ for org in orgs:
                     data['routingvendor'] = resp["partner_carrier"]["name"]
                 except:
                     data['routingvendor'] = "NULL"
-                
-                for bill in bills["bills"]:
-#                     print("CarrierID: {}".format(carrierid))
-#                     print("partner carrier id: {}".format(bill["partner_carrier_id"]))
-                    if(bill["partner_carrier_id"] == carrierid):
-                        data['totalcost']=bill['sub_total_amount']
-#                     else:
-#                         print('issue with total cost')
+            
+            
                 
                 counter += 1
                 pddata.append(data)
