@@ -8,8 +8,9 @@ orgs = pw.orgs.keys()
 
 db = RoseRocketIntegrationBackend()
 pddata = []
+missingorders=[]
 print("generating report...")
-counter=0
+counter = 0
 for org in orgs:
     results = db.getOrderHistory(org)
     rr = RoseRocketIntegration(org)
@@ -21,13 +22,11 @@ for org in orgs:
 
 
     }
-    apiurl='https://platform.roserocket.com/api/v1/bills'
-    bills=requests.get(apiurl,headers=headers).json()
-    
-    
+    apiurl = 'https://platform.roserocket.com/api/v1/bills'
+    bills = requests.get(apiurl, headers=headers).json()
+
     for result in results:
-        
-       
+
         apiurl = 'https://platform.roserocket.com/api/v1/customers/ext:{}/orders/ext:{}'.format(
             result.ARDIVISIONNO+result.CUSTOMERNO, result.SALESORDERNO)
 
@@ -59,6 +58,8 @@ for org in orgs:
                 print("\n \n")
             data['orderno'] = id
         else:
+            missingorders.append(so)
+            print(resp)
             continue
 
         apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
@@ -66,11 +67,10 @@ for org in orgs:
         resp = requests.get(apiurl, headers=headers).json()
         legs = []
         # legs
-        
-        
+
         for leg in resp["legs"]:
-            
-            if(leg["manifest_id"] != None):
+
+            if(leg["manifest_id"] != None and leg["history"]["destination_delivered_at"] != None):
                 totalweight = 0
                 totalpieces = 0
                 data['ofddate'] = leg["history"]["destination_delivered_at"]
@@ -81,13 +81,13 @@ for org in orgs:
                     # print(comm["weight"])
                     # print(comm["pieces"])
                     # print(comm["quantity"])
-                    
+
                     if(comm["quantity"] == 1):
                         totalpieces += comm["pieces"]
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]
                         data['totalweight'] = totalweight
-                    elif(comm["pieces"]==1):
+                    elif(comm["pieces"] == 1):
                         totalpieces += comm["quantity"]
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]*totalpieces
@@ -97,12 +97,12 @@ for org in orgs:
                 apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
                     manifestid)
                 resp = requests.get(apiurl, headers=headers).json()
-                data['totalcost']=resp["manifest_payment"]["sub_total_amount"]
-                #get partner carrierid
+                data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
+                # get partner carrierid
                 apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
                     manifestid)
                 resp = requests.get(apiurl, headers=headers).json()
-                
+
                 carrierid = resp["manifest"]["partner_carrier_id"]
                 # manifest is used to get partner carrier id
                 apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
@@ -114,9 +114,7 @@ for org in orgs:
                     data['routingvendor'] = resp["partner_carrier"]["name"]
                 except:
                     data['routingvendor'] = "NULL"
-            
-            
-                
+
                 counter += 1
                 pddata.append(data)
                 print("orders processed {}".format(counter))
@@ -124,5 +122,14 @@ for org in orgs:
                 pass
 #                 print(
 #                     "order not added to report because it hasn't shipped yet {}".format(so))
-    
+
 # print(pddata)
+import pandas as pd
+df = pd.DataFrame(pddata)
+
+path=r"Y:/shipmentreport.xlsx"
+wb = xw.Book()
+sheet = wb.sheets['Sheet1']
+sheet.range('A1').value = df
+
+print("MISSING ORDERS ON RR {}".format(len(missingorders)))
