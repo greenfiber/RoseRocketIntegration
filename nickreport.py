@@ -4,7 +4,13 @@ import requests
 import xlwings as xw
 import pprint
 orgs = pw.orgs.keys()
-
+choice=''
+while(choice !='YES'):
+    startdate=input("Enter start date (yyyymmdd):")
+    enddate=input("Enter end date (yyyymmdd):")
+    print("START: {} ||| END: {}".format(startdate,enddate))
+    choice=input("Are these dates correct? (YES/NO):")
+    choice=str(choice).upper()
 
 db = RoseRocketIntegrationBackend()
 pddata = []
@@ -39,6 +45,7 @@ for org in orgs:
         # this gets the order id
         try:
             resp = requests.get(apiurl, headers=headers).json()
+            # print(resp)
         except Exception as e:
             print("can't find order: {}".format(so))
             print(e)
@@ -60,20 +67,23 @@ for org in orgs:
         else:
             missingorders.append(so)
             print(resp)
+            print(so)
+            print(org)
             continue
 
         apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
             id)
         resp = requests.get(apiurl, headers=headers).json()
+        # print(resp)
         legs = []
         # legs
 
         for leg in resp["legs"]:
 
-            if(leg["manifest_id"] != None and leg["history"]["destination_delivered_at"] != None):
+            if(leg["manifest_id"] != None and leg["history"]["origin_pickedup_at"] != None):
                 totalweight = 0
                 totalpieces = 0
-                data['ofddate'] = leg["history"]["destination_delivered_at"]
+                data['ofddate'] = leg["history"]["origin_pickedup_at"]
                 # print(leg)
                 manifestid = leg["manifest_id"]
                 # commodities in each leg
@@ -97,6 +107,7 @@ for org in orgs:
                 apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
                     manifestid)
                 resp = requests.get(apiurl, headers=headers).json()
+                #get estimated cost
                 data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
                 # get partner carrierid
                 apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(

@@ -212,7 +212,25 @@ class RoseRocketIntegrationBackend():
         print("Y:"+str(yCount) + " "+"N:"+str(nCount))
 
         return data
+    def getUnitPriceByOrderID(self,so,sku):
+        query = """
+         
+        SELECT
 
+        [SALESORDERNO]
+       ,ITEMCODE
+        ,[UNITPRICE]
+        
+      
+        
+        FROM [SVExportStaging].[dbo].[RRINTEGRATION]
+       where SALESORDERNO = ? and SALESORDERNO <> ''
+       and ITEMCODE = ?
+        """
+        cursor = cx.cursor()
+        cursor.execute(query, so,sku)
+        rows = cursor.fetchone()
+        return rows
     def getOrderHistory(self,whcode):
         query = """
          
@@ -226,7 +244,7 @@ class RoseRocketIntegrationBackend():
         ,[WAREHOUSECODE]
        from [MAS_GFC].[dbo].[AR_INVOICEHISTORYHEADER]
        where WAREHOUSECODE = ? and SALESORDERNO <> ''
-       and ORDERDATE between '20190729' and '20190815'
+       and ORDERDATE between '20190807' and '20190819'
         order by ORDERDATE 
         """
         cursor = cx.cursor()
