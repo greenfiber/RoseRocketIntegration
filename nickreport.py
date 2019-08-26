@@ -97,10 +97,16 @@ for org in orgs:
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]
                         data['totalweight'] = totalweight
+                    
                     elif(comm["pieces"] == 1):
                         totalpieces += comm["quantity"]
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]*totalpieces
+                        data['totalweight'] = totalweight
+                    elif(comm["quantity"] >=1):
+                        totalpieces += comm["pieces"]
+                        data['totalpieces'] = totalpieces
+                        totalweight = comm["weight"]*comm["quantity"]
                         data['totalweight'] = totalweight
 
                     # getting manifestid for use to get manifests
