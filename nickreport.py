@@ -18,7 +18,7 @@ missingorders=[]
 print("generating report...")
 counter = 0
 for org in orgs:
-    results = db.getOrderHistory(org)
+    results = db.getOrderHistory(org,str(startdate),str(enddate))
     rr = RoseRocketIntegration(org)
     auth = rr.authorg(org)
 

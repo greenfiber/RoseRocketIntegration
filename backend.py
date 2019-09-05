@@ -231,7 +231,7 @@ class RoseRocketIntegrationBackend():
         cursor.execute(query, so,sku)
         rows = cursor.fetchone()
         return rows
-    def getOrderHistory(self,whcode):
+    def getOrderHistory(self,whcode,startdate,enddate):
         query = """
          
         SELECT
@@ -239,16 +239,16 @@ class RoseRocketIntegrationBackend():
         [SALESORDERNO]
         ,[ARDIVISIONNO]
         ,[CUSTOMERNO]
-        ,convert(varchar(8),INVOICEDATE,112) as ORDERDATE
+        
       
         ,[WAREHOUSECODE]
        from [MAS_GFC].[dbo].[AR_INVOICEHISTORYHEADER]
        where WAREHOUSECODE = ? and SALESORDERNO <> ''
-       and ORDERDATE between '20190807' and '20190819'
+       and convert(varchar(8),SHIPDATE,112) between ? and ?
         order by ORDERDATE 
         """
         cursor = cx.cursor()
-        cursor.execute(query, whcode)
+        cursor.execute(query, whcode,startdate,enddate)
         rows = cursor.fetchall()
         return rows
 
