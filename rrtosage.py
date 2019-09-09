@@ -16,3 +16,7 @@ def default():
 
     else:
         return status.HTTP_401_UNAUTHORIZED
+
+if __name__ == '__main__':
+    
+    app.run(port='6969', host="0.0.0.0")
