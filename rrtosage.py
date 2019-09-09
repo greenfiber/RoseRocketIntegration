@@ -40,17 +40,18 @@ def getfreightamt(orderid):
 def default():
     token = request.args.get('token')
     if(token == 'CTq74c42cuUMkudJbPVF3GsH'):
-        print(request.data)
-        try:
-            freightcharge = getfreightamt(request.args.get('org'))
-        except:
-            freightcharge = "error in freight charge lookup for order {}".format(request.get_json(force=True))
+        print(request.get_json())
+        data=request.get_json()
+        # try:
+        #     freightcharge = getfreightamt(request.args.get('org'))
+        # except:
+        #     freightcharge = "error in freight charge lookup for order {}".format(request.get_json(force=True))
         # if(request.method == 'GET'):
         #     print(request.data)
         #     return status.HTTP_200_OK
         # else:
         #     print(request.data)
-        return str(str(freightcharge))
+        return data
 
     else:
         return 'Not okay auth'
