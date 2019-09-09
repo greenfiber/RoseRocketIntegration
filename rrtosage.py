@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(12)
 
-def getfreightamt(orderid):
+def getfreightamt(orderid,org):
     rr = RoseRocketIntegrationUtils()
     auth = rr.authorg(org)
 
@@ -47,7 +47,7 @@ def default():
         datajson=simplejson.dumps(data)
         print(datajson)
         # try:
-        #     freightcharge = getfreightamt(request.args.get('org'))
+        #     freightcharge = getfreightamt(orderid,request.args.get('org'))
         # except:
         #     freightcharge = "error in freight charge lookup for order {}".format(datajson)
         
