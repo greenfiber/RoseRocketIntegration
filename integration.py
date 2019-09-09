@@ -11,7 +11,10 @@ from backend import RoseRocketIntegrationBackend
 from secretprod import secrets as pw
 
 
+
+
 class RoseRocketIntegration():
+    from backend import RoseRocketIntegrationBackend
     db = RoseRocketIntegrationBackend()
     LTLFLAG = False
 
@@ -288,11 +291,12 @@ class RoseRocketIntegration():
 
     def formatDate(self, data):
         import pytz
+        from datetime import timedelta
         try:
             fd = datetime.strptime(data, '%Y%m%d')
             local = pytz.timezone("America/New_York")
             localized = local.localize(fd, is_dst=None)
-            utc = localized.astimezone(pytz.utc)
+            utc = localized.astimezone(pytz.utc)+timedelta(hours=6)
             return str(utc.isoformat())
         except Exception as e:
             #print("error in formatting date ")
@@ -326,10 +330,10 @@ class RoseRocketIntegration():
 
             }
             # sets shipment service type based on order quantity
-            if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
-                ServiceTypeCode = "ftl"
-            else:
-                ServiceTypeCode = "ltl"
+            # if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
+            #     ServiceTypeCode = "ftl"
+            # else:
+            ServiceTypeCode = "ltl"
             # if the order has pallets, send it as ltl so it displays properly in rr covers all HD SQUs
             if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC' or order.CUSTOMERNO == 'HOMEDEP'):
                 ServiceTypeCode = 'ltl'
@@ -821,7 +825,7 @@ class RoseRocketIntegration():
 
 
 if __name__ == "__main__":
-
+    from backend import RoseRocketIntegrationBackend
     orgs = pw.orgs.keys()
     for org in orgs:
         logging.info("ORG: {}".format(org))
