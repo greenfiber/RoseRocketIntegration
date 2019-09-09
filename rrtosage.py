@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, flash, session, abort,jsonify,
+from flask import Flask, request, render_template, redirect, flash, session, abort, jsonify
 from flask_api import status
 
 app = Flask(__name__)
