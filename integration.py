@@ -323,10 +323,10 @@ class RoseRocketIntegration():
 
             }
             # sets shipment service type based on order quantity
-            if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
-                ServiceTypeCode = "ftl"
-            else:
-                ServiceTypeCode = "ltl"
+            # if(int(float(str(order.LINEITEMS).split('|')[0])) > 700):
+            #     ServiceTypeCode = "ftl"
+            # else:
+            ServiceTypeCode = "ltl"
             # if the order has pallets, send it as ltl so it displays properly in rr covers all HD SQUs
             if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC' or order.CUSTOMERNO == 'HOMEDEP'):
                 ServiceTypeCode = 'ltl'
