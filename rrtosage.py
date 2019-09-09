@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, redirect, flash, session, abort, jsonify
+from flask import Flask, request, render_template, redirect, flash, session, abort, jsonify, make_response
+from flask_api import status
 import requests
 from integrationutils import RoseRocketIntegrationUtils
 import os
@@ -42,16 +43,13 @@ def default():
     if(token == 'CTq74c42cuUMkudJbPVF3GsH'):
         
         data=request.get_json()
-        # try:
-        #     freightcharge = getfreightamt(request.args.get('org'))
-        # except:
-        #     freightcharge = "error in freight charge lookup for order {}".format(request.get_json(force=True))
-        # if(request.method == 'GET'):
-        #     print(request.data)
-        #     return status.HTTP_200_OK
-        # else:
-        #     print(request.data)
-        return data
+        print(data)
+        try:
+            freightcharge = getfreightamt(request.args.get('org'))
+        except:
+            freightcharge = "error in freight charge lookup for order {}".format(request.get_json(force=True))
+        
+        return '200'
 
     else:
         return 'Not okay auth'
