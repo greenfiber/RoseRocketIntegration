@@ -14,7 +14,7 @@ def default():
         #     return status.HTTP_200_OK
         # else:
         #     print(request.data)
-        #     return status.HTTP_200_OK
+        return status.HTTP_200_OK
 
     else:
         return status.HTTP_401_UNAUTHORIZED
