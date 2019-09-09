@@ -40,7 +40,7 @@ def getfreightamt(orderid):
 def default():
     token = request.args.get('token')
     if(token == 'CTq74c42cuUMkudJbPVF3GsH'):
-        print(request.get_json())
+        
         data=request.get_json()
         # try:
         #     freightcharge = getfreightamt(request.args.get('org'))
