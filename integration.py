@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from time import strftime, strptime
 
-from backend import RoseRocketIntegrationBackend
+
 from secret import secrets as pw
 
 
@@ -36,6 +36,7 @@ class RoseRocketIntegrationUtils():
         return pw.orgs[whcode]['accesstoken']
 
 class RoseRocketIntegration():
+    from backend import RoseRocketIntegrationBackend
     db = RoseRocketIntegrationBackend()
     LTLFLAG = False
 
