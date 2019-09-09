@@ -288,11 +288,12 @@ class RoseRocketIntegration():
 
     def formatDate(self, data):
         import pytz
+        from datetime import timedelta
         try:
             fd = datetime.strptime(data, '%Y%m%d')
             local = pytz.timezone("America/New_York")
             localized = local.localize(fd, is_dst=None)
-            utc = localized.astimezone(pytz.utc)
+            utc = localized.astimezone(pytz.utc)+timedelta(hours=6)
             return str(utc.isoformat())
         except Exception as e:
             #print("error in formatting date ")
@@ -821,7 +822,7 @@ class RoseRocketIntegration():
 
 
 if __name__ == "__main__":
-
+    from backend import RoseRocketIntegrationBackend
     orgs = pw.orgs.keys()
     for org in orgs:
         logging.info("ORG: {}".format(org))
