@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   phase1:
-    image: phase1
+    
     build: .
     ports:
       - 6969:6969
