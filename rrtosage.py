@@ -44,7 +44,7 @@ def default():
         try:
             freightcharge = getfreightamt(request.args.get('org'))
         except:
-            freightcharge = "error in freight charge lookup for order {}".format(request.data['order_id'])
+            freightcharge = "error in freight charge lookup for order {}".format(jsonify(request.data)['order_id'])
         # if(request.method == 'GET'):
         #     print(request.data)
         #     return status.HTTP_200_OK
