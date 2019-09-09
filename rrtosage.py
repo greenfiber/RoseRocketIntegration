@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, flash, session, abort, jsonify, make_response
 from flask_api import status
 import requests
+import simplejson
 from integrationutils import RoseRocketIntegrationUtils
 import os
 app = Flask(__name__)
@@ -43,7 +44,7 @@ def default():
     if(token == 'CTq74c42cuUMkudJbPVF3GsH'):
         
         data=str(request.data).encode("utf-8")
-        datajson=jsonify(data)
+        datajson=simplejson.dumps(data)
         print(datajson)
         try:
             freightcharge = getfreightamt(request.args.get('org'))
