@@ -14,7 +14,7 @@ def default():
         #     return status.HTTP_200_OK
         # else:
         #     print(request.data)
-        return 'Okay token'
+        return str(request.data)
 
     else:
         return 'Not okay auth'
