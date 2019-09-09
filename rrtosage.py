@@ -35,7 +35,7 @@ def getfreightamt(orderid):
                 manifestid)
             resp = requests.get(apiurl, headers=headers).json()
             #get estimated cost
-            return = resp["manifest_payment"]["sub_total_amount"]
+            return resp["manifest_payment"]["sub_total_amount"]
 
 @app.route('/', methods=['GET','POST'])
 def default():
