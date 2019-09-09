@@ -10,7 +10,7 @@ def default():
         if(request.method == 'GET'):
             print(request.data)
             return status.HTTP_200_OK
-        else():
+        else:
             print(request.data)
             return status.HTTP_200_OK
 
