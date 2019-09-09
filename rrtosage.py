@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(12)
 
 def getfreightamt(orderid):
-    rr = RoseRocketIntegration(org)
+    rr = RoseRocketIntegrationUtils()
     auth = rr.authorg(org)
 
     headers = {
