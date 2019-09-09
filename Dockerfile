@@ -18,7 +18,7 @@ ADD . /RoseRocketIntegration
 # Using pip:
 RUN python3 -m pip install -r requirements.txt
 ENTRYPOINT [ "python3" ]
-CMD ["rrtosage.py"]
+CMD ["rrtosage.py","-u"]
 
 # Using pipenv:
 #RUN python3 -m pip install pipenv
