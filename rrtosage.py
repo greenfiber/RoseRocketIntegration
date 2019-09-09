@@ -14,10 +14,10 @@ def default():
         #     return status.HTTP_200_OK
         # else:
         #     print(request.data)
-        return status.HTTP_200_OK
+        return 'Okay token'
 
     else:
-        return status.HTTP_401_UNAUTHORIZED
+        return 'Not okay auth'
 
 if __name__ == '__main__':
     
