@@ -10,9 +10,9 @@ FROM python:alpine
 
 LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
-CMD git clone https://github.com/greenfiber/RoseRocketIntegration.git
+RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
-CMD git checkout prod-dev
+RUN git checkout prod-dev
 ADD . /RoseRocketIntegration
 
 # Using pip:
