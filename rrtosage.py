@@ -43,9 +43,9 @@ def default():
     token = request.args.get('token')
     if(token == 'CTq74c42cuUMkudJbPVF3GsH'):
         
-        data=str(request.data).encode("utf-8")
-        datajson=simplejson.dumps(data)
-        print(datajson)
+        # data=str(request.data).encode("utf-8")
+        datajson=simplejson.loads(request.data)
+        print(datajson['order_id'])
         # try:
         #     freightcharge = getfreightamt(orderid,request.args.get('org'))
         # except:
