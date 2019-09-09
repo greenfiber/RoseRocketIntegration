@@ -4,7 +4,7 @@
 # See https://hub.docker.com/r/library/python/ for all supported Python
 # tags from Docker Hub.
 FROM jfloff/alpine-python
-
+ARG CACHEBUST=1
 # If you prefer miniconda:
 #FROM continuumio/miniconda3
 
