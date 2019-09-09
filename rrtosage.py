@@ -45,11 +45,12 @@ def default():
         
         # data=str(request.data).encode("utf-8")
         datajson=simplejson.loads(request.data)
-        print(datajson)
-        # try:
-        #     freightcharge = getfreightamt(orderid,request.args.get('org'))
-        # except:
-        #     freightcharge = "error in freight charge lookup for order {}".format(datajson)
+        orderid=datajson["order_id"]
+        # print(datajson)
+        try:
+            freightcharge = getfreightamt(orderid,request.args.get('org'))
+        except:
+            freightcharge = "error in freight charge lookup for order {}".format(datajson)
         
         return '200'
 
