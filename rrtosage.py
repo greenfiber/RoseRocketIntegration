@@ -17,7 +17,7 @@ def getfreightamt(orderid,org):
 
 
     }
-    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/orders/{}/legs'.format(
+    apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
             orderid)
     resp = requests.get(apiurl, headers=headers).json()
     # print(resp)
@@ -32,7 +32,7 @@ def getfreightamt(orderid,org):
             manifestid = leg["manifest_id"]
             
             # getting manifestid for use to get manifests
-            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/manifests/{}/payment'.format(
+            apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
                 manifestid)
             resp = requests.get(apiurl, headers=headers).json()
             print(resp)
