@@ -1,0 +1,5 @@
+[gf32]
+Driver      = ODBC Driver 17 for SQL Server
+Description = Connect to my SQL Server instance
+Trace       = No
+Server      = gfcsql01-19.corp.us-gf.com

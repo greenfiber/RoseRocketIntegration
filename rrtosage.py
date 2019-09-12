@@ -14,7 +14,7 @@ app.secret_key = os.urandom(12)
 
 def writedata(data):
     cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
-    secrets.dbusr, secrets.dbpw))
+    pw.dbusr, pw.dbpw))
     query = ''' 
     
     insert into [InSynch].[dbo].[TOSAGE_SO_SalesOrderHeader](SalesOrderNo,UDF_OFD,UDF_EST_FREIGHT_CHG,ShipVia)values(?,?,?,?)
