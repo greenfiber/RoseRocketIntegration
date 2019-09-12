@@ -3,7 +3,7 @@
 # OS Support also exists for jessie & stretch (slim and full).
 # See https://hub.docker.com/r/library/python/ for all supported Python
 # tags from Docker Hub.
-FROM ubuntu:18.04
+FROM centos:latest
 ARG CACHEBUST=1
 # If you prefer miniconda:
 #FROM continuumio/miniconda3
@@ -11,21 +11,25 @@ ARG CACHEBUST=1
 LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
 # RUN sudo su
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git
+RUN yum install -y \
+    python-devel \
+    python-setuptools \
+    gcc-c++ \
+    openssl-devel \
+    bash
 RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 RUN git checkout prod-dev
 ADD . /RoseRocketIntegration
 #install prereqs for pyodbc
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
-RUN apt-get update
-RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
+RUN easy_install pip
+RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo
+RUN ACCEPT_EULA=Y yum install -y msodbcsql17
+RUN ACCEPT_EULA=Y yum install -y mssql-tools
+RUN yum install -y unixODBC-devel
 RUN odbcinst -i -s -f ./dsn.txt -l
 # Using pip:
-RUN python3 -m pip install -r requirements.txt
+RUN python -m pip install -r requirements.txt
 ENTRYPOINT [ "python3" ]
 CMD ["rrtosage.py","-u"]
 
