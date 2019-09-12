@@ -15,7 +15,7 @@ EXPOSE 6969
 
 #install python stuff
 RUN apt-get update
-RUN apt-get install -y python3 python3-dev python3-pip git curl
+RUN apt-get install -y python3 python3-dev python3-pip git curl build-essential
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add --no-tty -
 RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
 #clone git repo for app
