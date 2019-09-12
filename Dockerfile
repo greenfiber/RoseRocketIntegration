@@ -16,7 +16,8 @@ RUN yum install -y \
     python-setuptools \
     gcc-c++ \
     openssl-devel \
-    bash
+    bash \
+    git
 RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 RUN git checkout prod-dev
