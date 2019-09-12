@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, flash, session, abort, jsonify, make_response
 from secretprod import secrets as pw
 import requests
+import pyodbc
 import simplejson
 from integrationutils import RoseRocketIntegrationUtils
 import os
@@ -13,7 +14,7 @@ app.secret_key = os.urandom(12)
 
 def writedata(data):
     cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
-    secrets.dbusr, secrets.dbpw))
+    pw.dbusr, pw.dbpw))
     query = ''' 
     
     insert into [InSynch].[dbo].[TOSAGE_SO_SalesOrderHeader](SalesOrderNo,UDF_OFD,UDF_EST_FREIGHT_CHG,ShipVia)values(?,?,?,?)
@@ -96,6 +97,7 @@ def default():
         # print(datajson)
         try:
             freightcharge = getfreightinfo(datajson["order_id"],request.args.get('org'))
+            writedata(freightcharge)
             print("freight amount: {}".format(freightcharge))
         except Exception as e:
             freightcharge = print("error in freight charge lookup for order {}".format(datajson))

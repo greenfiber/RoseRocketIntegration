@@ -3,20 +3,36 @@
 # OS Support also exists for jessie & stretch (slim and full).
 # See https://hub.docker.com/r/library/python/ for all supported Python
 # tags from Docker Hub.
-FROM jfloff/alpine-python
+FROM ubuntu:18.04
 ARG CACHEBUST=1
 # If you prefer miniconda:
 #FROM continuumio/miniconda3
 
 LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
+# RUN sudo su
+#grab msft stuff
+
+#install python stuff
+RUN apt-get update
+RUN apt-get install -y python3 python3-dev python3-pip git curl build-essential
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add --no-tty -
+RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+#clone git repo for app
 RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
+#checkout proper branch
 RUN git checkout prod-dev
 ADD . /RoseRocketIntegration
-
+# RUN scl enable rh-python37 bash
+#install prereqs for pyodbc
+RUN apt-get update
+RUN ACCEPT_EULA=Y apt install -y msodbcsql17
+# RUN ACCEPT_EULA=Y apt install -y mssql-tools
+RUN apt install -y unixodbc-dev
+RUN odbcinst -i -s -f ./dsn.txt -l
 # Using pip:
-RUN python3 -m pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 ENTRYPOINT [ "python3" ]
 CMD ["rrtosage.py","-u"]
 
