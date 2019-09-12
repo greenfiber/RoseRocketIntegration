@@ -28,8 +28,8 @@ RUN git checkout prod-dev
 #install prereqs for pyodbc
 RUN apt-get update
 RUN ACCEPT_EULA=Y apt install -y msodbcsql17
-RUN ACCEPT_EULA=Y apt install -y mssql-tools
-RUN apt install -y unixODBC-devel
+# RUN ACCEPT_EULA=Y apt install -y mssql-tools
+# RUN apt install -y unixODBC-devel
 RUN odbcinst -i -s -f ./dsn.txt -l
 # Using pip:
 RUN pip3 install -r requirements.txt
