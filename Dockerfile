@@ -11,14 +11,15 @@ ARG CACHEBUST=1
 LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
 # RUN sudo su
-RUN yum install centos-release-scl \
-    yum install rh-python37
+
 RUN yum install -y \
+    rh-python37 \
     groupinstall 'Development Tools' \
     gcc-c++ \
     openssl-devel \
     bash \
-    git
+    git \
+    centos-release-scl 
 RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 RUN git checkout prod-dev
