@@ -24,7 +24,7 @@ RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 RUN git checkout prod-dev
 ADD . /RoseRocketIntegration
-RUN scl enable rh-python37 bash
+# RUN scl enable rh-python37 bash
 #install prereqs for pyodbc
 RUN easy_install pip
 RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo
@@ -33,8 +33,8 @@ RUN ACCEPT_EULA=Y yum install -y mssql-tools
 RUN yum install -y unixODBC-devel
 RUN odbcinst -i -s -f ./dsn.txt -l
 # Using pip:
-RUN python -m pip install -r requirements.txt
-ENTRYPOINT [ "python" ]
+RUN python3 -m pip install -r requirements.txt
+ENTRYPOINT [ "python3" ]
 CMD ["rrtosage.py","-u"]
 
 # Using pipenv:
