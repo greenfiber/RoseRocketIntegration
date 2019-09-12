@@ -29,7 +29,7 @@ RUN git checkout prod-dev
 RUN apt-get update
 RUN ACCEPT_EULA=Y apt install -y msodbcsql17
 # RUN ACCEPT_EULA=Y apt install -y mssql-tools
-# RUN apt install -y unixODBC-devel
+RUN apt install -y unixODBC-dev
 RUN odbcinst -i -s -f ./dsn.txt -l
 # Using pip:
 RUN pip3 install -r requirements.txt
