@@ -12,11 +12,12 @@ LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
 # RUN sudo su
 #grab msft stuff
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add --no-tty -
-RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+
 #install python stuff
 RUN apt-get update
-RUN apt-get install -y python3 python3-dev python3-pip git
+RUN apt-get install -y python3 python3-dev python3-pip git curl
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add --no-tty -
+RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
 #clone git repo for app
 RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
