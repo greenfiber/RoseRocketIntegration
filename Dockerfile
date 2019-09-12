@@ -23,7 +23,7 @@ RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 #checkout proper branch
 RUN git checkout prod-dev
-# ADD . /RoseRocketIntegration
+ADD . /RoseRocketIntegration
 # RUN scl enable rh-python37 bash
 #install prereqs for pyodbc
 RUN apt-get update
