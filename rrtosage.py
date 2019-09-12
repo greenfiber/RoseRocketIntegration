@@ -97,6 +97,7 @@ def default():
         # print(datajson)
         try:
             freightcharge = getfreightinfo(datajson["order_id"],request.args.get('org'))
+            writedata(freightcharge)
             print("freight amount: {}".format(freightcharge))
         except Exception as e:
             freightcharge = print("error in freight charge lookup for order {}".format(datajson))
