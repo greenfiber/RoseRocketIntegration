@@ -9,6 +9,17 @@ cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
 
 class RoseRocketIntegrationBackend():
 
+    def writefreightdata(self,data):
+        query = ''' 
+        
+        insert into [InSynch].[dbo].[TOSAGE_SO_SalesOrderHeader](SalesOrderNo,UDF_OFD,UDF_EST_FREIGHT_CHG,ShipVia)values(?,?,?,?)
+        '''
+        cursor = cx.cursor()
+        print(data["freightcharge"])
+        print(data["SCAC"])
+        cursor.execute(query,data["salesorderno"],"Y",data["freightcharge"],data["SCAC"][:15])
+        cursor.commit()
+
     def getTestData(self):
         query = """
         SELECT  [SALESORDERNO]

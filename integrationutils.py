@@ -1,9 +1,9 @@
-from secret import secrets as pw
+from secretprod import secrets as pw
 import requests
 class RoseRocketIntegrationUtils():
    
     def authorg(self,whcode):
-        authurl = 'https://auth.sandbox01.roserocket.com/oauth2/token'
+        authurl = 'https://auth.roserocket.com/oauth2/token'
         authheader = {'Accept': 'application/json'}
 
         params = {
