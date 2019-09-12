@@ -31,7 +31,7 @@ RUN yum install -y unixODBC-devel
 RUN odbcinst -i -s -f ./dsn.txt -l
 # Using pip:
 RUN python -m pip install -r requirements.txt
-ENTRYPOINT [ "python3" ]
+ENTRYPOINT [ "python" ]
 CMD ["rrtosage.py","-u"]
 
 # Using pipenv:
