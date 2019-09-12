@@ -11,9 +11,10 @@ ARG CACHEBUST=1
 LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
 # RUN sudo su
+RUN yum install centos-release-scl \
+    yum install rh-python37
 RUN yum install -y \
-    python-devel \
-    python-setuptools \
+    groupinstall 'Development Tools' \
     gcc-c++ \
     openssl-devel \
     bash \
@@ -22,6 +23,7 @@ RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 RUN git checkout prod-dev
 ADD . /RoseRocketIntegration
+RUN scl enable rh-python37 bash
 #install prereqs for pyodbc
 RUN easy_install pip
 RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo
