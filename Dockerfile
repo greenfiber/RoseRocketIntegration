@@ -12,7 +12,7 @@ LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
 # RUN sudo su
 #grab msft stuff
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key --no-tty add -
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add --no-tty -
 RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
 #install python stuff
 RUN apt-get update
