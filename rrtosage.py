@@ -1,13 +1,29 @@
 from flask import Flask, request, render_template, redirect, flash, session, abort, jsonify, make_response
-
+from secretprod import secrets as pw
 import requests
 import simplejson
 from integrationutils import RoseRocketIntegrationUtils
 import os
+
 app = Flask(__name__)
 app.secret_key = os.urandom(12)
 
-def getfreightamt(orderid,org):
+
+
+
+def writedata(data):
+    cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
+    secrets.dbusr, secrets.dbpw))
+    query = ''' 
+    
+    insert into [InSynch].[dbo].[TOSAGE_SO_SalesOrderHeader](SalesOrderNo,UDF_OFD,UDF_EST_FREIGHT_CHG,ShipVia)values(?,?,?,?)
+    '''
+    cursor = cx.cursor()
+    print(data["freightcharge"])
+    print(data["SCAC"])
+    cursor.execute(query,data["salesorderno"],"Y",data["freightcharge"],data["SCAC"])
+    cursor.commit()
+def getfreightinfo(orderid,org):
     rr = RoseRocketIntegrationUtils()
     auth = rr.authorg(org)
 
@@ -17,6 +33,16 @@ def getfreightamt(orderid,org):
 
 
     }
+    data={"freightcharge":"",
+            "SCAC":"",
+            "salesorderno":""
+            
+    }
+    #get the salesorderno
+    apiurl = "https://platform.sandbox01.roserocket.com/api/v1/orders/{}".format(orderid)
+    data["salesorderno"] = requests.get(apiurl,headers=headers).json()["order"]["external_id"]
+
+    #gets the legs to get the manifestid
     apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/orders/{}/legs'.format(
             orderid)
     resp = requests.get(apiurl, headers=headers).json()
@@ -27,6 +53,7 @@ def getfreightamt(orderid,org):
     for leg in resp["legs"]:
 
         if(leg["manifest_id"] != None):
+
             
            
             manifestid = leg["manifest_id"]
@@ -37,7 +64,24 @@ def getfreightamt(orderid,org):
             resp = requests.get(apiurl, headers=headers).json()
             print(resp)
             #get estimated cost
-            return resp["manifest_payment"]["sub_total_amount"]
+            data["freightcharge"] = resp["manifest_payment"]["sub_total_amount"]
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/manifests/{}/'.format(
+                    manifestid)
+            resp = requests.get(apiurl, headers=headers).json()
+
+            carrierid = resp["manifest"]["partner_carrier_id"]
+            # manifest is used to get partner carrier id
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/partner_carriers/{}'.format(
+                carrierid)
+            resp = requests.get(apiurl, headers=headers).json()
+            # finally with the partner carrier id you can get the SCAC code
+            try:
+
+                data['SCAC'] = resp["partner_carrier"]["standard_carrier_alpha_code"]
+            except:
+                data['SCAC'] = "NULL"
+            
+            return data
 
 @app.route('/', methods=['GET','POST'])
 def default():
@@ -51,7 +95,7 @@ def default():
         print("orderid {}".format(str(orderid)))
         # print(datajson)
         try:
-            freightcharge = getfreightamt(datajson["order_id"],request.args.get('org'))
+            freightcharge = getfreightinfo(datajson["order_id"],request.args.get('org'))
             print("freight amount: {}".format(freightcharge))
         except Exception as e:
             freightcharge = print("error in freight charge lookup for order {}".format(datajson))
