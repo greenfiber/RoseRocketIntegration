@@ -10,8 +10,10 @@ ARG CACHEBUST=1
 
 LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
-RUN sudo su
-RUN apt install git
+# RUN sudo su
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git
 RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 RUN git checkout prod-dev
@@ -20,7 +22,7 @@ ADD . /RoseRocketIntegration
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
 RUN apt-get update
-RUN ACCEPT_EULA=Y apt-get install msodbcsql17
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
 RUN odbcinst -i -s -f ./dsn.txt -l
 # Using pip:
 RUN python3 -m pip install -r requirements.txt
