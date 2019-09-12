@@ -41,7 +41,7 @@ def getfreightinfo(orderid,org):
     }
     #get the salesorderno
     apiurl = "https://platform.sandbox01.roserocket.com/api/v1/orders/{}".format(orderid)
-    data["salesorderno"] = requests.get(apiurl,headers=headers).json()["order"]["external_id"]
+    data["salesorderno"] = requests.get(apiurl,headers=headers).json()["order"]["ref_num"]
 
     #gets the legs to get the manifestid
     apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/orders/{}/legs'.format(
