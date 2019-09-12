@@ -10,7 +10,7 @@ ARG CACHEBUST=1
 
 LABEL Name=phase1 Version=0.0.1
 EXPOSE 6969
-# RUN sudo su
+RUN sudo su
 
 RUN apt-get update
 RUN apt-get install -y python3 python3-dev python3-pip git
