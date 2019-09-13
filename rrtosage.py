@@ -78,7 +78,7 @@ def getfreightinfo(orderid,org):
             # finally with the partner carrier id you can get the SCAC code
             try:
 
-                data['SCAC'] = resp["partner_carrier"]["name"]
+                data['SCAC'] = resp["partner_carrier"]["name"][:15]
             except:
                 data['SCAC'] = "NULL"
             
