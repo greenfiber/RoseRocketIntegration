@@ -1,24 +1,25 @@
+import pandas as pd
 from integration import RoseRocketIntegration, RoseRocketIntegrationBackend
 from secretprod import secrets as pw
 import requests
 import xlwings as xw
 import pprint
 orgs = pw.orgs.keys()
-choice=''
-while(choice !='YES'):
-    startdate=input("Enter start date (yyyymmdd):")
-    enddate=input("Enter end date (yyyymmdd):")
-    print("START: {} ||| END: {}".format(startdate,enddate))
-    choice=input("Are these dates correct? (YES/NO):")
-    choice=str(choice).upper()
+choice = ''
+while(choice != 'YES'):
+    startdate = input("Enter start date (yyyymmdd):")
+    enddate = input("Enter end date (yyyymmdd):")
+    print("START: {} ||| END: {}".format(startdate, enddate))
+    choice = input("Are these dates correct? (YES/NO):")
+    choice = str(choice).upper()
 
 db = RoseRocketIntegrationBackend()
 pddata = []
-missingorders=[]
+missingorders = []
 print("generating report...")
 counter = 0
 for org in orgs:
-    results = db.getOrderHistory(org,str(startdate),str(enddate))
+    results = db.getOrderHistory(org, str(startdate), str(enddate))
     rr = RoseRocketIntegration(org)
     auth = rr.authorg(org)
 
@@ -75,9 +76,10 @@ for org in orgs:
             id)
         resp = requests.get(apiurl, headers=headers).json()
         # print(resp)
-        legs = []
+        legcount = len(resp['legs'])
+        multistoporders = []
         # legs
-
+        
         for leg in resp["legs"]:
 
             if(leg["manifest_id"] != None and leg["history"]["origin_pickedup_at"] != None):
@@ -97,13 +99,13 @@ for org in orgs:
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]
                         data['totalweight'] = totalweight
-                    
+
                     elif(comm["pieces"] == 1):
                         totalpieces += comm["quantity"]
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]*totalpieces
                         data['totalweight'] = totalweight
-                    elif(comm["quantity"] >=1):
+                    elif(comm["quantity"] >= 1):
                         totalpieces += comm["pieces"]
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]*comm["quantity"]
@@ -113,8 +115,14 @@ for org in orgs:
                 apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
                     manifestid)
                 resp = requests.get(apiurl, headers=headers).json()
-                #get estimated cost
-                data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
+                # get estimated cost
+                if(legcount > 1):
+                    if(id == leg['order_id']):
+                        print("Duplicate order {} on manifest {} cost removed!".format(id,manifestid))
+                        data['totalcost'] = ''
+                    else:
+
+                        data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
                 # get partner carrierid
                 apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
                     manifestid)
@@ -141,10 +149,9 @@ for org in orgs:
 #                     "order not added to report because it hasn't shipped yet {}".format(so))
 
 # print(pddata)
-import pandas as pd
 df = pd.DataFrame(pddata)
 
-path=r"Y:/shipmentreport.xlsx"
+path = r"Y:/shipmentreport.xlsx"
 wb = xw.Book()
 sheet = wb.sheets['Sheet1']
 sheet.range('A1').value = df
