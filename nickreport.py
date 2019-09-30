@@ -38,7 +38,7 @@ for org in orgs:
             result.ARDIVISIONNO+result.CUSTOMERNO, result.SALESORDERNO)
 
         data = {
-            "stationcode": '', "orderno": '', "housebill": '', "ofddate": '', "totalcost": '', "totalpieces": '', "routingvendor": ''
+            "stationcode": '', "orderno": '',"manifestid":"", "housebill": '', "ofddate": '', "totalcost": '', "totalpieces": '', "routingvendor": ''
 
         }
         so = result.SALESORDERNO
@@ -88,6 +88,7 @@ for org in orgs:
                 data['ofddate'] = leg["history"]["origin_pickedup_at"]
                 # print(leg)
                 manifestid = leg["manifest_id"]
+                data["manifestid"]=manifestid
                 # commodities in each leg
                 for comm in leg["commodities"]:
                     # print(comm["weight"])
@@ -116,13 +117,15 @@ for org in orgs:
                     manifestid)
                 resp = requests.get(apiurl, headers=headers).json()
                 # get estimated cost
-                if(legcount > 1):
-                    if(id == leg['order_id']):
-                        print("Duplicate order {} on manifest {} cost removed!".format(id,manifestid))
-                        data['totalcost'] = ''
-                    else:
+                # if(legcount > 1):
+                #     if(id == leg['order_id']):
+                #         print("Duplicate order {} on manifest {} cost removed!".format(id,manifestid))
+                #         data['totalcost'] =  resp["manifest_payment"]["sub_total_amount"]
+                #     else:
+                #         data['totalcost'] = ''
+                # else:
 
-                        data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
+                data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
                 # get partner carrierid
                 apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
                     manifestid)

@@ -23,3 +23,15 @@ class RoseRocketIntegrationUtils():
         # print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken'] = resp['data']['access_token']
         return pw.orgs[whcode]['accesstoken']
+    def formatdateforreport(self, data):
+        import pytz
+        from datetime import timedelta
+        try:
+            fd = datetime.strptime(data, '%Y%m%d')
+            local = pytz.timezone("America/New_York")
+            localized = local.localize(fd, is_dst=None)
+            utc = localized.astimezone(pytz.utc)+timedelta(hours=6)
+            return str(utc.isoformat())
+        except Exception as e:
+            #print("error in formatting date ")
+            logging.error("Format date error {}".format(e))
