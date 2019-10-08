@@ -107,7 +107,10 @@ for org in orgs:
                         totalweight = comm["weight"]*totalpieces
                         data['totalweight'] = totalweight
                     elif(comm["quantity"] >= 1):
-                        totalpieces += comm["pieces"]
+                        try:
+                            totalpieces += comm["pieces"]
+                        except:
+                            totalpieces = ""
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]*comm["quantity"]
                         data['totalweight'] = totalweight
