@@ -5,12 +5,23 @@ import pyodbc
 import simplejson
 from integrationutils import RoseRocketIntegrationUtils
 import os
+import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(12)
 
 
 
+def logdata(data):
+    cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
+    pw.dbusr, pw.dbpw))
+    query = '''
+    INSERT INTO [SVExportStaging].[dbo].[RRToSageImportLogs](orderid, salesorderno, orgid, logtime, jsonerror, freightcharge, scac) values(?,?,?,?,?,?,?)
+    '''
+    cursor = cx.cursor()
+    cursor.execute(query,data['orderid'],data['salesorderno'],data['org'],datetime.datetime.now(),str(data['datajson']),data['freightcharge'], data['SCAC'])
+    cursor.commit()
+        
 
 def writedata(data):
     cx = pyodbc.connect("DSN=gf32;UID={};PWD={}".format(
@@ -36,13 +47,20 @@ def getfreightinfo(orderid,org):
     }
     data={"freightcharge":"",
             "SCAC":"",
-            "salesorderno":""
+            "salesorderno":"",
+            "orderid":str(orderid),
+            "org":"",
+            "datajson":""
+            
             
     }
     #get the salesorderno
     apiurl = "https://platform.roserocket.com/api/v1/orders/{}".format(orderid)
-    data["salesorderno"] = requests.get(apiurl,headers=headers).json()["order"]["external_id"]
-
+    try:
+        data["salesorderno"] = requests.get(apiurl,headers=headers).json()["order"]["external_id"]
+    except:
+        print("Error in order lookup from RR: SALESORDERSTAGE")
+        return data
     #gets the legs to get the manifestid
     apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
             orderid)
@@ -97,10 +115,14 @@ def default():
         # print(datajson)
         try:
             freightcharge = getfreightinfo(datajson["order_id"],request.args.get('org'))
-            writedata(freightcharge)
+            freightcharge['org']=request.args.get('org')
+            logdata(freightcharge)
+            # writedata(freightcharge)
             print("freight amount: {}".format(freightcharge))
         except Exception as e:
-            freightcharge = print("error in freight charge lookup for order {}".format(datajson))
+            print("error in freight charge lookup for order {}".format(datajson))
+            freightcharge['datajson']="Error during info lookup"
+            logdata(freightcharge)
             print(e)
         return '200'
 

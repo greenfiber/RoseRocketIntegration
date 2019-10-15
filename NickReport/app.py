@@ -1,11 +1,11 @@
 from flask import Flask, render_template, redirect,request
-from ..integrationutils import RoseRocketIntegrationUtils
+# from ..integrationutils import RoseRocketIntegrationUtils
 app = Flask(__name__)
 
-@app.route('/' ,methods=['GET',POST])
+@app.route('/' ,methods=['GET','POST'])
 def hello_world():
     if(request.method == 'POST'):
-        rr=RoseRocketIntegrationUtils()
+        # rr=RoseRocketIntegrationUtils()
         # startdate=rr.formatdateforreport(request.form['startdate'])
         # enddate=rr.formatdateforreport(request.form['enddate'])
         print(request.form['startdate'])
@@ -13,3 +13,4 @@ def hello_world():
 
     else:
         render_template('index.html')
+
