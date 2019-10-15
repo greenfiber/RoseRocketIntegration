@@ -22,11 +22,12 @@ RUN curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt
 RUN git clone https://github.com/greenfiber/RoseRocketIntegration.git
 WORKDIR /RoseRocketIntegration
 #checkout proper branch
-RUN git checkout prod-dev
+ARG CACHEBUST=1
+RUN git checkout prod
 ADD . /RoseRocketIntegration
 # RUN scl enable rh-python37 bash
 #install prereqs for pyodbc
-RUN apt-get update
+
 RUN ACCEPT_EULA=Y apt install -y msodbcsql17
 # RUN ACCEPT_EULA=Y apt install -y mssql-tools
 RUN apt install -y unixodbc-dev
