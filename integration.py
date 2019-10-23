@@ -740,8 +740,14 @@ class RoseRocketIntegration():
                 print(resp)
                 logging.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
+    def genrndshortcode(self):
+        code=""
+        for i in range(0,5):
+            code+=self.genrnd()
+        return code
     def synccustomers(self, data):
-        apiurl = 'https://platform.roserocket.com/api/v1/customers'
+
+        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers'
         auth = self.authorg(self.whcode)
         for order in data:
 
@@ -779,7 +785,7 @@ class RoseRocketIntegration():
             }
             params = {
                 "external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
-                "name": order.BILLTONAME,
+                "name": order.BILLTONAME+str(order.SHIPTOCODE),
 
                 "address_1": order.BILLTOADDRESS1,
                 "address_2": order.BILLTOADDRESS2,
@@ -787,7 +793,7 @@ class RoseRocketIntegration():
                 "state": order.BILLTOSTATE,
                 "postal": order.BILLTOZIPCODE,
                 "country": "US",
-                "short_code": str(order.CUSTOMERNO)[:6],
+                "short_code": str(' '+self.genrndshortcode()),
                 "currency": 'usd',
                             "default_billing_option": fob,
                             "default_dim_type": "ltl",
