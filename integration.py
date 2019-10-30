@@ -33,6 +33,7 @@ class RoseRocketIntegration():
             params={
             "external_id": row.Code,
             "short_code": row.Code[:6],
+            # "short_code": str(self.genrndshortcode()),
             "name": row.Name,
             "address_1": row.Address1,
             "address_2": row.Address2,
@@ -56,24 +57,25 @@ class RoseRocketIntegration():
             r = requests.post(
                 apiurl, json=params, headers=headers)
             resp = r.json()
-            print("Carrier Send Response {}".format(resp))
+            # print("Carrier Send Response {}".format(resp))
         #this section gets all carriers on RR for the org and returnes as JSON
-        if('error_code' not in resp):
-            serviceparams = {
-                    "service": {
-    
-    
-            "name": "Brokerage",
-            "is_active": True,
+            if('error_code' not in resp):
+                serviceparams = {
+                        "service": {
+
+
+                "name": "Brokerage",
+                "is_active": True,
+                
             
-        
-            "currency_id": "USD",
-            "partner_carrier_id": str(resp["partner_carrier"]["id"])
-    
+                "currency_id": "usd",
+                "partner_carrier_id": str(resp["partner_carrier"]["id"])
+
+                    }
                 }
-            }
-            r = requests.post(
-            apiurl, json=serviceparams, headers=headers)
+                apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/services'
+                r = requests.post(
+                apiurl, json=serviceparams, headers=headers)
             
 
     def logStart(self):
