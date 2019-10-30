@@ -25,9 +25,9 @@ class RoseRocketIntegration():
     
     def synccarriers(self):
         #this section reads in the carriers from an excel sheet and then sends them to RR
-        import pandas as pd
-        df=pd.read_excel(io="C:\\Users\\friesdj\\Downloads\\Carrier Report.xlsx")
-        sheet=df.where((pd.notnull(df)),'none')
+        # import pandas as pd
+        # df=pd.read_excel(io="C:\\Users\\friesdj\\Downloads\\Carrier Report.xlsx")
+        # sheet=df.where((pd.notnull(df)),'none')
         auth = self.authorg(self.whcode)
         for index,row in sheet.iterrows():
             params={
@@ -51,7 +51,7 @@ class RoseRocketIntegration():
                 'Authorization': 'Bearer {}'.format(auth)
 
 
-            }
+                }
             apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/partner_carriers'
             r = requests.post(
                 apiurl, json=params, headers=headers)
@@ -59,12 +59,12 @@ class RoseRocketIntegration():
             print("Carrier Send Response {}".format(resp))
         #this section gets all carriers on RR for the org and returnes as JSON
         print("GETTING ALL CARRIERS")
-        carriers = requests.get(apiurl, json=params, headers=headers).json()
+        carriers = requests.get(apiurl, headers=headers).json()
 
         #this loops through each carrier and sets its service to Brokerage
         #this is required for them to show up to add to an order
         for carrier in carriers['partner_carriers']:
-    
+            # print(carrier['id'])
             headers = {
                             'Content-Type': 'application/json',
                             'Authorization': 'Bearer {}'.format(auth)
@@ -79,7 +79,7 @@ class RoseRocketIntegration():
                         "is_active": True,
 
 
-                        "currency_id": "USD",
+                        "currency_id": "cad",
                         "partner_carrier_id": str(carrier['id'])
 
                             }
