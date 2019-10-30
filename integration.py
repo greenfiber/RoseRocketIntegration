@@ -741,7 +741,7 @@ class RoseRocketIntegration():
         code=""
         for i in range(0,5):
             code+=self.genrnd()
-        return code
+        return code.upper()
     def synccustomers(self, data):
 
         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers'
@@ -790,7 +790,7 @@ class RoseRocketIntegration():
                 "state": order.BILLTOSTATE,
                 "postal": order.BILLTOZIPCODE,
                 "country": "US",
-                "short_code": str(' '+self.genrndshortcode()),
+                "short_code": str(self.genrndshortcode()),
                 "currency": 'usd',
                             "default_billing_option": fob,
                             "default_dim_type": "ltl",
@@ -809,7 +809,7 @@ class RoseRocketIntegration():
             if('error_code' in resp):
                 # if(str(resp['Success']) == str('True')):
                 #print("Send was successful! " + str(recordcount))
-                # print(resp)
+                print(resp)
                 logging.error(
                     "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
 
