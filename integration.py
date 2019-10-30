@@ -25,9 +25,9 @@ class RoseRocketIntegration():
     
     def synccarriers(self):
         #this section reads in the carriers from an excel sheet and then sends them to RR
-        # import pandas as pd
-        # df=pd.read_excel(io="C:\\Users\\friesdj\\Downloads\\Carrier Report.xlsx")
-        # sheet=df.where((pd.notnull(df)),'none')
+        import pandas as pd
+        df=pd.read_excel(io="C:\\Users\\friesdj\\Downloads\\Carrier Report.xlsx")
+        sheet=df.where((pd.notnull(df)),'none')
         auth = self.authorg(self.whcode)
         for index,row in sheet.iterrows():
             params={
@@ -58,36 +58,22 @@ class RoseRocketIntegration():
             resp = r.json()
             print("Carrier Send Response {}".format(resp))
         #this section gets all carriers on RR for the org and returnes as JSON
-        print("GETTING ALL CARRIERS")
-        carriers = requests.get(apiurl, headers=headers).json()
-
-        #this loops through each carrier and sets its service to Brokerage
-        #this is required for them to show up to add to an order
-        for carrier in carriers['partner_carriers']:
-            # print(carrier['id'])
-            headers = {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer {}'.format(auth)
-
-
-                        }
+        if('error_code' not in resp):
             serviceparams = {
-                            "service": {
-
-
-                        "name": "Brokerage",
-                        "is_active": True,
-
-
-                        "currency_id": "cad",
-                        "partner_carrier_id": str(carrier['id'])
-
-                            }
-                        }
-            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/services'
+                    "service": {
+    
+    
+            "name": "Brokerage",
+            "is_active": True,
+            
+        
+            "currency_id": "USD",
+            "partner_carrier_id": str(resp["partner_carrier"]["id"])
+    
+                }
+            }
             r = requests.post(
             apiurl, json=serviceparams, headers=headers)
-            print("Service Addition Response: {}".format(r.json()))
             
 
     def logStart(self):
