@@ -747,7 +747,7 @@ class RoseRocketIntegration():
         return code
     def synccustomers(self, data):
 
-        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers'
+        apiurl = 'https://platform.roserocket.com/api/v1/customers'
         auth = self.authorg(self.whcode)
         for order in data:
 
@@ -814,7 +814,7 @@ class RoseRocketIntegration():
                 #print("Send was successful! " + str(recordcount))
                 # print(resp)
                 logging.error(
-                    "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
+                    "Send was unsuccessful for customer: " + str(order.CUSTOMERNO) +str(resp))
 
             else:
                 #print("SVAPI reports an Error when sending data")
