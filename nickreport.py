@@ -102,10 +102,7 @@ for org in orgs:
                         data['totalweight'] = totalweight
 
                     elif(comm["pieces"] == 1):
-                        try:
-                            totalpieces += comm["quantity"]
-                        except:
-                            totalpieces=""
+                        totalpieces += comm["quantity"]
                         data['totalpieces'] = totalpieces
                         totalweight = comm["weight"]*totalpieces
                         data['totalweight'] = totalweight
