@@ -69,7 +69,7 @@ class RoseRocketIntegration():
                 
             
                 "currency_id": "usd",
-                "partner_carrier_id": str(resp["partner_carrier"]["id"])
+                "partner_carrier_id": str(resp["partner_carrier"]["id"]),
 
                         "currency_id": "USD",
                         "partner_carrier_id": str(carrier['id'])
