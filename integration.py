@@ -779,7 +779,7 @@ class RoseRocketIntegration():
                 "state": order.BILLTOSTATE,
                 "postal": order.BILLTOZIPCODE,
                 "country": "US",
-                "short_code": str(self.genrndshortcode()),
+                "short_code": str(order.BILLTOCODE)[:6],
                 "currency": 'usd',
                             "default_billing_option": fob,
                             "default_dim_type": "ltl",
