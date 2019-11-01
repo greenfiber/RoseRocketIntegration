@@ -33,6 +33,7 @@ class RoseRocketIntegration():
             params={
             "external_id": row.Code,
             "short_code": row.Code[:6],
+            # "short_code": str(self.genrndshortcode()),
             "name": row.Name,
             "address_1": row.Address1,
             "address_2": row.Address2,
@@ -56,28 +57,19 @@ class RoseRocketIntegration():
             r = requests.post(
                 apiurl, json=params, headers=headers)
             resp = r.json()
-            print("Carrier Send Response {}".format(resp))
+            # print("Carrier Send Response {}".format(resp))
         #this section gets all carriers on RR for the org and returnes as JSON
-        print("GETTING ALL CARRIERS")
-        carriers = requests.get(apiurl, json=params, headers=headers).json()
-
-        #this loops through each carrier and sets its service to Brokerage
-        #this is required for them to show up to add to an order
-        for carrier in carriers['partner_carriers']:
-    
-            headers = {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer {}'.format(auth)
+            if('error_code' not in resp):
+                serviceparams = {
+                        "service": {
 
 
-                        }
-            serviceparams = {
-                            "service": {
-
-
-                        "name": "Brokerage",
-                        "is_active": True,
-
+                "name": "Brokerage",
+                "is_active": True,
+                
+            
+                "currency_id": "usd",
+                "partner_carrier_id": str(resp["partner_carrier"]["id"])
 
                         "currency_id": "USD",
                         "partner_carrier_id": str(carrier['id'])
@@ -744,7 +736,7 @@ class RoseRocketIntegration():
         code=""
         for i in range(0,5):
             code+=self.genrnd()
-        return code
+        return code.upper()
     def synccustomers(self, data):
 
         apiurl = 'https://platform.roserocket.com/api/v1/customers'
@@ -793,7 +785,7 @@ class RoseRocketIntegration():
                 "state": order.BILLTOSTATE,
                 "postal": order.BILLTOZIPCODE,
                 "country": "US",
-                "short_code": str(' '+self.genrndshortcode()),
+                "short_code": str(self.genrndshortcode()),
                 "currency": 'usd',
                             "default_billing_option": fob,
                             "default_dim_type": "ltl",
@@ -812,7 +804,7 @@ class RoseRocketIntegration():
             if('error_code' in resp):
                 # if(str(resp['Success']) == str('True')):
                 #print("Send was successful! " + str(recordcount))
-                # print(resp)
+                print(resp)
                 logging.error(
                     "Send was unsuccessful for customer: " + str(order.CUSTOMERNO) +str(resp))
 
