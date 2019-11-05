@@ -308,3 +308,15 @@ class RoseRocketIntegrationBackend():
             }
             datadict.append(rowdata)
         return datadict
+    def getorderbyso(self,so):
+            query = """
+            
+            SELECT
+            *
+        from [SVExportStaging].[dbo].[RRINTEGRATION]
+        where SALESORDERNO =?
+            """
+            cursor = cx.cursor()
+            cursor.execute(query, so)
+            rows = cursor.fetchall()
+            return rows
