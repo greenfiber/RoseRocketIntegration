@@ -463,7 +463,10 @@ class RoseRocketIntegration():
                             order.ARDIVISIONNO, order.CUSTOMERNO)
                         r = requests.post(
                             apiurl, json=params, headers=headers)
-                        resp = r.json()
+                        try:
+                            resp = r.json()
+                        except Exception as e:
+                            print(e +str( r))
 
                         if('error_code' in resp):
                             logging.error(params)
@@ -825,5 +828,5 @@ if __name__ == "__main__":
         rr = RoseRocketIntegration(org)
         rr.logStart()
         # rr.updatecustomers(data)
-        # rr.synccustomers(data)
+        rr.synccustomers(data)
         rr.sendData(data)
