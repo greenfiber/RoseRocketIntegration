@@ -165,10 +165,11 @@ class NickReport():
         #                     "order not added to report because it hasn't shipped yet {}".format(so))
         df=pd.DataFrame(self.pddata)
         # path = r"C:\Public\Documents\shipmentreport.xlsx"
-        path=str(os.getcwd()+r"/public/"+r'shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate))
-        print(path)
+        filename='shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate)
+        path=str(os.getcwd()+r"/public/"+filename)
+        # print(path)
         df.to_excel(path)
-        return path
+        return filename
         # wb = xw.Book(path)
         # sheet = wb.sheets['Sheet1']
         # sheet.range('A1').value = df

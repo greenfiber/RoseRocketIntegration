@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect,request, send_file
+from flask import Flask, render_template, redirect,request, send_from_directory
 from nickreport import NickReport
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "public"
@@ -27,8 +27,8 @@ def default():
 @app.route("/download/<report>")
 def sendreport(report):
     print("REPORT PATH{}".format(report))
-    
-    return send_file(report, as_attachment=True)
+    return send_from_directory(app.config["UPLOAD_FOLDER"],report,as_attachment=True)
+
 
 if __name__ == "__main__":
     app.run(port='80',host='0.0.0.0')
