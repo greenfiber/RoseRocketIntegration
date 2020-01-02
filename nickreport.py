@@ -2,7 +2,7 @@ import pandas as pd
 from integration import RoseRocketIntegration, RoseRocketIntegrationBackend
 from secretprod import secrets as pw
 import requests
-import xlwings as xw
+# import xlwings as xw
 import pprint
 import os
 orgs = pw.orgs.keys()
