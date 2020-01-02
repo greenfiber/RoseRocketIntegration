@@ -9,7 +9,7 @@ ARG CACHEBUST=1
 #FROM continuumio/miniconda3
 
 LABEL Name=phase1 Version=0.0.1
-EXPOSE 6969
+# EXPOSE 6969
 # RUN sudo su
 #grab msft stuff
 
