@@ -24,9 +24,9 @@ def default():
     else:
         return render_template('index.html')
 
-@app.route("/download/<path:report>")
+@app.route("/download/<report>")
 def sendreport(report):
-    # print("REPORT PATH{}".format(report))
+    print("REPORT PATH{}".format(report))
     
     return send_file(report, as_attachment=True)
 
