@@ -1,0 +1,31 @@
+from flask import Flask, render_template, redirect,request, send_file
+from nickreport import NickReport
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = "public"
+report=""
+def formatdate(date):
+    pass
+@app.route('/' ,methods=['GET','POST'])
+def default():
+    if(request.method == 'POST'):
+        
+        # startdate=rr.formatdateforreport(request.form['startdate'])
+        # enddate=rr.formatdateforreport(request.form['enddate'])
+        startdate=str(request.form['startdate']).replace('-','')
+        enddate=str(request.form['enddate']).replace('-','')
+        nr=NickReport(startdate,enddate)
+        report=nr.generatereport()
+        
+
+        return render_template('done.html', file=report)
+
+    else:
+        return render_template('index.html')
+
+@app.route("/download/<report>")
+def sendreport(report):
+    print("REPORT PATH{}".format(report))
+    return send_file("C:\\Users\\friesdj\\OneDrive - US GreenFiber, LLC\\RoseRocket\\Integration\\Phase1\\public\\"+report, as_attachment=True)
+
+if __name__ == "__main__":
+    app.run(port='5001',host='0.0.0.0')
