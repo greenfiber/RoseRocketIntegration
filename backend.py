@@ -250,13 +250,20 @@ class RoseRocketIntegrationBackend():
         [SALESORDERNO]
         ,[ARDIVISIONNO]
         ,[CUSTOMERNO]
-        
+        ,[SHIPTONAME]
+      ,[SHIPTOADDRESS1]
+      ,[SHIPTOADDRESS2]
+      ,[SHIPTOCITY]
+      ,[SHIPTOSTATE]
+      ,[SHIPTOCODE]
+      ,[SHIPTOZIPCODE],
+      SHIPDATE
       
         ,[WAREHOUSECODE]
        from [MAS_GFC].[dbo].[AR_INVOICEHISTORYHEADER]
        where WAREHOUSECODE = ? and SALESORDERNO <> ''
        and convert(varchar(8),SHIPDATE,112) between ? and ?
-        order by ORDERDATE 
+        order by SHIPDATE 
         """
         cursor = cx.cursor()
         cursor.execute(query, whcode,startdate,enddate)

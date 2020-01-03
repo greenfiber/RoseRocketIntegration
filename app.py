@@ -27,7 +27,7 @@ def default():
 @app.route("/download/<report>")
 def sendreport(report):
     print("REPORT PATH{}".format(report))
-    return send_from_directory(app.config["UPLOAD_FOLDER"],report,as_attachment=True)
+    return send_from_directory(app.config["UPLOAD_FOLDER"],report,as_attachment=True,cache_timeout=0)
 
 
 if __name__ == "__main__":

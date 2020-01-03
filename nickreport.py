@@ -1,6 +1,7 @@
 import pandas as pd
 from integration import RoseRocketIntegration, RoseRocketIntegrationBackend
 from secretprod import secrets as pw
+import simplejson
 import requests
 # import xlwings as xw
 import pprint
@@ -19,9 +20,35 @@ class NickReport():
     missingorders = []
     
     counter = 0
+    columns=[
+                    "stationcode",
+                    "orderno",
+                    "manifestid",
+                    "housebill",
+                    "sageshipdate",
+                    "ofddate",
+                    "totalcost",
+                    "totalpieces",
+                    "routingvendor",
+                    "shiptoname",
+                    "shiptocode",
+                    "shiptoaddress1",
+                    "shiptoaddress2",
+                    "shiptozipcode",
+                    "shiptostate"
+                ]
+    
+    # df=df[columns]
     def __init__(self,startdate,enddate):
         self.startdate=startdate
         self.enddate=enddate
+    def formatdate(self,date):
+        year=date[:4]
+        month=date[5:7]
+        day=date[8:10]
+        # print(date)
+        # print(month+'/'+day+'/'+year)
+        return month+'/'+day+'/'+year
     def generatereport(self):
         print("generating report...")
         for org in orgs:
@@ -38,16 +65,36 @@ class NickReport():
             }
             apiurl = 'https://platform.roserocket.com/api/v1/bills'
             bills = requests.get(apiurl, headers=headers).json()
-
+           
             for result in results:
 
                 apiurl = 'https://platform.roserocket.com/api/v1/customers/ext:{}/orders/ext:{}'.format(
                     result.ARDIVISIONNO+result.CUSTOMERNO, result.SALESORDERNO)
 
                 data = {
-                    "stationcode": '', "orderno": '',"manifestid":"", "housebill": '', "ofddate": '', "totalcost": '', "totalpieces": '', "routingvendor": ''
-
+                    "stationcode": '',
+                    "orderno": '',
+                    "manifestid": "",
+                    "housebill": '',
+                    "sageshipdate":'',
+                    "ofddate": '',
+                    "totalcost": '',
+                    "totalpieces": '',
+                    "routingvendor": '',
+                    "shiptoname":'',
+                    "shiptocode":'',
+                    "shiptoaddress1":'',
+                    "shiptoaddress2":'',
+                    "shiptozipcode":'',
+                    "shiptostate":''
                 }
+                data['shiptoname']=result.SHIPTONAME
+                data['shiptocode']=result.SHIPTOCODE
+                data['shiptoaddress1']=result.SHIPTOADDRESS1
+                data['shiptoaddress2']=result.SHIPTOADDRESS2
+                data['shiptozip']=result.SHIPTOZIPCODE
+                data['shiptostate']=result.SHIPTOSTATE
+                data['sageshipdate']=result.SHIPDATE
                 so = result.SALESORDERNO
 
                 # this gets the order id
@@ -92,7 +139,7 @@ class NickReport():
                     if(leg["manifest_id"] != None and leg["history"]["origin_pickedup_at"] != None):
                         totalweight = 0
                         totalpieces = 0
-                        data['ofddate'] = leg["history"]["origin_pickedup_at"]
+                        data['ofddate'] = self.formatdate(leg["history"]["origin_pickedup_at"])
                         # print(leg)
                         manifestid = leg["manifest_id"]
                         data["manifestid"]=manifestid
@@ -157,18 +204,23 @@ class NickReport():
                             data['routingvendor'] = "NULL"
 
                         self.counter += 1
+                        print(data)
                         self.pddata.append(data)
+                        # print(self.pddata[0])
                         print("orders processed {}".format(self.counter))
                     else:
                         pass
         #                 print(
         #                     "order not added to report because it hasn't shipped yet {}".format(so))
-        df=pd.DataFrame(self.pddata)
+        
         # path = r"C:\Public\Documents\shipmentreport.xlsx"
+        # series=pd.Series()
+        newdf=pd.DataFrame(self.pddata)
+        print(newdf.head())
         filename='shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate)
         path=str(os.getcwd()+r"/public/"+filename)
         # print(path)
-        df.to_excel(path)
+        newdf.to_excel(path)
         return filename
         # wb = xw.Book(path)
         # sheet = wb.sheets['Sheet1']
