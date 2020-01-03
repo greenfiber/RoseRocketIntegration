@@ -80,6 +80,7 @@ class NickReport():
                     "ofddate": '',
                     "totalcost": '',
                     "totalpieces": '',
+                    "totalweight":'',
                     "routingvendor": '',
                     "shiptoname":'',
                     "shiptocode":'',
