@@ -87,12 +87,14 @@ class NickReport():
                     "shiptoaddress1":'',
                     "shiptoaddress2":'',
                     "shiptozipcode":'',
+                    "shiptocity":'',
                     "shiptostate":''
                 }
                 data['shiptoname']=result.SHIPTONAME
                 data['shiptocode']=result.SHIPTOCODE
                 data['shiptoaddress1']=result.SHIPTOADDRESS1
                 data['shiptoaddress2']=result.SHIPTOADDRESS2
+                data['shiptocity']=result.SHIPTOCITY
                 data['shiptozip']=result.SHIPTOZIPCODE
                 data['shiptostate']=result.SHIPTOSTATE
                 data['sageshipdate']=result.SHIPDATE
