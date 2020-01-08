@@ -249,7 +249,7 @@ class NickReport():
                 filename='shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate)
                 df.sort_values("stationcode",inplace=True)
 
-                df.drop_duplicates(subset=["housebill","manifestid"],keep=False).to_excel(str(os.getcwd()+r"/public/"+filename))
+                df.drop_duplicates(subset="housebill").to_excel(str(os.getcwd()+r"/public/"+filename),index=False)
                 
                 self.masterfile=filename
                 
