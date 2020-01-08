@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect,request, send_from_directory
+import asyncio
 from nickreport import NickReport
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "public"
@@ -16,7 +17,11 @@ def default():
         startdate=str(request.form['startdate']).replace('-','')
         enddate=str(request.form['enddate']).replace('-','')
         nr=NickReport(startdate,enddate)
-        report.report=nr.generatereport()
+        print("event loop app.py")
+        file=nr.main()
+        print(file)
+        
+        report.report=file
         
 
         return render_template('done.html', file=report.report)

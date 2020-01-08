@@ -1,6 +1,9 @@
 import pandas as pd
 from integration import RoseRocketIntegration, RoseRocketIntegrationBackend
 from secretprod import secrets as pw
+import asyncio
+import glob
+from concurrent.futures import ThreadPoolExecutor
 import simplejson
 import requests
 # import xlwings as xw
@@ -18,7 +21,8 @@ class NickReport():
     db = RoseRocketIntegrationBackend()
     pddata = []
     missingorders = []
-    
+    csvfiles=[]
+    masterfile="uninstantiated.file"
     counter = 0
     columns=[
                     "stationcode",
@@ -49,178 +53,176 @@ class NickReport():
         # print(date)
         # print(month+'/'+day+'/'+year)
         return month+'/'+day+'/'+year
-    def generatereport(self):
-        print("generating report...")
-        for org in orgs:
-            results = self.db.getOrderHistory(org, str(self.startdate), str(self.enddate))
-            numorders=len(results)
-            rr = RoseRocketIntegration(org)
-            auth = rr.authorg(org)
-
-            headers = {
-                'Accept': 'application/json',
-                'Authorization': 'Bearer {}'.format(auth)
-
-
-            }
-            apiurl = 'https://platform.roserocket.com/api/v1/bills'
-            bills = requests.get(apiurl, headers=headers).json()
-           
-            for result in results:
-
-                apiurl = 'https://platform.roserocket.com/api/v1/customers/ext:{}/orders/ext:{}'.format(
-                    result.ARDIVISIONNO+result.CUSTOMERNO, result.SALESORDERNO)
-
-                data = {
-                    "stationcode": '',
-                    "orderno": '',
-                    "manifestid": "",
-                    "housebill": '',
-                    "sageshipdate":'',
-                    "ofddate": '',
-                    "totalcost": '',
-                    "totalpieces": '',
-                    "totalweight":'',
-                    "routingvendor": '',
-                    "shiptoname":'',
-                    "shiptocode":'',
-                    "shiptoaddress1":'',
-                    "shiptoaddress2":'',
-                    "shiptozipcode":'',
-                    "shiptocity":'',
-                    "shiptostate":''
-                }
-                data['shiptoname']=result.SHIPTONAME
-                data['shiptocode']=result.SHIPTOCODE
-                data['shiptoaddress1']=result.SHIPTOADDRESS1
-                data['shiptoaddress2']=result.SHIPTOADDRESS2
-                data['shiptocity']=result.SHIPTOCITY
-                data['shiptozip']=result.SHIPTOZIPCODE
-                data['shiptostate']=result.SHIPTOSTATE
-                data['sageshipdate']=result.SHIPDATE
-                so = result.SALESORDERNO
-
-                # this gets the order id
-                try:
-                    resp = requests.get(apiurl, headers=headers).json()
-                    # print(resp)
-                except Exception as e:
-                    print("can't find order: {}".format(so))
-                    print(e)
-                    # continue
-                # print(resp)
-                if("error_code" not in resp):
-                    orderids = []
-                    data['stationcode'] = org
-                    data['housebill'] = so
-
-                    try:
-                        id = resp["order"]['id']
-
-                    except:
-                        print("\n \n")
-                        print(resp)
-                        print("\n \n")
-                    data['orderno'] = id
-                else:
-                    self.missingorders.append(so)
-                    print(resp)
-                    print(so)
-                    print(org)
-                    continue
-
-                apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
-                    id)
-                resp = requests.get(apiurl, headers=headers).json()
-                # print(resp)
-                legcount = len(resp['legs'])
-                multistoporders = []
-                # legs
-                
-                for leg in resp["legs"]:
-
-                    if(leg["manifest_id"] != None and leg["history"]["origin_pickedup_at"] != None):
-                        totalweight = 0
-                        totalpieces = 0
-                        data['ofddate'] = self.formatdate(leg["history"]["origin_pickedup_at"])
-                        # print(leg)
-                        manifestid = leg["manifest_id"]
-                        data["manifestid"]=manifestid
-                        # commodities in each leg
-                        for comm in leg["commodities"]:
-                            # print(comm["weight"])
-                            # print(comm["pieces"])
-                            # print(comm["quantity"])
-
-                            if(comm["quantity"] == 1):
-                                totalpieces += comm["pieces"]
-                                data['totalpieces'] = totalpieces
-                                totalweight = comm["weight"]
-                                data['totalweight'] = totalweight
-
-                            elif(comm["pieces"] == 1):
-                                try:
-                                    totalpieces += comm["quantity"]
-                                except:
-                                    totalpieces=""
-                                data['totalpieces'] = totalpieces
-                                totalweight = comm["weight"]*totalpieces
-                                data['totalweight'] = totalweight
-                            elif(comm["quantity"] >= 1):
-                                try:
-                                    totalpieces += comm["pieces"]
-                                except:
-                                    totalpieces = ""
-                                data['totalpieces'] = totalpieces
-                                totalweight = comm["weight"]*comm["quantity"]
-                                data['totalweight'] = totalweight
-
-                            # getting manifestid for use to get manifests
-                        apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
-                            manifestid)
-                        resp = requests.get(apiurl, headers=headers).json()
-                        # get estimated cost
-                        # if(legcount > 1):
-                        #     if(id == leg['order_id']):
-                        #         print("Duplicate order {} on manifest {} cost removed!".format(id,manifestid))
-                        #         data['totalcost'] =  resp["manifest_payment"]["sub_total_amount"]
-                        #     else:
-                        #         data['totalcost'] = ''
-                        # else:
-
-                        data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
-                        # get partner carrierid
-                        apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
-                            manifestid)
-                        resp = requests.get(apiurl, headers=headers).json()
-
-                        carrierid = resp["manifest"]["partner_carrier_id"]
-                        # manifest is used to get partner carrier id
-                        apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
-                            carrierid)
-                        resp = requests.get(apiurl, headers=headers).json()
-                        # finally with the partner carrier id you can get the parner carrier name
-                        try:
-
-                            data['routingvendor'] = resp["partner_carrier"]["name"]
-                        except:
-                            data['routingvendor'] = "NULL"
-
-                        self.counter += 1
-                        print(data)
-                        self.pddata.append(data)
-                        # print(self.pddata[0])
-                        print("orders processed {}".format(self.counter))
-                    else:
-                        pass
-        #                 print(
-        #                     "order not added to report because it hasn't shipped yet {}".format(so))
+    def getdata(self,org,session):
+        print("getting report data")
         
+        results = self.db.getOrderHistory(org, str(self.startdate), str(self.enddate))
+        numorders=len(results)
+        rr = RoseRocketIntegration(org)
+        auth = rr.authorg(org)
+
+        headers = {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer {}'.format(auth)
+
+
+        }
+        apiurl = 'https://platform.roserocket.com/api/v1/bills'
+        bills = session.get(apiurl, headers=headers).json()
+        
+        for result in results:
+
+            apiurl = 'https://platform.roserocket.com/api/v1/customers/ext:{}/orders/ext:{}'.format(
+                result.ARDIVISIONNO+result.CUSTOMERNO, result.SALESORDERNO)
+
+            data = {
+                "stationcode": '',
+                "orderno": '',
+                "manifestid": "",
+                "housebill": '',
+                "sageshipdate":'',
+                "ofddate": '',
+                "totalcost": '',
+                "totalpieces": '',
+                "totalweight":'',
+                "routingvendor": '',
+                "shiptoname":'',
+                "shiptocode":'',
+                "shiptoaddress1":'',
+                "shiptoaddress2":'',
+                "shiptozipcode":'',
+                "shiptocity":'',
+                "shiptostate":''
+            }
+            data['shiptoname']=result.SHIPTONAME
+            data['shiptocode']=result.SHIPTOCODE
+            data['shiptoaddress1']=result.SHIPTOADDRESS1
+            data['shiptoaddress2']=result.SHIPTOADDRESS2
+            data['shiptocity']=result.SHIPTOCITY
+            data['shiptozip']=result.SHIPTOZIPCODE
+            data['shiptostate']=result.SHIPTOSTATE
+            data['sageshipdate']=result.SHIPDATE
+            so = result.SALESORDERNO
+
+            # this gets the order id
+            try:
+                resp = session.get(apiurl, headers=headers).json()
+                # print(resp)
+            except Exception as e:
+                print("can't find order: {}".format(so))
+                print(e)
+                # continue
+            # print(resp)
+            if("error_code" not in resp):
+                orderids = []
+                data['stationcode'] = org
+                data['housebill'] = so
+
+                try:
+                    id = resp["order"]['id']
+
+                except:
+                    print("\n \n")
+                    print(resp)
+                    print("\n \n")
+                data['orderno'] = id
+            else:
+                self.missingorders.append(so)
+                print(resp)
+                print(so)
+                print(org)
+                continue
+
+            apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
+                id)
+            resp = session.get(apiurl, headers=headers).json()
+            # print(resp)
+            legcount = len(resp['legs'])
+            multistoporders = []
+            # legs
+            
+            for leg in resp["legs"]:
+
+                if(leg["manifest_id"] != None and leg["history"]["origin_pickedup_at"] != None):
+                    totalweight = 0
+                    totalpieces = 0
+                    data['ofddate'] = self.formatdate(leg["history"]["origin_pickedup_at"])
+                    # print(leg)
+                    manifestid = leg["manifest_id"]
+                    data["manifestid"]=manifestid
+                    # commodities in each leg
+                    for comm in leg["commodities"]:
+                        # print(comm["weight"])
+                        # print(comm["pieces"])
+                        # print(comm["quantity"])
+
+                        if(comm["quantity"] == 1):
+                            totalpieces += comm["pieces"]
+                            data['totalpieces'] = totalpieces
+                            totalweight = comm["weight"]
+                            data['totalweight'] = totalweight
+
+                        elif(comm["pieces"] == 1):
+                            try:
+                                totalpieces += comm["quantity"]
+                            except:
+                                totalpieces=""
+                            data['totalpieces'] = totalpieces
+                            totalweight = comm["weight"]*totalpieces
+                            data['totalweight'] = totalweight
+                        elif(comm["quantity"] >= 1):
+                            try:
+                                totalpieces += comm["pieces"]
+                            except:
+                                totalpieces = ""
+                            data['totalpieces'] = totalpieces
+                            totalweight = comm["weight"]*comm["quantity"]
+                            data['totalweight'] = totalweight
+
+                        # getting manifestid for use to get manifests
+                    apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
+                        manifestid)
+                    resp = session.get(apiurl, headers=headers).json()
+                    # get estimated cost
+                    # if(legcount > 1):
+                    #     if(id == leg['order_id']):
+                    #         print("Duplicate order {} on manifest {} cost removed!".format(id,manifestid))
+                    #         data['totalcost'] =  resp["manifest_payment"]["sub_total_amount"]
+                    #     else:
+                    #         data['totalcost'] = ''
+                    # else:
+
+                    data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
+                    # get partner carrierid
+                    apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
+                        manifestid)
+                    resp = session.get(apiurl, headers=headers).json()
+
+                    carrierid = resp["manifest"]["partner_carrier_id"]
+                    # manifest is used to get partner carrier id
+                    apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
+                        carrierid)
+                    resp = session.get(apiurl, headers=headers).json()
+                    # finally with the partner carrier id you can get the parner carrier name
+                    try:
+
+                        data['routingvendor'] = resp["partner_carrier"]["name"]
+                    except:
+                        data['routingvendor'] = "NULL"
+
+                    self.counter += 1
+                    print(data)
+                    self.pddata.append(data)
+                    # print(self.pddata[0])
+                    print("orders processed {}".format(self.counter))
+                else:
+                    pass
+           
         # path = r"C:\Public\Documents\shipmentreport.xlsx"
         # series=pd.Series()
         newdf=pd.DataFrame(self.pddata)
         print(newdf.head())
-        filename='shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate)
+        filename='shippingreport{}_{}_{}.xlsx'.format(self.startdate,self.enddate,org)
         path=str(os.getcwd()+r"/public/"+filename)
         # print(path)
         newdf.to_excel(path)
@@ -229,8 +231,34 @@ class NickReport():
         # sheet = wb.sheets['Sheet1']
         # sheet.range('A1').value = df
         
+    async def generatereport(self):
+        print("Generate report async")
+        csvfiles=[]
+        
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            with requests.Session() as session:
+                loop=asyncio.get_event_loop()
+                tasks=[loop.run_in_executor(executor,self.getdata,org,session)
+                for org in orgs
+                ]
+                for resp in await asyncio.gather(*tasks):
+                    print(len(self.csvfiles))
+                    self.csvfiles.append(resp)
+                path=str(os.getcwd()+r"/public/")
+                df=pd.concat((pd.read_excel(path+f) for f in self.csvfiles))
+                filename='shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate)
+                df.sort_values("stationcode",inplace=True)
 
-    
+                df.drop_duplicates(subset=["housebill","manifestid"],keep=False).to_excel(str(os.getcwd()+r"/public/"+filename))
+                
+                self.masterfile=filename
+                
+    def main(self):
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        loop=asyncio.get_event_loop()
+        future=asyncio.ensure_future(self.generatereport())
+        loop.run_until_complete(future)
+        return self.masterfile
 
 
 
