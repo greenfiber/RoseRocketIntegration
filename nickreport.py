@@ -84,8 +84,8 @@ class NickReport():
                 "manifestid": "",
                 "blank":"",
                 "totalcost": '',
-                "totalpieces": '',
                 "totalweight":'',
+                "totalpieces": '',
                 "miles":"",
                 "blank1":"",
                 "shiptocode":'',
@@ -97,12 +97,14 @@ class NickReport():
                 "blank6":"",
                 "shiptoname":'',
                 "shiptoaddress1":'',
-                "shiptoaddress2":'',
-                "shiptozipcode":'',
                 "shiptocity":'',
                 "shiptostate":'',
+                "shiptozipcode":'',
                 "shiptocountrycode":'',
-                "sageshipdate":''
+                "billtocode":"",
+                "billtoname":"",
+                "sageshipdate":'',
+                "shiptoaddress2":''
             }
             data['shiptoname']=result.SHIPTONAME
             data['shiptocode']=result.SHIPTOCODE
@@ -111,6 +113,8 @@ class NickReport():
             data['shiptocity']=result.SHIPTOCITY
             data['shiptozipcode']=result.SHIPTOZIPCODE
             data['shiptostate']=result.SHIPTOSTATE
+            data['billtocode']=result.CUSTOMERNO
+            data['billtoname']=result.BILLTONAME
             data['sageshipdate']=result.SHIPDATE
             data['shiptocountrycode']=result.SHIPTOCOUNTRYCODE
             so = result.SALESORDERNO

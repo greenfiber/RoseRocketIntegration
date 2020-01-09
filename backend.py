@@ -258,6 +258,7 @@ class RoseRocketIntegrationBackend():
       ,[SHIPTOCODE]
       ,[SHIPTOZIPCODE],
       SHIPTOCOUNTRYCODE,
+      BILLTONAME,
       SHIPDATE
       
         ,[WAREHOUSECODE]
