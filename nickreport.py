@@ -78,30 +78,41 @@ class NickReport():
             data = {
                 "stationcode": '',
                 "orderno": '',
-                "manifestid": "",
                 "housebill": '',
-                "sageshipdate":'',
+                "Status":"OFD",
                 "ofddate": '',
+                "manifestid": "",
+                "blank":"",
                 "totalcost": '',
                 "totalpieces": '',
                 "totalweight":'',
-                "routingvendor": '',
-                "shiptoname":'',
+                "miles":"",
+                "blank1":"",
                 "shiptocode":'',
+                "routingvendor": '',
+                "blank2":"",
+                "blank3":"",
+                "blank4":"",
+                "blank5":"",
+                "blank6":"",
+                "shiptoname":'',
                 "shiptoaddress1":'',
                 "shiptoaddress2":'',
                 "shiptozipcode":'',
                 "shiptocity":'',
-                "shiptostate":''
+                "shiptostate":'',
+                "shiptocountrycode":'',
+                "sageshipdate":''
             }
             data['shiptoname']=result.SHIPTONAME
             data['shiptocode']=result.SHIPTOCODE
             data['shiptoaddress1']=result.SHIPTOADDRESS1
             data['shiptoaddress2']=result.SHIPTOADDRESS2
             data['shiptocity']=result.SHIPTOCITY
-            data['shiptozip']=result.SHIPTOZIPCODE
+            data['shiptozipcode']=result.SHIPTOZIPCODE
             data['shiptostate']=result.SHIPTOSTATE
             data['sageshipdate']=result.SHIPDATE
+            data['shiptocountrycode']=result.SHIPTOCOUNTRYCODE
             so = result.SALESORDERNO
 
             # this gets the order id
