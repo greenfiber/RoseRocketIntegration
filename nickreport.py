@@ -1,11 +1,13 @@
 import pandas as pd
-from integration import RoseRocketIntegration, RoseRocketIntegrationBackend
+from integration import RoseRocketIntegration
 from secretprod import secrets as pw
 import asyncio
 import glob
 from concurrent.futures import ThreadPoolExecutor
 import simplejson
 import requests
+import pyodbc
+from secretprod import secrets as secrets
 # import xlwings as xw
 import pprint
 import os
@@ -18,7 +20,7 @@ choice = ''
 #     choice = input("Are these dates correct? (YES/NO):")
 #     choice = str(choice).upper()
 class NickReport():
-    db = RoseRocketIntegrationBackend()
+    
     pddata = []
     missingorders = []
     csvfiles=[]
@@ -46,6 +48,40 @@ class NickReport():
     def __init__(self,startdate,enddate):
         self.startdate=startdate
         self.enddate=enddate
+    def getOrderHistory(self,whcode,startdate,enddate):
+        cx = pyodbc.connect("DSN=gf32;UID={};PWD={}; MARS_Connection=Yes".format(
+        secrets.dbusr, secrets.dbpw))
+
+
+
+        query = """
+         
+        SELECT
+
+        [SALESORDERNO]
+        ,[ARDIVISIONNO]
+        ,[CUSTOMERNO]
+        ,[SHIPTONAME]
+      ,[SHIPTOADDRESS1]
+      ,[SHIPTOADDRESS2]
+      ,[SHIPTOCITY]
+      ,[SHIPTOSTATE]
+      ,[SHIPTOCODE]
+      ,[SHIPTOZIPCODE],
+      SHIPTOCOUNTRYCODE,
+      BILLTONAME,
+      SHIPDATE
+      
+        ,[WAREHOUSECODE]
+       from [MAS_GFC].[dbo].[AR_INVOICEHISTORYHEADER]
+       where WAREHOUSECODE = ? and SALESORDERNO <> ''
+       and convert(varchar(8),SHIPDATE,112) between ? and ?
+        order by SHIPDATE 
+        """
+        cursor = cx.cursor()
+        cursor.execute(query, whcode,startdate,enddate)
+        rows = cursor.fetchall()
+        return rows
     def formatdate(self,date):
         year=date[:4]
         month=date[5:7]
@@ -56,7 +92,7 @@ class NickReport():
     def getdata(self,org,session):
         print("getting report data")
         
-        results = self.db.getOrderHistory(org, str(self.startdate), str(self.enddate))
+        results = self.getOrderHistory(org, str(self.startdate), str(self.enddate))
         numorders=len(results)
         rr = RoseRocketIntegration(org)
         auth = rr.authorg(org)

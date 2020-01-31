@@ -242,35 +242,7 @@ class RoseRocketIntegrationBackend():
         cursor.execute(query, so,sku)
         rows = cursor.fetchone()
         return rows
-    def getOrderHistory(self,whcode,startdate,enddate):
-        query = """
-         
-        SELECT
-
-        [SALESORDERNO]
-        ,[ARDIVISIONNO]
-        ,[CUSTOMERNO]
-        ,[SHIPTONAME]
-      ,[SHIPTOADDRESS1]
-      ,[SHIPTOADDRESS2]
-      ,[SHIPTOCITY]
-      ,[SHIPTOSTATE]
-      ,[SHIPTOCODE]
-      ,[SHIPTOZIPCODE],
-      SHIPTOCOUNTRYCODE,
-      BILLTONAME,
-      SHIPDATE
-      
-        ,[WAREHOUSECODE]
-       from [MAS_GFC].[dbo].[AR_INVOICEHISTORYHEADER]
-       where WAREHOUSECODE = ? and SALESORDERNO <> ''
-       and convert(varchar(8),SHIPDATE,112) between ? and ?
-        order by SHIPDATE 
-        """
-        cursor = cx.cursor()
-        cursor.execute(query, whcode,startdate,enddate)
-        rows = cursor.fetchall()
-        return rows
+    
 
     def getPlantInfo(self, whcode):
         query = """
