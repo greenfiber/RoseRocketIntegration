@@ -301,7 +301,7 @@ class NickReport():
                 df.sort_values("stationcode",inplace=True)
 
                 df.drop_duplicates(subset="housebill").to_excel(str(os.getcwd()+r"/public/"+filename),index=False)
-                
+                self.csvfiles.clear()
                 self.masterfile=filename
                 
     def main(self):
@@ -309,6 +309,7 @@ class NickReport():
         loop=asyncio.get_event_loop()
         future=asyncio.ensure_future(self.generatereport())
         loop.run_until_complete(future)
+        # self.csvfiles=[]
         return self.masterfile
 
 

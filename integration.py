@@ -788,14 +788,16 @@ class RoseRocketIntegration():
                             "default_dim_type": "ltl",
                             "measurement_unit": "inch",
                             "weight_unit": "lb",
-                            "is_active": True,
-                "billing_contact_name": order.BILLTONAME}
+                            "is_active": True}
+                # "billing_contact_name": order.BILLTONAME}
             # print(params)
 
             r = requests.post(
                 apiurl, json=params, headers=headers)
             logging.info("Sync Customer Response: {}".format(r.text))
+            
             resp = r.json()
+            
 
             # sentorders.append(order.SALESORDERNO)
             if('error_code' in resp):
