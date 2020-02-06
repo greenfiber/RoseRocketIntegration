@@ -795,9 +795,10 @@ class RoseRocketIntegration():
             r = requests.post(
                 apiurl, json=params, headers=headers)
             logging.info("Sync Customer Response: {}".format(r.text))
-            
-            resp = r.json()
-            
+            try:
+                resp = r.json()
+            except:
+                resp='error_code'
 
             # sentorders.append(order.SALESORDERNO)
             if('error_code' in resp):
