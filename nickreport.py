@@ -76,10 +76,32 @@ class NickReport():
        from [MAS_GFC].[dbo].[AR_INVOICEHISTORYHEADER]
        where WAREHOUSECODE = ? and SALESORDERNO <> ''
        and convert(varchar(8),SHIPDATE,112) between ? and ?
+         
+        UNION 
+        SELECT
+
+        [SALESORDERNO]
+        ,[ARDIVISIONNO]
+        ,[CUSTOMERNO]
+        ,[SHIPTONAME]
+      ,[SHIPTOADDRESS1]
+      ,[SHIPTOADDRESS2]
+      ,[SHIPTOCITY]
+      ,[SHIPTOSTATE]
+      ,[SHIPTOCODE]
+      ,[SHIPTOZIPCODE],
+      SHIPTOCOUNTRYCODE,
+      BILLTONAME,
+      SHIPDATE
+      
+        ,[WAREHOUSECODE]
+       from [MAS_CDN].[dbo].[AR_INVOICEHISTORYHEADER]
+       where WAREHOUSECODE = ? and SALESORDERNO <> ''
+       and convert(varchar(8),SHIPDATE,112) between ? and ?
         order by SHIPDATE 
         """
         cursor = cx.cursor()
-        cursor.execute(query, whcode,startdate,enddate)
+        cursor.execute(query, whcode,startdate,enddate, whcode,startdate, enddate)
         rows = cursor.fetchall()
         return rows
     def formatdate(self,date):
