@@ -230,7 +230,10 @@ class NickReport():
                         # print(comm["quantity"])
 
                         if(comm["quantity"] == 1):
-                            totalpieces += comm["pieces"]
+                            try:
+                                totalpieces += comm["pieces"]
+                            except
+                                totalpieces=""
                             data['totalpieces'] = totalpieces
                             totalweight = comm["weight"]
                             data['totalweight'] = totalweight
