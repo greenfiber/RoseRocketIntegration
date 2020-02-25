@@ -301,7 +301,7 @@ class NickReport():
         filename='shippingreport{}_{}_{}.xlsx'.format(self.startdate,self.enddate,org)
         path=str(os.getcwd()+r"/public/"+filename)
         # print(path)
-        newdf.to_excel(path)
+        newdf.to_excel(path,index=False)
         return filename
         # wb = xw.Book(path)
         # sheet = wb.sheets['Sheet1']
@@ -325,12 +325,14 @@ class NickReport():
                     df=pd.concat((pd.read_excel(path+f) for f in self.csvfiles),ignore_index=True)
                 except ValueError:
                     self.csvfiles.clear()
+                    self.pddata.clear()
                     raise ValueError(" Issue with excel file concatenation.")
                 filename='shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate)
                 df.sort_values("stationcode",inplace=True)
 
                 df.drop_duplicates(subset="housebill").to_excel(str(os.getcwd()+r"/public/"+filename),index=False)
                 self.csvfiles.clear()
+                self.pddata.clear()
                 self.masterfile=filename
                 
     def main(self):

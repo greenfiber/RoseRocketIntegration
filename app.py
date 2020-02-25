@@ -3,9 +3,10 @@ import asyncio
 from nickreport import NickReport
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "public"
-class Report():
-    report=""
-report = Report()
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+# class Report():
+#     report=""
+# report = Report()
 def formatdate(date):
     pass
 @app.route('/' ,methods=['GET','POST'])
@@ -21,10 +22,10 @@ def default():
         file=nr.main()
         print(file)
         
-        report.report=file
+        
         
 
-        return render_template('done.html', file=report.report)
+        return render_template('done.html', file=file)
 
     else:
         return render_template('index.html')
