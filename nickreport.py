@@ -321,7 +321,11 @@ class NickReport():
                     print(len(self.csvfiles))
                     self.csvfiles.append(resp)
                 path=str(os.getcwd()+r"/public/")
-                df=pd.concat((pd.read_excel(path+f) for f in self.csvfiles))
+                try:
+                    df=pd.concat((pd.read_excel(path+f) for f in self.csvfiles),ignore_index=True)
+                except ValueError:
+                    self.csvfiles.clear()
+                    raise ValueError(" Issue with excel file concatenation.")
                 filename='shippingreport{}_{}.xlsx'.format(self.startdate,self.enddate)
                 df.sort_values("stationcode",inplace=True)
 
