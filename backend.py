@@ -208,6 +208,48 @@ class RoseRocketIntegrationBackend():
         rows = cursor.fetchone()
         return rows
     
+    def writeapimport(self,data):
+        query="""
+        insert into [SVExportStaging].[dbo].[APImportJournal]([importkey]
+      ,[whcode]
+      ,[vendor]
+      ,[invoiceno]
+      ,[actualcost]
+      ,[invoicedate]
+      ,[duedate]
+      ,[manifestid]
+      ,[billclass]
+      ,[billdesc])
+        values(?,?,?,?,?,?,?,?,?,?)
+        
+
+        """
+        try:
+            cursor = cx.cursor()
+            cursor.execute(query, data.importkey,data.whcode,data.vendor,data.invoiceno, data.actualcost,data.invoicedate, data.duedate,data.manifestid,data.billclass,data.billdesc)
+            cursor.commit()
+        except Exception as e:
+            print("error on AP import for invoice: {} ; exception: {}".format(data.invoiceno,e))
+        
+
+
+    def getapimports(self):
+        query="""
+        SELECT [importkey]
+      ,[whcode]
+      ,[vendor]
+      ,[invoiceno]
+      ,[actualcost]
+      ,[invoicedate]
+      ,[duedate]
+      ,[manifestid]
+      ,[billclass]
+      ,[billdesc]
+    FROM [SVExportStaging].[dbo].[APImportJournal]
+        """
+        cursor = cx.cursor()
+        cursor.execute(query)
+        return cursor.fetchall()
 
     def getPlantInfo(self, whcode):
         query = """

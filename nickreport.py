@@ -244,16 +244,23 @@ class NickReport():
                             except:
                                 totalpieces=""
                             data['totalpieces'] = totalpieces
-                            totalweight = comm["weight"]*totalpieces
-                            data['totalweight'] = totalweight
+                            try:
+                                totalweight = comm["weight"]*totalpieces
+                                data['totalweight'] = totalweight
+                            except:
+                                data['totalweight']=''
+                                print("error in weight calculation {}".format(comm["weight"]))
                         elif(comm["quantity"] >= 1):
                             try:
                                 totalpieces += comm["pieces"]
                             except:
                                 totalpieces = ""
                             data['totalpieces'] = totalpieces
-                            totalweight = comm["weight"]*comm["quantity"]
-                            data['totalweight'] = totalweight
+                            try:
+                                totalweight = comm["weight"]*comm["quantity"]
+                                data['totalweight'] = totalweight
+                            except:
+                                data['totalweight']=''
 
                         # getting manifestid for use to get manifests
                     apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
