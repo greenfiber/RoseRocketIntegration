@@ -32,8 +32,11 @@ class APImport():
         # legs=[]
     #     while(i<numpages):
         apiurl="https://platform.roserocket.com/api/v1/manifests?status=bill-created"
-        resp=requests.get(apiurl,headers=headers).json()
-        
+        try:
+            resp=requests.get(apiurl,headers=headers).json()
+        except Exception as e:
+            print(e)
+        # print(resp)
     #     print(resp)
     #         numpages=resp["total"]
     #     for leg in resp["manifests"]:
@@ -48,7 +51,7 @@ class APImport():
         #for each row of that data not in the DB, use the writedata() method to write it
         actualdata=[]
         rrdata=[dat['id'] for dat in self.getmanifests(headers)]
-        currentdata=[x.manifestid for x in self.db.getcurrentdata(org)]
+        currentdata=[x.manifestid for x in self.db.getcurrentapdata(org)]
         
         s = set(currentdata)
         actualdata=[x for x in rrdata if x not in s]
@@ -67,6 +70,7 @@ class APImport():
                     print("AP Import done!")
                     self.data.append(resp)
     def startimport(self,org,session):
+        self.data.clear()
         rr = RoseRocketIntegration(org)
         # db = RoseRocketIntegrationBackend()
         auth= rr.authorg(org)
@@ -143,7 +147,7 @@ class APImport():
         #                 data["carriername"]="CPU"
                     # print("end of bill logic")
         #         print(data.copy())
-                self.db.writedata(data.copy())
+                self.db.writeapdata(data.copy())
                 print("Bills processed: {}".format(counter))
                 pddata.append(data.copy())
             else:
@@ -157,7 +161,7 @@ if __name__ == "__main__":
     future=asyncio.ensure_future(APImport().generateimport())
     loop.run_until_complete(future)    
     print("Finished")    
-    self.data.clear()
+    
 
 
 # In[ ]:

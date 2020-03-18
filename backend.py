@@ -208,32 +208,10 @@ class RoseRocketIntegrationBackend():
         rows = cursor.fetchone()
         return rows
     
-    def writeapimport(self,data):
-        query="""
-        insert into [SVExportStaging].[dbo].[APImportJournal]([importkey]
-      ,[whcode]
-      ,[vendor]
-      ,[invoiceno]
-      ,[actualcost]
-      ,[invoicedate]
-      ,[duedate]
-      ,[manifestid]
-      ,[billclass]
-      ,[billdesc])
-        values(?,?,?,?,?,?,?,?,?,?)
-        
-
-        """
-        try:
-            cursor = cx.cursor()
-            cursor.execute(query, data.importkey,data.whcode,data.vendor,data.invoiceno, data.actualcost,data.invoicedate, data.duedate,data.manifestid,data.billclass,data.billdesc)
-            cursor.commit()
-        except Exception as e:
-            print("error on AP import for invoice: {} ; exception: {}".format(data.invoiceno,e))
-        
+    
 
 
-    def writedata(self,data):
+    def writeapdata(self,data):
         
         
         
@@ -244,6 +222,7 @@ class RoseRocketIntegrationBackend():
         """
         
         cursor = cx.cursor()
+        cursor.fast_executemany=True
         try:
             cursor.execute(query, str(data["invoiceno"])+str(data["manifestid"])[:8],data["whcode"],data["SCAC"],data['invoiceno'],data["total5000"],data["total6000"],data["invoicedate"],data["duedate"],data["manifestid"])
             cursor.commit()
@@ -251,7 +230,15 @@ class RoseRocketIntegrationBackend():
         except Exception as e:
             print("AP Import Log Error {}".format(e))
         
-    def getcurrentdata(self,whcode):
+    def getallapimportdata(self):
+    
+        
+        query="select * from [SVExportStaging].[dbo].apimport order by invoicedate desc"
+        cursor=cx.cursor()
+        cursor.execute(query)
+        
+        return cursor.fetchall()
+    def getcurrentapdata(self,whcode):
 
         
         query="select manifestid from [SVExportStaging].[dbo].apimport where whcode = ?"

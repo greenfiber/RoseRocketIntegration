@@ -791,22 +791,23 @@ class RoseRocketIntegration():
                             "is_active": True}
                 # "billing_contact_name": order.BILLTONAME}
             # print(params)
-
+            
             r = requests.post(
                 apiurl, json=params, headers=headers)
             logging.info("Sync Customer Response: {}".format(r.text))
             try:
                 resp = r.json()
             except:
+                print(r.text)
                 resp='error_code'
 
             # sentorders.append(order.SALESORDERNO)
             if('error_code' in resp):
                 # if(str(resp['Success']) == str('True')):
                 #print("Send was successful! " + str(recordcount))
-                print(resp)
+                # print(resp)
                 logging.error(
-                    "Send was unsuccessful for customer: " + str(order.CUSTOMERNO) +str(resp))
+                    "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
 
             else:
                 #print("SVAPI reports an Error when sending data")

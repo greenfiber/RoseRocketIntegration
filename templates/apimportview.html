@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Title Page</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.0/css/bulma.css"/>
+    </head>
+    <body>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>WHCode</th>
+              <th>SCAC</th>
+              <th>Invoice #</th>
+              <th>total5000</th>
+              <th>total6000</th>
+              <th>Invoice Date</th>
+              <th>Due Date</th>
+              
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+                <th>WHCode</th>
+                <th>SCAC</th>
+                <th>Invoice #</th>
+                <th>total5000</th>
+                <th>total6000</th>
+                <th>Invoice Date</th>
+                <th>Due Date</th>
+            </tr>
+          </tfoot>
+          <tbody>
+              
+            {% for ap in data %}
+            <tr>
+                <td>{{ap.whcode}}</td>
+                <td>{{ap.SCAC}}</td>
+                <td>{{ap.invoiceno}}</td>
+                <td>{{ap.total5000}}</td>
+                <td>{{ap.total6000}}</td>
+                <td>{{ap.invoicedate}}</td>
+                <td>{{ap.duedate}}</td>
+            </tr>
+            
+    {% endfor %} 
+            
+            
+          </tbody>
+        </table>
+    </body>
+</html>

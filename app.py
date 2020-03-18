@@ -9,6 +9,11 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 # report = Report()
 def formatdate(date):
     pass
+@app.route('/apimport',methods=['GET'])
+def apimport():
+    from backend import RoseRocketIntegrationBackend
+    data=RoseRocketIntegrationBackend().getallapimportdata()
+    return render_template("apimportview.html",data=data)
 @app.route('/' ,methods=['GET','POST'])
 def default():
     if(request.method == 'POST'):
