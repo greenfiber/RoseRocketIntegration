@@ -21,7 +21,7 @@ class APImport():
     def __init__(self):
         self.data=[]
         # self.org=org
-        
+        self.newbills=[]
         
         self.db=RoseRocketIntegrationBackend()
         # print("AP IMPORT FOR ORG {}".format(org))
@@ -44,17 +44,19 @@ class APImport():
     #         legs.append(leg)
         return resp["manifests"]
 
-
+    def getimportsize(self):
+        return len(self.newbills)
 
     def comparedata(self,org,headers):
         #compare both lists and return which data is not in the database
-        #for each row of that data not in the DB, use the writedata() method to write it
+        #for each row of that data not in the DB, use the writeapdata() method to write it
         actualdata=[]
         rrdata=[dat['id'] for dat in self.getmanifests(headers)]
         currentdata=[x.manifestid for x in self.db.getcurrentapdata(org)]
         
         s = set(currentdata)
         actualdata=[x for x in rrdata if x not in s]
+        self.newbills=actualdata
         # print(len(actualdata))
         return actualdata
 
@@ -156,11 +158,13 @@ class APImport():
     
     
 if __name__ == "__main__":
+    ap=APImport()
     asyncio.set_event_loop(asyncio.new_event_loop())
     loop=asyncio.get_event_loop()
-    future=asyncio.ensure_future(APImport().generateimport())
+    future=asyncio.ensure_future(ap.generateimport())
     loop.run_until_complete(future)    
-    print("Finished")    
+    print("Finished")
+    print("Size of import: {}".format(ap.getimportsize()))
     
 
 
