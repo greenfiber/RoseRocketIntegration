@@ -243,6 +243,7 @@ class RoseRocketIntegrationBackend():
         
         query="select manifestid from [SVExportStaging].[dbo].apimport where whcode = ?"
         cursor=cx.cursor()
+        cursor.fast_executemany=True
         cursor.execute(query,whcode)
         
         return cursor.fetchall()
