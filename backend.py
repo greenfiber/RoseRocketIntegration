@@ -218,13 +218,13 @@ class RoseRocketIntegrationBackend():
             
         query="""
         insert into [SVExportStaging].[dbo].apimport
-            values(?,?,?,?,?,?,?,?,?)
+            values(?,?,?,?,?,?,?,?,?,?)
         """
         
         cursor = cx.cursor()
         cursor.fast_executemany=True
         try:
-            cursor.execute(query, str(data["invoiceno"])+str(data["manifestid"])[:8],data["whcode"],data["SCAC"],data['invoiceno'],data["total5000"],data["total6000"],data["invoicedate"],data["duedate"],data["manifestid"])
+            cursor.execute(query, str(data["invoiceno"])+str(data["manifestid"])[:8],data["vendorno"],data["whcode"],data["SCAC"],data['invoiceno'],data["total5000"],data["total6000"],data["invoicedate"],data["duedate"],data["manifestid"])
             cursor.commit()
             print("data logged! {}".format(data["invoiceno"]))
         except Exception as e:
@@ -244,7 +244,7 @@ class RoseRocketIntegrationBackend():
         query="select manifestid from [SVExportStaging].[dbo].apimport where whcode = ?"
         cursor=cx.cursor()
         cursor.fast_executemany=True
-        cursor.execute(query,whcode)
+        cursor.execute(query,(whcode,))
         
         return cursor.fetchall()
 

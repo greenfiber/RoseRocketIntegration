@@ -47,6 +47,19 @@ class APImport():
     def getimportsize(self):
         return len(self.newbills)
 
+    def getcustomerexternalid(self,session,headers,name):
+        # print("generating customers for org: {}".format(org))
+        # customers=[]
+        apiurl="https://platform.roserocket.com/api/v1/customers?search_term={}".format(name)
+        resp=session.get(apiurl,headers=headers).json()
+        if(len(resp["customers"])>0):
+            try:
+                print(["customers"][0]["external_id"])
+                return resp["customers"][0]["external_id"]
+            except Exception as e:
+                print(e)
+                return "error"
+        
     def comparedata(self,org,headers):
         #compare both lists and return which data is not in the database
         #for each row of that data not in the DB, use the writeapdata() method to write it
@@ -82,9 +95,11 @@ class APImport():
 
 
             }
+        # customers=self.gencustomers(org,session,headers)
         data={
             "whcode":org,
             "SCAC":"",
+            "vendorno":"",
             "invoiceno":"",
             
             
@@ -124,6 +139,7 @@ class APImport():
 
                     data["invoicedate"]=resp["bill"]["bill_date"]
                     data["duedate"]=resp["bill"]["due_date"]
+                    data["vendorno"]=self.getcustomerexternalid(session,headers,resp["bill"]["bill_to"]["company_name"])
                     extra=0
                     freightcost=0
                     items=resp["items"]
@@ -136,6 +152,7 @@ class APImport():
                             print("item: {} is weird".format(item["bill_item_type"]["name"]))
                     data["total5000"]=extra
                     data["total6000"]=freightcost
+                    customername=resp["bill"]["bill_to"]["company_name"]
         #             print(resp["manifest_full_id"])
                     try:
                         if(resp["partner_carrier"]["standard_carrier_alpha_code"]!="null"):
@@ -147,6 +164,12 @@ class APImport():
                     except:
                         data["SCAC"]="NULL"
         #                 data["carriername"]="CPU"
+             
+                    
+                    # for customer in customers:
+                    #     if customer==customername:
+                    #         data["vendorno"]=customer["external_id"]
+                    #         print(data["vendorno"])
                     # print("end of bill logic")
         #         print(data.copy())
                 self.db.writeapdata(data.copy())

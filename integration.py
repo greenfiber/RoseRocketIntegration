@@ -98,6 +98,7 @@ class RoseRocketIntegration():
         resp = r.json()
         logging.info("AUTHRESP: {}".format(resp))
         print("AUTHRESP: {}".format(resp))
+        print("WHCODE: {}".format(whcode))
         # print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken'] = resp['data']['access_token']
         return pw.orgs[whcode]['accesstoken']
@@ -448,7 +449,7 @@ class RoseRocketIntegration():
             recordcount += 1
 
             # checks if item code is valid for current record
-            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE)):
+            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) or "MULCH" in str(order.ITEMCODE)):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
                     # checks if the current SO is not equal to the last order submitted
