@@ -47,18 +47,20 @@ class APImport():
     def getimportsize(self):
         return len(self.newbills)
 
-    def getcustomerexternalid(self,session,headers,name):
+    def getcustomerexternalid(self,session,headers,manifestid):
         # print("generating customers for org: {}".format(org))
         # customers=[]
-        apiurl="https://platform.roserocket.com/api/v1/customers?search_term={}".format(name)
+        apiurl="https://platform.roserocket.com/api/v1/manifests/{}/legs".format(manifestid)
         resp=session.get(apiurl,headers=headers).json()
-        if(len(resp["customers"])>0):
-            try:
-                print(["customers"][0]["external_id"])
-                return resp["customers"][0]["external_id"]
-            except Exception as e:
-                print(e)
-                return "error"
+        try:
+            orderid=resp["legs"][0]["order_id"]
+
+        except:
+            print("error in legs parse")
+            print(resp)
+        apiurl="https://platform.roserocket.com/api/v1/orders/{}".format(orderid)
+        resp=session.get(apiurl,headers=headers).json()
+        return resp["order"]["customer"]["external_id"]
         
     def comparedata(self,org,headers):
         #compare both lists and return which data is not in the database
@@ -121,7 +123,7 @@ class APImport():
             if(manifestid!=None):
                 counter+=1
                 data["manifestid"]=manifestid
-        #        
+                data["vendorno"]=self.getcustomerexternalid(session,headers,manifestid)
                 apiurl="https://platform.roserocket.com/api/v1/bills?in_manifest_ids={}".format(manifestid)
                 resp=session.get(apiurl,headers=headers).json()
                 if(len(resp["bills"])==0):
@@ -139,7 +141,7 @@ class APImport():
 
                     data["invoicedate"]=resp["bill"]["bill_date"]
                     data["duedate"]=resp["bill"]["due_date"]
-                    data["vendorno"]=self.getcustomerexternalid(session,headers,resp["bill"]["bill_to"]["company_name"])
+                    # data["vendorno"]=self.getcustomerexternalid(session,headers,resp["bill"]["bill_to"]["company_name"])
                     extra=0
                     freightcost=0
                     items=resp["items"]
