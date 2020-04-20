@@ -4,13 +4,13 @@
 # In[ ]:
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
-import xlwings as xw
-import pandas as pd
+# import xlwings as xw
+# import pandas as pd
 from integration import RoseRocketIntegration
 from backend import RoseRocketIntegrationBackend
 import requests
 from secretprod import secrets as pw
-import pprint
+# import pprint
 import records
 
 # In[ ]:
