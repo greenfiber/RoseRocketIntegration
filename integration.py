@@ -439,8 +439,8 @@ class RoseRocketIntegration():
 
 
 
-
-                "ref_num": order.SALESORDERNO,
+                # removed from integration due to using it for trailer#
+                # "ref_num": order.SALESORDERNO,
                 "accessorials": []
 
 
