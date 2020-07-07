@@ -121,15 +121,16 @@ class APImport():
             # manifestid=manifestid.manifestid
             # print(manifestid)
             if(manifestid!=None):
-                counter+=1
+                
                 data["manifestid"]=manifestid
                 data["vendorno"]=self.getcustomerexternalid(session,headers,manifestid)
                 apiurl="https://platform.roserocket.com/api/v1/bills?in_manifest_ids={}".format(manifestid)
                 resp=session.get(apiurl,headers=headers).json()
-                if(len(resp["bills"])==0):
-                    print("no bills for manifest {}".format(manifestid))
+                if(len(resp["bills"]) ==0):
+                    print("manifest invalid for import: {}".format(manifestid))
                     continue
                 else:
+                    counter+=1
         #             print(resp)
                     billid=resp["bills"][0]["id"]
                     apiurl="https://platform.roserocket.com/api/v1/bills/{}".format(billid)
@@ -175,7 +176,7 @@ class APImport():
                     # print("end of bill logic")
         #         print(data.copy())
                 self.db.writeapdata(data.copy())
-                print("Bills processed: {}".format(counter))
+                print("Bills processed for whcode {}: {}".format(data["whcode"],counter))
                 pddata.append(data.copy())
             else:
                 print("Manifest ID None")

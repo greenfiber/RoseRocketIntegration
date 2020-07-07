@@ -233,7 +233,7 @@ class RoseRocketIntegrationBackend():
     def getallapimportdata(self):
     
         
-        query="select * from [SVExportStaging].[dbo].apimport order by invoicedate desc"
+        query="select * from [SVExportStaging].[dbo].apimport where invoiceno <> '' and vendorno <>'' order by invoicedate desc"
         cursor=cx.cursor()
         cursor.execute(query)
         
@@ -244,9 +244,9 @@ class RoseRocketIntegrationBackend():
         query="select manifestid from [SVExportStaging].[dbo].apimport where whcode = ?"
         cursor=cx.cursor()
         cursor.fast_executemany=True
-        cursor.execute(query,(whcode,))
+        rows=cursor.execute(query,(whcode,)).fetchall()
         
-        return cursor.fetchall()
+        return rows
 
     def getPlantInfo(self, whcode):
         query = """
