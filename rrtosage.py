@@ -55,14 +55,14 @@ def getfreightinfo(orderid,org):
             
     }
     #get the salesorderno
-    apiurl = "https://platform.roserocket.com/api/v1/orders/{}".format(orderid)
+    apiurl = "https://platform.sandbox01.roserocket.com/api/v1/orders/{}".format(orderid)
     try:
         data["salesorderno"] = requests.get(apiurl,headers=headers).json()["order"]["external_id"]
     except:
         print("Error in order lookup from RR: SALESORDERSTAGE")
         return data
     #gets the legs to get the manifestid
-    apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
+    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/orders/{}/legs'.format(
             orderid)
     resp = requests.get(apiurl, headers=headers).json()
     # print(resp)
@@ -78,19 +78,19 @@ def getfreightinfo(orderid,org):
             manifestid = leg["manifest_id"]
             
             # getting manifestid for use to get manifests
-            apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/manifests/{}/payment'.format(
                 manifestid)
             resp = requests.get(apiurl, headers=headers).json()
             print(resp)
             #get estimated cost
             data["freightcharge"] = resp["manifest_payment"]["sub_total_amount"]
-            apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/manifests/{}/'.format(
                     manifestid)
             resp = requests.get(apiurl, headers=headers).json()
 
             carrierid = resp["manifest"]["partner_carrier_id"]
             # manifest is used to get partner carrier id
-            apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/partner_carriers/{}'.format(
                 carrierid)
             resp = requests.get(apiurl, headers=headers).json()
             # finally with the partner carrier id you can get the SCAC code

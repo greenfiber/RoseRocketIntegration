@@ -125,12 +125,12 @@ class NickReport():
 
 
         }
-        apiurl = 'https://platform.roserocket.com/api/v1/bills'
+        apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/bills'
         bills = session.get(apiurl, headers=headers).json()
         
         for result in results:
 
-            apiurl = 'https://platform.roserocket.com/api/v1/customers/ext:{}/orders/ext:{}'.format(
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/ext:{}/orders/ext:{}'.format(
                 result.ARDIVISIONNO+result.CUSTOMERNO, result.SALESORDERNO)
 
             data = {
@@ -206,7 +206,7 @@ class NickReport():
                 print(org)
                 continue
 
-            apiurl = 'https://platform.roserocket.com/api/v1/orders/{}/legs'.format(
+            apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/orders/{}/legs'.format(
                 id)
             resp = session.get(apiurl, headers=headers).json()
             # print(resp)
@@ -263,7 +263,7 @@ class NickReport():
                                 data['totalweight']=''
 
                         # getting manifestid for use to get manifests
-                    apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/payment'.format(
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/manifests/{}/payment'.format(
                         manifestid)
                     resp = session.get(apiurl, headers=headers).json()
                     # get estimated cost
@@ -277,13 +277,13 @@ class NickReport():
 
                     data['totalcost'] = resp["manifest_payment"]["sub_total_amount"]
                     # get partner carrierid
-                    apiurl = 'https://platform.roserocket.com/api/v1/manifests/{}/'.format(
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/manifests/{}/'.format(
                         manifestid)
                     resp = session.get(apiurl, headers=headers).json()
 
                     carrierid = resp["manifest"]["partner_carrier_id"]
                     # manifest is used to get partner carrier id
-                    apiurl = 'https://platform.roserocket.com/api/v1/partner_carriers/{}'.format(
+                    apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/partner_carriers/{}'.format(
                         carrierid)
                     resp = session.get(apiurl, headers=headers).json()
                     # finally with the partner carrier id you can get the parner carrier name

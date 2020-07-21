@@ -31,7 +31,7 @@ class APImport():
     #     i=0
         # legs=[]
     #     while(i<numpages):
-        apiurl="https://platform.roserocket.com/api/v1/manifests?status=bill-created"
+        apiurl="https://platform.sandbox01.roserocket.com/api/v1/manifests?status=bill-created"
         try:
             resp=requests.get(apiurl,headers=headers).json()
         except Exception as e:
@@ -50,7 +50,7 @@ class APImport():
     def getcustomerexternalid(self,session,headers,manifestid):
         # print("generating customers for org: {}".format(org))
         # customers=[]
-        apiurl="https://platform.roserocket.com/api/v1/manifests/{}/legs".format(manifestid)
+        apiurl="https://platform.sandbox01.roserocket.com/api/v1/manifests/{}/legs".format(manifestid)
         resp=session.get(apiurl,headers=headers).json()
         try:
             orderid=resp["legs"][0]["order_id"]
@@ -58,7 +58,7 @@ class APImport():
         except:
             print("error in legs parse")
             print(resp)
-        apiurl="https://platform.roserocket.com/api/v1/orders/{}".format(orderid)
+        apiurl="https://platform.sandbox01.roserocket.com/api/v1/orders/{}".format(orderid)
         resp=session.get(apiurl,headers=headers).json()
         return resp["order"]["customer"]["external_id"]
         
@@ -124,7 +124,7 @@ class APImport():
                 
                 data["manifestid"]=manifestid
                 data["vendorno"]=self.getcustomerexternalid(session,headers,manifestid)
-                apiurl="https://platform.roserocket.com/api/v1/bills?in_manifest_ids={}".format(manifestid)
+                apiurl="https://platform.sandbox01.roserocket.com/api/v1/bills?in_manifest_ids={}".format(manifestid)
                 resp=session.get(apiurl,headers=headers).json()
                 if(len(resp["bills"]) ==0):
                     print("manifest invalid for import: {}".format(manifestid))
@@ -133,7 +133,7 @@ class APImport():
                     counter+=1
         #             print(resp)
                     billid=resp["bills"][0]["id"]
-                    apiurl="https://platform.roserocket.com/api/v1/bills/{}".format(billid)
+                    apiurl="https://platform.sandbox01.roserocket.com/api/v1/bills/{}".format(billid)
                     # print(billid)
                     resp=session.get(apiurl,headers=headers).json()
         #             print(resp)
