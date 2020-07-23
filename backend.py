@@ -1,10 +1,10 @@
 import pyodbc
 import logging
-from secretprod import secrets as secrets
-cx = pyodbc.connect("DSN=gf32;UID={};PWD={}; MARS_Connection=Yes".format(
-    secrets.dbusr, secrets.dbpw))
+from secret import secrets as secrets
+# cx = pyodbc.connect("DSN=gf32;UID={};PWD={}; MARS_Connection=Yes".format(
+#     secrets.dbusr, secrets.dbpw))
 # for use at home
-# cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+cx = pyodbc.connect("DSN=gf64;UID={};PWD={};MARS_Connection=Yes".format(secrets.dbusr,secrets.dbpw))
 
 
 class RoseRocketIntegrationBackend():
@@ -19,7 +19,16 @@ class RoseRocketIntegrationBackend():
         print(data["SCAC"])
         cursor.execute(query,data["salesorderno"],"Y",data["freightcharge"],data["SCAC"][:15])
         cursor.commit()
-
+    def logcustomer(self,customerno):
+        print("{} logged to database!".format(customerno))
+        query=""" insert into [SVExportStaging].[dbo].customers_syncd  values(?) """
+        cursor=cx.cursor()
+        cursor.execute(query,customerno)
+        cursor.commit()
+    def getsynccustomers(self):
+        query=""" select * from [SVExportStaging].[dbo].customers_syncd """
+        cursor=cx.cursor()
+        return cursor.execute(query).fetchall()
     def getTestData(self):
         query = """
         SELECT  *

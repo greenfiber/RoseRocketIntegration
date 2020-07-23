@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, flash, session, abort, jsonify, make_response
-from secretprod import secrets as pw
+from secret import secrets as pw
 import requests
 import pyodbc
 import simplejson

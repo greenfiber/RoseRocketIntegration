@@ -8,7 +8,7 @@ from datetime import datetime
 from time import strftime, strptime
 
 from backend import RoseRocketIntegrationBackend
-from secretprod import secrets as pw
+from secret import secrets as pw
 
 
 
@@ -81,7 +81,7 @@ class RoseRocketIntegration():
                             format='%(asctime)s:%(levelname)s:%(message)s')
 
     def authorg(self, whcode):
-        authurl = 'https://auth.roserocket.com/oauth2/token'
+        authurl = 'https://auth.sandbox01.roserocket.com/oauth2/token'
         authheader = {'Accept': 'application/json'}
 
         params = {
@@ -736,7 +736,7 @@ class RoseRocketIntegration():
             code+=self.genrnd()
         return code.upper()
     def synccustomers(self, data):
-
+        customers = self.db.getsynccustomers()
         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers'
         auth = self.authorg(self.whcode)
         for order in data:
@@ -793,26 +793,27 @@ class RoseRocketIntegration():
                 # "billing_contact_name": order.BILLTONAME}
             # print(params)
             
-            r = requests.post(
+            resp = requests.post(
                 apiurl, json=params, headers=headers)
-            logging.info("Sync Customer Response: {}".format(r.text))
-            try:
-                resp = r.json()
-            except:
-                print(r.text)
-                resp='error_code'
-
+            logging.info("Sync Customer Response: {}".format(resp.text))
+            
+            # print(customers)
             # sentorders.append(order.SALESORDERNO)
-            if('error_code' in resp):
-                # if(str(resp['Success']) == str('True')):
-                #print("Send was successful! " + str(recordcount))
-                # print(resp)
+            if('error_code' in resp.text):
+                if("6-999" in resp.text):
+                    newcust=[cust for cust in customers if params["external_id"] in cust.external_id]
+                    if(len(newcust)==0):
+                        print(newcust)
+                        self.db.logcustomer(params['external_id'])
+                    #LOG CUSTOMER AS SENT TO DB TABLE
+                
                 logging.error(
                     "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
 
             else:
                 #print("SVAPI reports an Error when sending data")
                 # TODO: reason why it failed
+                self.db.logcustomer(params['external_id'])
                 print("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
                 logging.info("Send was successful when sending Customer " +
@@ -834,4 +835,4 @@ if __name__ == "__main__":
         rr.logStart()
         # rr.updatecustomers(data)
         rr.synccustomers(data)
-        rr.sendData(data)
+        # rr.sendData(data)

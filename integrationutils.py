@@ -1,4 +1,4 @@
-from secretprod import secrets as pw
+from secret import secrets as pw
 import requests
 class RoseRocketIntegrationUtils():
    

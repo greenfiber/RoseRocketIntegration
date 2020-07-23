@@ -1,13 +1,13 @@
 import pandas as pd
 from integration import RoseRocketIntegration
-from secretprod import secrets as pw
+from secret import secrets as pw
 import asyncio
 import glob
 from concurrent.futures import ThreadPoolExecutor
 import simplejson
 import requests
 import pyodbc
-from secretprod import secrets as secrets
+from secret import secrets as secrets
 # import xlwings as xw
 import pprint
 import os

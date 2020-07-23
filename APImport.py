@@ -9,7 +9,7 @@ import asyncio
 from integration import RoseRocketIntegration
 from backend import RoseRocketIntegrationBackend
 import requests
-from secretprod import secrets as pw
+from secret import secrets as pw
 # import pprint
 import records
 
