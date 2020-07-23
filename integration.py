@@ -12,6 +12,14 @@ from secret import secrets as pw
 
 
 
+logging.basicConfig(filename='sync.log', 
+                            format='%(asctime)s:%(levelname)s:%(message)s')
+logger=logging.getLogger('integration')
+logger.setLevel(logging.DEBUG)
+fh=logging.FileHandler('sync.log')
+formatter=logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 class RoseRocketIntegration():
     from backend import RoseRocketIntegrationBackend
@@ -77,7 +85,7 @@ class RoseRocketIntegration():
             
 
     def logStart(self):
-        logging.basicConfig(filename='C:\\rrsync\\sync.log', level=logging.DEBUG,
+        logging.basicConfig(filename='sync.log', 
                             format='%(asctime)s:%(levelname)s:%(message)s')
 
     def authorg(self, whcode):
@@ -96,7 +104,7 @@ class RoseRocketIntegration():
 
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
-        logging.info("AUTHRESP: {}".format(resp))
+        logger.info("AUTHRESP: {}".format(resp))
         print("AUTHRESP: {}".format(resp))
         print("WHCODE: {}".format(whcode))
         # print("Token: {}".format(resp['data']['access_token']))
@@ -740,6 +748,7 @@ class RoseRocketIntegration():
         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers'
         auth = self.authorg(self.whcode)
         for order in data:
+            # Checks to see if the current customer has already been uploaded to RR
             custcheck=[cust for cust in customers if order.CUSTOMERNO not in customers]
             if len(custcheck)>0:
                 continue
@@ -797,7 +806,7 @@ class RoseRocketIntegration():
             
             resp = requests.post(
                 apiurl, json=params, headers=headers)
-            logging.info("Sync Customer Response: {}".format(resp.text))
+            logging.debug("Sync Customer Response: {}".format(resp.text))
             
             # print(customers)
             # sentorders.append(order.SALESORDERNO)
@@ -834,7 +843,7 @@ if __name__ == "__main__":
         logging.info("ORG: {}".format(org))
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
-        rr.logStart()
+        # rr.logStart()
         # rr.updatecustomers(data)
         rr.synccustomers(data)
         # rr.sendData(data)
