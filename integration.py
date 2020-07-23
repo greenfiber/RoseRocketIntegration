@@ -15,7 +15,7 @@ from secret import secrets as pw
 logging.basicConfig(filename='sync.log', 
                             format='%(asctime)s:%(levelname)s:%(message)s')
 logger=logging.getLogger('integration')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 fh=logging.FileHandler('sync.log')
 formatter=logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
 fh.setFormatter(formatter)
@@ -104,9 +104,9 @@ class RoseRocketIntegration():
 
         r = requests.post(authurl, json=params, headers=authheader)
         resp = r.json()
-        logger.info("AUTHRESP: {}".format(resp))
-        print("AUTHRESP: {}".format(resp))
-        print("WHCODE: {}".format(whcode))
+        logger.debug("AUTHRESP: {}".format(resp))
+        # print("AUTHRESP: {}".format(resp))
+        # print("WHCODE: {}".format(whcode))
         # print("Token: {}".format(resp['data']['access_token']))
         pw.orgs[whcode]['accesstoken'] = resp['data']['access_token']
         return pw.orgs[whcode]['accesstoken']
@@ -336,8 +336,8 @@ class RoseRocketIntegration():
             try:
                 plantInfo = self.db.getPlantInfo(whcode)[0]
             except Exception as e:
-                logger.error("ERROR IN WAREHOUSE LOOKUP")
-                print(e)
+                logger.error("ERROR IN WAREHOUSE LOOKUP {}".format(e))
+                # print(e)
             # THIS IS USED FOR TESTING ONLY
             rand = self.genrnd()
 
@@ -478,10 +478,11 @@ class RoseRocketIntegration():
                             print(e +str( r))
 
                         if('error_code' in resp):
-                            logger.error(params)
-                            #print("Send was successful! " + str(recordcount))
                             logger.error(
                                 "Send was NOT successful for order: " + str(order.SALESORDERNO))
+                            logger.error(params)
+                            #print("Send was successful! " + str(recordcount))
+                            
                             logger.error("Error: " + str(resp))
                             sentorders.append(order.SALESORDERNO)
                         else:
@@ -592,7 +593,7 @@ class RoseRocketIntegration():
                             # print(resp)
                             # TODO: reason why it fpyailed
                             logger.info(
-                                "Success when Updateing SO#: " + str(order.SALESORDERNO))
+                                "Success when Updating SO#: " + str(order.SALESORDERNO))
 
                             # this is what keeps track of any extra lines still in db
                         ordernos.append(order.SALESORDERNO)
@@ -600,7 +601,7 @@ class RoseRocketIntegration():
                     else:
                         # print("Duplicate record removed " +
                             #  str(order.SALESORDERNO))
-                        logger.info("Duplicate record removed " +
+                        logger.debug("Duplicate record removed " +
                                      str(order.SALESORDERNO))
 
                     # except Exception :
@@ -817,16 +818,17 @@ class RoseRocketIntegration():
                         print(newcust)
                         self.db.logcustomer(params['external_id'])
                     #LOG CUSTOMER AS SENT TO DB TABLE
-                
-                logger.error(
+                else:
+
+                    logger.error(
                     "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
 
             else:
                 #print("SVAPI reports an Error when sending data")
                 # TODO: reason why it failed
                 self.db.logcustomer(params['external_id'])
-                print("Send was successful when sending Customer " +
-                             str(order.CUSTOMERNO))
+                # print("Send was successful when sending Customer " +
+                            #  str(order.CUSTOMERNO))
                 logger.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
 
