@@ -740,7 +740,9 @@ class RoseRocketIntegration():
         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers'
         auth = self.authorg(self.whcode)
         for order in data:
-
+            custcheck=[cust for cust in customers if order.CUSTOMERNO not in customers]
+            if len(custcheck)>0:
+                continue
             # this determins the billing type
             fob = ''
             if(order.FOB == 'CC'):
