@@ -848,4 +848,4 @@ if __name__ == "__main__":
         # rr.logStart()
         # rr.updatecustomers(data)
         rr.synccustomers(data)
-        # rr.sendData(data)
+        rr.sendData(data)
