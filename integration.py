@@ -136,12 +136,12 @@ class RoseRocketIntegration():
                 qty = int(float(lineitems[i]))
             except ValueError:
                # print("Quantity was blank")
-                logging.warning("Quantity was blank and threw an exception")
+                logger.warning("Quantity was blank and threw an exception")
             if(data.SHIPWEIGHT):
                 try:
                     weight = float(data.SHIPWEIGHT)
                 except:
-                    logging.error("Weight through an exception")
+                    logger.error("Weight through an exception")
 
             else:
                 weight = float(0)
@@ -196,12 +196,12 @@ class RoseRocketIntegration():
                     if(int(pallets[i]) > 0):
                         palletweight = (qty * weight)/int(pallets[i])
                     else:
-                        logging.error("Sales order {} was not sent  because pallet info was not entered. Approximating weight".format(
+                        logger.error("Sales order {} was not sent  because pallet info was not entered. Approximating weight".format(
                             data.SALESORDERNO))
                         try:
                             palletweight = (qty*weight)/int(qty/42)
                         except:
-                            logging.error("ERROR!! PALLET WEIGHT WILL BE ZERO BECAUSE OF INVALID QUANTITY")
+                            logger.error("ERROR!! PALLET WEIGHT WILL BE ZERO BECAUSE OF INVALID QUANTITY")
                         # raise Exception(
                         #     'pallet quantity should be greater than zero and shouldn\'t get to this point. ')
 
@@ -295,7 +295,7 @@ class RoseRocketIntegration():
             return str(utc.isoformat())
         except Exception as e:
             #print("error in formatting date ")
-            logging.error("Format date error {}".format(e))
+            logger.error("Format date error {}".format(e))
 
     def genrnd(self):
         import string
@@ -303,10 +303,10 @@ class RoseRocketIntegration():
         return random.choice(string.ascii_letters)
 
     def sendData(self, data):
-        logging.debug("Starting sync...")
-        logging.info("=====================================")
-        logging.info("NEW SYNC STARTED!")
-        logging.info("=====================================")
+        logger.debug("Starting sync...")
+        logger.info("=====================================")
+        logger.info("NEW SYNC STARTED!")
+        logger.info("=====================================")
 
         recordcount = 0
         # keeps track of sent SO#s
@@ -336,7 +336,7 @@ class RoseRocketIntegration():
             try:
                 plantInfo = self.db.getPlantInfo(whcode)[0]
             except Exception as e:
-                logging.error("ERROR IN WAREHOUSE LOOKUP")
+                logger.error("ERROR IN WAREHOUSE LOOKUP")
                 print(e)
             # THIS IS USED FOR TESTING ONLY
             rand = self.genrnd()
@@ -466,7 +466,7 @@ class RoseRocketIntegration():
 
                         # sets apiurl for the correct customer for this order
 
-                        logging.info("Sending SO# {}".format(
+                        logger.info("Sending SO# {}".format(
                             order.SALESORDERNO))
                         apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/create_booked_order'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO)
@@ -478,17 +478,17 @@ class RoseRocketIntegration():
                             print(e +str( r))
 
                         if('error_code' in resp):
-                            logging.error(params)
+                            logger.error(params)
                             #print("Send was successful! " + str(recordcount))
-                            logging.error(
+                            logger.error(
                                 "Send was NOT successful for order: " + str(order.SALESORDERNO))
-                            logging.error("Error: " + str(resp))
+                            logger.error("Error: " + str(resp))
                             sentorders.append(order.SALESORDERNO)
                         else:
                             #print("SVAPI reports an Error when sending data")
                             # print(resp)
                             # TODO: reason why it fpyailed
-                            logging.info(
+                            logger.info(
                                 "Success when sending SO#: " + str(order.SALESORDERNO))
 
                             failedorders.append(order.SALESORDERNO)
@@ -497,7 +497,7 @@ class RoseRocketIntegration():
                     else:
                         # print("Duplicate record removed " +
                             #  str(order.SALESORDERNO))
-                        logging.info("Duplicate record removed " +
+                        logger.info("Duplicate record removed " +
                                      str(order.SALESORDERNO))
 
                     # except Exception :
@@ -522,16 +522,16 @@ class RoseRocketIntegration():
                     # sentorders.append(order.SALESORDERNO)
                     if('error_code' in resp):
                         #print("Send was successful! " + str(recordcount))
-                        # logging.error(params)
-                        logging.error(
+                        # logger.error(params)
+                        logger.error(
                             "Send was NOT successful for order: " + str(order.SALESORDERNO))
-                        logging.error("Error: " + str(resp))
+                        logger.error("Error: " + str(resp))
                         failedorders.append(order.SALESORDERNO)
                     else:
                         #print("SVAPI reports an Error when sending data")
                         # print(resp)
                         # TODO: reason why it fpyailed
-                        logging.info(
+                        logger.info(
                             "Success when sending SO#: " + str(order.SALESORDERNO))
 
                         # failedorders.append(order.SALESORDERNO)
@@ -581,17 +581,17 @@ class RoseRocketIntegration():
                         resp = r.json()
 
                         if('error_code' in resp):
-                            # logging.error(params)
+                            # logger.error(params)
                             #print("Update was successful! " + str(recordcount))
-                            logging.error(
+                            logger.error(
                                 "Update was NOT successful for order: " + str(order.SALESORDERNO))
-                            logging.error("Error: " + str(resp))
+                            logger.error("Error: " + str(resp))
                             sentorders.append(order.SALESORDERNO)
                         else:
                             #print("SVAPI reports an Error when Updateing data")
                             # print(resp)
                             # TODO: reason why it fpyailed
-                            logging.info(
+                            logger.info(
                                 "Success when Updateing SO#: " + str(order.SALESORDERNO))
 
                             # this is what keeps track of any extra lines still in db
@@ -600,7 +600,7 @@ class RoseRocketIntegration():
                     else:
                         # print("Duplicate record removed " +
                             #  str(order.SALESORDERNO))
-                        logging.info("Duplicate record removed " +
+                        logger.info("Duplicate record removed " +
                                      str(order.SALESORDERNO))
 
                     # except Exception :
@@ -625,16 +625,16 @@ class RoseRocketIntegration():
                     # sentorders.append(order.SALESORDERNO)
                     if('error_code' in resp):
                         #print("Update was successful! " + str(recordcount))
-                        # logging.error(params)
-                        logging.error(
+                        # logger.error(params)
+                        logger.error(
                             "Update was NOT successful for order: " + str(order.SALESORDERNO))
-                        logging.error("Error: " + str(resp))
+                        logger.error("Error: " + str(resp))
                         failedorders.append(order.SALESORDERNO)
                     else:
                         #print("SVAPI reports an Error when Updateing data")
                         # print(resp)
                         # TODO: reason why it fpyailed
-                        logging.info(
+                        logger.info(
                             "Success when Updateing SO#: " + str(order.SALESORDERNO))
 
                         # failedorders.append(order.SALESORDERNO)
@@ -718,7 +718,7 @@ class RoseRocketIntegration():
 
             r = requests.put(
                 apiurl, json=params, headers=headers)
-            logging.info("Sync Customer Response: {}".format(r.text))
+            logger.info("Sync Customer Response: {}".format(r.text))
             resp = r.json()
 
             # sentorders.append(order.SALESORDERNO)
@@ -726,7 +726,7 @@ class RoseRocketIntegration():
                 # if(str(resp['Success']) == str('True')):
                 #print("Send was successful! " + str(recordcount))
                 # print(resp)
-                logging.error(
+                logger.error(
                     "Update was unsuccessful for customer: " + str(order.CUSTOMERNO))
                 print(resp)
 
@@ -736,7 +736,7 @@ class RoseRocketIntegration():
                 print("Send was successful when updating Customer " +
                              str(order.CUSTOMERNO))
                 print(resp)
-                logging.info("Send was successful when sending Customer " +
+                logger.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
     def genrndshortcode(self):
         code=""
@@ -806,7 +806,7 @@ class RoseRocketIntegration():
             
             resp = requests.post(
                 apiurl, json=params, headers=headers)
-            logging.debug("Sync Customer Response: {}".format(resp.text))
+            logger.debug("Sync Customer Response: {}".format(resp.text))
             
             # print(customers)
             # sentorders.append(order.SALESORDERNO)
@@ -818,7 +818,7 @@ class RoseRocketIntegration():
                         self.db.logcustomer(params['external_id'])
                     #LOG CUSTOMER AS SENT TO DB TABLE
                 
-                logging.error(
+                logger.error(
                     "Send was unsuccessful for customer: " + str(order.CUSTOMERNO))
 
             else:
@@ -827,7 +827,7 @@ class RoseRocketIntegration():
                 self.db.logcustomer(params['external_id'])
                 print("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
-                logging.info("Send was successful when sending Customer " +
+                logger.info("Send was successful when sending Customer " +
                              str(order.CUSTOMERNO))
 
     def updatesync(self,org):
@@ -840,7 +840,7 @@ if __name__ == "__main__":
     from backend import RoseRocketIntegrationBackend
     orgs = pw.orgs.keys()
     for org in orgs:
-        logging.info("ORG: {}".format(org))
+        logger.info("ORG: {}".format(org))
         data = RoseRocketIntegrationBackend().getAllData(org)
         rr = RoseRocketIntegration(org)
         # rr.logStart()
