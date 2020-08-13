@@ -113,8 +113,10 @@ class RoseRocketIntegration():
 
     def processComments(self, comments):
         concat = ""
+        print(comments)
         for comment in comments:
-            concat += comment
+            print(comment)
+            concat += str(comment)
         return concat
     # this method parses the combined pieces from  lineitems for the salesorders
 
@@ -442,7 +444,7 @@ class RoseRocketIntegration():
                     # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
 
                     "OriginInstructions: {}".format(
-                        self.processComments(str(notes))),
+                        self.processComments(notes)),
 
 
 
