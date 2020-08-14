@@ -550,6 +550,20 @@ class RoseRocketIntegration():
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY, self.LTLFLAG)
             params = {
+                "destination": {
+                    "org_name": order.SHIPTONAME,
+
+
+                    "address_1": order.SHIPTOADDRESS1,
+                    "address_2": order.SHIPTOADDRESS2,
+                    "city": order.SHIPTOCITY,
+                    "state": order.SHIPTOSTATE,
+                    "postal": order.SHIPTOZIPCODE,
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+                    "phone": order.TELEPHONENO
+                },
                 "commodities": commodities
             }
 
@@ -565,7 +579,7 @@ class RoseRocketIntegration():
                         # sets apiurl for the correct customer for this order
 
                         print("ORDER UPDATED! {}".format(order.SALESORDERNO))
-                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
+                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                         print("UPDATED COMMODITIES JSON: {}".format(params))
                         r = requests.put(
@@ -578,6 +592,7 @@ class RoseRocketIntegration():
                             logging.error(
                                 "Update was NOT successful for order: " + str(order.SALESORDERNO))
                             logging.error("Error: " + str(resp))
+                            print(resp)
                             sentorders.append(order.SALESORDERNO)
                         else:
                             #print("SVAPI reports an Error when Updateing data")
@@ -585,7 +600,7 @@ class RoseRocketIntegration():
                             # TODO: reason why it fpyailed
                             logging.info(
                                 "Success when Updateing SO#: " + str(order.SALESORDERNO))
-
+                            print(resp)
                             # this is what keeps track of any extra lines still in db
                         ordernos.append(order.SALESORDERNO)
 
@@ -621,6 +636,7 @@ class RoseRocketIntegration():
                         logging.error(
                             "Update was NOT successful for order: " + str(order.SALESORDERNO))
                         logging.error("Error: " + str(resp))
+                        print(resp)
                         failedorders.append(order.SALESORDERNO)
                     else:
                         #print("SVAPI reports an Error when Updateing data")
@@ -628,7 +644,7 @@ class RoseRocketIntegration():
                         # TODO: reason why it fpyailed
                         logging.info(
                             "Success when Updateing SO#: " + str(order.SALESORDERNO))
-
+                        print(resp)
                         # failedorders.append(order.SALESORDERNO)
 
                     failedorders.append(order.SALESORDERNO)
@@ -833,5 +849,5 @@ if __name__ == "__main__":
         rr = RoseRocketIntegration(org)
         rr.logStart()
         # rr.updatecustomers(data)
-        rr.synccustomers(data)
+        # rr.synccustomers(data)
         rr.sendData(data)
