@@ -117,8 +117,8 @@ class RoseRocketIntegration():
         pallets = palletqty.split('|')
         skuinfo = {
             "INS541LD": {"THDSKU": "211904", "UPC": "716891001087"},
-            "INS765LD/E": {'THDSKU': "1002476568", "UPC": "729477076546"}
-
+            "INS765LD/E": {'THDSKU': "1002476568", "UPC": "729477076546"},
+            "INSSANC": {'THDSKU': "1006108875", "UPC": "729477007755"}
 
         }
         piecesData = []
@@ -182,7 +182,7 @@ class RoseRocketIntegration():
                 nmfc = '10330'
                 pieceClass = '100'
                 # print("ITEM CODE: {}".format(itemcodes[i]))
-                if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i]):
+                if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i] or "INSSANC" in itemcodes[i]):
                     # print("hd sku logic both skus")
                     print("Pallet Count: {}".format(pallets[i]))
                     if(int(pallets[i]) > 0):
