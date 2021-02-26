@@ -647,13 +647,14 @@ class RoseRocketIntegration():
 
                 # },
 
-                "dim_type": str(ServiceTypeCode),
+                # "dim_type": str(ServiceTypeCode),
                 "billing_option": fob,
                 "tender_num": order.SHIPTOCODE,
                 "billing": billingaddress,  # end of billto
                 "po_num": order.PURCHASEORDERNO,
                 "default_measurement_unit_id": "inch",
                 "default_weight_unit_id": "lb",
+                
 
                 "pickup_start_at": self.formatDate(order.ORDERDATE),
                 "delivery_start_at": self.formatDate(order.PROMISEDATE),
