@@ -579,7 +579,7 @@ class RoseRocketIntegration():
                         # sets apiurl for the correct customer for this order
 
                         print("ORDER UPDATED! {}".format(order.SALESORDERNO))
-                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}'.format(
+                        apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/edit_after_dispatched'.format(
                             order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                         print("UPDATED COMMODITIES JSON: {}".format(params))
                         r = requests.put(
@@ -620,7 +620,7 @@ class RoseRocketIntegration():
                     # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
-                    apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
+                    apiurl = 'https://platform.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/edit_after_dispatched'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
