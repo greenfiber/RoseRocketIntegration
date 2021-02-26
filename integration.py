@@ -127,8 +127,8 @@ class RoseRocketIntegration():
         pallets = palletqty.split('|')
         skuinfo = {
             "INS541LD": {"THDSKU": "211904", "UPC": "716891001087"},
-            "INS765LD/E": {'THDSKU': "1002476568", "UPC": "729477076546"}
-
+            "INS765LD/E": {'THDSKU': "1002476568", "UPC": "729477076546"},
+            "INSSANC": {'THDSKU': "1006108875", "UPC": "729477007755"}
 
         }
         piecesData = []
@@ -192,7 +192,7 @@ class RoseRocketIntegration():
                 nmfc = '10330'
                 pieceClass = '100'
                 # print("ITEM CODE: {}".format(itemcodes[i]))
-                if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i]):
+                if("INS765LD/E" in itemcodes[i] or "INS541LD" in itemcodes[i] or "INSSANC" in itemcodes[i]):
                     # print("hd sku logic both skus")
                     print("Pallet Count: {}".format(pallets[i]))
                     if(int(pallets[i]) > 0):
@@ -561,6 +561,20 @@ class RoseRocketIntegration():
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY, self.LTLFLAG)
             params = {
+                "destination": {
+                    "org_name": order.SHIPTONAME,
+
+
+                    "address_1": order.SHIPTOADDRESS1,
+                    "address_2": order.SHIPTOADDRESS2,
+                    "city": order.SHIPTOCITY,
+                    "state": order.SHIPTOSTATE,
+                    "postal": order.SHIPTOZIPCODE,
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+                    "phone": order.TELEPHONENO
+                },
                 "commodities": commodities
             }
 
@@ -588,15 +602,16 @@ class RoseRocketIntegration():
                             #print("Update was successful! " + str(recordcount))
                             logger.error(
                                 "Update was NOT successful for order: " + str(order.SALESORDERNO))
-                            logger.error("Error: " + str(resp))
+                            logging.error("Error: " + str(resp))
+                            print(resp)
                             sentorders.append(order.SALESORDERNO)
                         else:
                             #print("SVAPI reports an Error when Updateing data")
                             # print(resp)
                             # TODO: reason why it fpyailed
-                            logger.info(
-                                "Success when Updating SO#: " + str(order.SALESORDERNO))
-
+                            logging.info(
+                                "Success when Updateing SO#: " + str(order.SALESORDERNO))
+                            print(resp)
                             # this is what keeps track of any extra lines still in db
                         ordernos.append(order.SALESORDERNO)
 
@@ -639,7 +654,7 @@ class RoseRocketIntegration():
                         # TODO: reason why it fpyailed
                         logger.info(
                             "Success when Updateing SO#: " + str(order.SALESORDERNO))
-
+                        print(resp)
                         # failedorders.append(order.SALESORDERNO)
 
                     failedorders.append(order.SALESORDERNO)
@@ -849,5 +864,5 @@ if __name__ == "__main__":
         rr = RoseRocketIntegration(org)
         # rr.logStart()
         # rr.updatecustomers(data)
-        rr.synccustomers(data)
+        # rr.synccustomers(data)
         rr.sendData(data)
