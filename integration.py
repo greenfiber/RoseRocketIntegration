@@ -438,9 +438,8 @@ class RoseRocketIntegration():
 
 
 
-
-                # removed from integration due to using it for trailer#
-                # "ref_num": order.SALESORDERNO,
+                #putting back in by request 3-3-2021
+                "ref_num": order.SALESORDERNO,
                 "accessorials": []
 
 
@@ -647,7 +646,7 @@ class RoseRocketIntegration():
 
                 # },
 
-                # "dim_type": str(ServiceTypeCode),
+                "dim_type": str(ServiceTypeCode),
                 "billing_option": fob,
                 "tender_num": order.SHIPTOCODE,
                 "billing": billingaddress,  # end of billto
