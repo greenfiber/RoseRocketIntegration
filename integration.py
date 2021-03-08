@@ -448,7 +448,7 @@ class RoseRocketIntegration():
             recordcount += 1
 
             # checks if item code is valid for current record
-            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) or "MULCH" in str(order.ITEMCODE)):
+            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) or "MULCH" in str(order.ITEMCODE)or "ATTIC" in str(order.ITEMCODE)):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
                     # checks if the current SO is not equal to the last order submitted
