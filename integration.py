@@ -448,9 +448,8 @@ class RoseRocketIntegration():
 
 
 
-
-                # removed from integration due to using it for trailer#
-                # "ref_num": order.SALESORDERNO,
+                #putting back in by request 3-3-2021
+                "ref_num": order.SALESORDERNO,
                 "accessorials": []
 
 
@@ -459,7 +458,7 @@ class RoseRocketIntegration():
             recordcount += 1
 
             # checks if item code is valid for current record
-            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) or "MULCH" in str(order.ITEMCODE)):
+            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) or "MULCH" in str(order.ITEMCODE)or "ATTIC" in str(order.ITEMCODE)):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
                     # checks if the current SO is not equal to the last order submitted
@@ -558,9 +557,70 @@ class RoseRocketIntegration():
 
             }
 
+            ServiceTypeCode = "ltl"
+            # if the order has pallets, send it as ltl so it displays properly in rr covers all HD SQUs
+            if(order.CUSTOMERNO == 'HOMEDCO' or order.CUSTOMERNO == 'HOMERDC' or order.CUSTOMERNO == 'HOMEDEP'):
+                ServiceTypeCode = 'ltl'
+            whcode = order.WAREHOUSECODE
+            try:
+                plantInfo = self.db.getPlantInfo(whcode)[0]
+            except Exception as e:
+                logging.error("ERROR IN WAREHOUSE LOOKUP")
+                print(e)
+            # THIS IS USED FOR TESTING ONLY
+            rand = self.genrnd()
+
+            # FOB logic to conform to SV standards
+            fob = ''
+            if(order.FOB == 'CC'):
+                fob = 'collect'
+            if(order.FOB == 'PP'):
+                fob = 'prepaid'
+            if(order.CUSTOMERNO == 'HOMEDCO'):
+                fob = 'thirdparty'
+                billingaddress={
+                    
+                    "org_name": "HOMEDEPOT.COM",
+
+                    "address_1": "ATTN: FREIGHT PAYABLES",
+                    "address_2": "2455 PACES FERRY ROAD",
+                    "city": "ATLANTA",
+                    "state": "GA",
+                    "postal": "30339",
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+
+
+                }
+            else:
+                billingaddress={
+                    "address_book_external_id": order.ARDIVISIONNO + order.CUSTOMERNO,
+                    "org_name": order.BILLTONAME,
+
+                    "address_1": order.BILLTOADDRESS1,
+                    "address_2": order.BILLTOADDRESS2,
+                    "city": order.BILLTOCITY,
+                    "state": order.BILLTOSTATE,
+                    "postal": order.BILLTOZIPCODE,
+                    "country": "US",  # REPLACE THIS WITH COLUMN
+
+
+
+
+                }
+
+
+            if(ServiceTypeCode == 'ltl'):
+                self.LTLFLAG = True
+            else:
+                self.LTLFLAG = False
             commodities = self.processPieces(
                 order.LINEITEMS, order, order.ITEMDESC, order.ITEMCODES, order.UNITPRICE, order.PALLETQTY, self.LTLFLAG)
+            notes = order.COMMENTS.split('|')
             params = {
+
+                "external_id": order.SALESORDERNO,
                 "destination": {
                     "org_name": order.SHIPTONAME,
 
@@ -574,13 +634,63 @@ class RoseRocketIntegration():
 
 
                     "phone": order.TELEPHONENO
-                },
-                "commodities": commodities
+                },  # end of consignee
+
+
+                "origin": {"org_name": plantInfo["plantName"],
+                           "address_1": plantInfo["Address1"],
+                           "address_2": plantInfo["Address2"],
+                           "city": plantInfo["City"],
+                           "state": plantInfo["State"],
+                           "postal": plantInfo["PostalCode"],
+                           "country": plantInfo["CountryCode"],
+                           "phone": plantInfo["plantPhoneNumber"],
+                           "latitude": float(plantInfo["LAT"]),
+                           "longitude": float(plantInfo["LONG"])
+
+                           },  # end of shipper
+
+                # "DatesandTimes": {
+                #     "HousebillDate": self.formatDate(order.ORDERDATE),
+                #     "ScheduledDeliveryDateType": "on",
+                #     "ScheduledDeliveryDate": self.formatDate(order.PROMISEDATE)
+
+                # },
+
+                "dim_type": str(ServiceTypeCode),
+                "billing_option": fob,
+                "tender_num": order.SHIPTOCODE,
+                "billing": billingaddress,  # end of billto
+                "po_num": order.PURCHASEORDERNO,
+                "default_measurement_unit_id": "inch",
+                "default_weight_unit_id": "lb",
+                
+
+                "pickup_start_at": self.formatDate(order.ORDERDATE),
+                "delivery_start_at": self.formatDate(order.PROMISEDATE),
+                # end of pieces
+                "commodities": commodities,
+
+                "notes":
+                    # "InternalNotes":self.groupRecords(order.COMMENTS)[0],
+
+                    "OriginInstructions: {}".format(
+                        self.processComments(str(notes))),
+
+
+
+
+                # removed from integration due to using it for trailer#
+                # "ref_num": order.SALESORDERNO,
+                "accessorials": []
+
+
+
             }
+            recordcount += 1
 
             # checks if item code is valid for current record
-            # this ignores / skus in rows from DB from sending as separate orders to TMS
-            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE)):
+            if("INS" in str(order.ITEMCODE) or "FRM" in str(order.ITEMCODE) or "ABS" in str(order.ITEMCODE) or "MULCH" in str(order.ITEMCODE)):
                 # this enables duplicates to be found
                 if(len(ordernos) > 1):
                     # checks if the current SO is not equal to the last order submitted
@@ -595,26 +705,28 @@ class RoseRocketIntegration():
                         print("UPDATED COMMODITIES JSON: {}".format(params))
                         r = requests.put(
                             apiurl, json=params, headers=headers)
-                        resp = r.json()
+                        try:
+                            resp = r.json()
+                        except Exception as e:
+                            print(e +str( r))
 
                         if('error_code' in resp):
-                            # logger.error(params)
-                            #print("Update was successful! " + str(recordcount))
-                            logger.error(
-                                "Update was NOT successful for order: " + str(order.SALESORDERNO))
+                            logging.error(params)
+                            #print("Send was successful! " + str(recordcount))
+                            logging.error(
+                                "Send was NOT successful for order: " + str(order.SALESORDERNO))
                             logging.error("Error: " + str(resp))
-                            print(resp)
                             sentorders.append(order.SALESORDERNO)
                         else:
-                            #print("SVAPI reports an Error when Updateing data")
+                            #print("SVAPI reports an Error when sending data")
                             # print(resp)
                             # TODO: reason why it fpyailed
                             logging.info(
-                                "Success when Updateing SO#: " + str(order.SALESORDERNO))
-                            print(resp)
-                            # this is what keeps track of any extra lines still in db
-                        ordernos.append(order.SALESORDERNO)
+                                "Success when sending SO#: " + str(order.SALESORDERNO))
 
+                            failedorders.append(order.SALESORDERNO)
+                        # this is what keeps track of any extra lines still in db
+                        ordernos.append(order.SALESORDERNO)
                     else:
                         # print("Duplicate record removed " +
                             #  str(order.SALESORDERNO))
@@ -622,39 +734,39 @@ class RoseRocketIntegration():
                                      str(order.SALESORDERNO))
 
                     # except Exception :
-                    # print("Something went wrong with Updateing data to SV API" )
-                # if it's the first record in the data sync then go ahead and Update it
+                    # print("Something went wrong with sending data to SV API" )
+                # if it's the first record in the data sync then go ahead and send it
                 else:
                     # appends sales order to duplicate checking list
                     # this is what keeps track of any extra lines still in db
                     ordernos.append(order.SALESORDERNO)
-                    # print("Valid record: " + order.ITEMCODE)
+                   # print("Valid record: " + order.ITEMCODE)
 
                     # sets apiurl for the correct customer for this order
                     apiurl = 'https://platform.sandbox01.roserocket.com/api/v1/customers/external_id:{}{}/orders/ext:{}/revise_commodities'.format(
                         order.ARDIVISIONNO, order.CUSTOMERNO, order.SALESORDERNO)
                     # print("APIURL: {}".format(apiurl))
                     # print("PARAMS: {}".format(params))
-                    print("Updating SO# {}".format(order.SALESORDERNO))
-                    print("UPDATED COMMODITIES JSON: {}".format(params))
+                    print("Sending SO# {}".format(order.SALESORDERNO))
+
                     r = requests.put(
                         apiurl, json=params, headers=headers)
                     resp = r.json()
                     # sentorders.append(order.SALESORDERNO)
                     if('error_code' in resp):
-                        #print("Update was successful! " + str(recordcount))
-                        # logger.error(params)
-                        logger.error(
-                            "Update was NOT successful for order: " + str(order.SALESORDERNO))
-                        logger.error("Error: " + str(resp))
+                        #print("Send was successful! " + str(recordcount))
+                        # logging.error(params)
+                        logging.error(
+                            "Send was NOT successful for order: " + str(order.SALESORDERNO))
+                        logging.error("Error: " + str(resp))
                         failedorders.append(order.SALESORDERNO)
                     else:
-                        #print("SVAPI reports an Error when Updateing data")
+                        #print("SVAPI reports an Error when sending data")
                         # print(resp)
                         # TODO: reason why it fpyailed
-                        logger.info(
-                            "Success when Updateing SO#: " + str(order.SALESORDERNO))
-                        print(resp)
+                        logging.info(
+                            "Success when sending SO#: " + str(order.SALESORDERNO))
+
                         # failedorders.append(order.SALESORDERNO)
 
                     failedorders.append(order.SALESORDERNO)
