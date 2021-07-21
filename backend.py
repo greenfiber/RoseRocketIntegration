@@ -1,10 +1,10 @@
 import pyodbc
 import logging
 from secretprod import secrets as secrets
-cx = pyodbc.connect("DSN=gf32;UID={};PWD={}; MARS_Connection=Yes".format(
-    secrets.dbusr, secrets.dbpw))
+# cx = pyodbc.connect("DSN=gf32;UID={};PWD={}; MARS_Connection=Yes".format(
+#     secrets.dbusr, secrets.dbpw))
 # for use at home
-# cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
+cx = pyodbc.connect("DSN=gf64;UID={};PWD={}".format(secrets.dbusr,secrets.dbpw))
 
 
 class RoseRocketIntegrationBackend():

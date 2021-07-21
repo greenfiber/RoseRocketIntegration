@@ -960,5 +960,5 @@ if __name__ == "__main__":
         rr = RoseRocketIntegration(org)
         rr.logStart()
         # rr.updatecustomers(data)
-        # rr.synccustomers(data)
+        rr.synccustomers(data)
         rr.sendData(data)
